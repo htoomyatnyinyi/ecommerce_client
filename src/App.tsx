@@ -1,10 +1,23 @@
-import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProductList from "./pages/ProductList";
+import Cart from "./pages/Cart";
+import OrderSummary from "./pages/OrderSummary";
+import NavBar from "./components/navbar/NavBar";
 
-const App: React.FC = () => {
+const App = () => {
   return (
-    <div className="h-screen bg-amber-200">
-      <h1>This is REact Front Edn</h1>
-    </div>
+    <Router>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<ProductList />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/order-summary" element={<OrderSummary />} />
+        <Route
+          path="/order-confirmation"
+          element={<div>Order Placed Successfully!</div>}
+        />
+      </Routes>
+    </Router>
   );
 };
 
