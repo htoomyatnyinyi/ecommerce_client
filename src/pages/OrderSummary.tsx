@@ -1,7 +1,5 @@
-// src/components/OrderSummary.js
-// import React from "react";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-// import { placeOrder, clearCart } from "../features/cartSlice";
 import { placeOrder } from "@/redux/slice/orderSlice";
 import { clearCart } from "@/redux/slice/cartSlice";
 import { useNavigate } from "react-router-dom";
@@ -10,14 +8,14 @@ interface RootState {
   cart: {
     items: {
       id: number | string;
-      name: string;
+      title: string;
       price: number;
       quantity: number;
     }[];
   };
 }
 
-const OrderSummary = () => {
+const OrderSummary: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -45,7 +43,7 @@ const OrderSummary = () => {
       {cartItems.map((item) => (
         <div key={item.id}>
           <p>
-            {item.name} - ${item.price} x {item.quantity}
+            {item.title} - ${item.price} x {item.quantity}
           </p>
         </div>
       ))}

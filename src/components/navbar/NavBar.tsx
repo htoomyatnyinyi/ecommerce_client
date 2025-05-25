@@ -1,22 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ModeToggle } from "../theme/ModeToggle";
+import { CarTaxiFront, Home, List, ListOrderedIcon } from "lucide-react";
 
 const NavBar: React.FC = () => {
   return (
     <div className="flex justify-between items-center">
       <div>ECOMMERCE</div>
-      <div className="flex">
-        <li>
-          <Link to="/products">Product</Link>
-        </li>
-        <li>
-          <Link to="/cart">Product</Link>
-        </li>
-        <li>
-          <Link to="/order-summary">OrderSummary</Link>
-        </li>
-        <li>D</li>
+      <div className="flex space-x-8">
+        <Link to="/">
+          <Home />
+        </Link>
+        <Link to="/products">
+          <List />
+        </Link>
+        <Link to="/cart">
+          <CarTaxiFront />
+        </Link>
+        <Link to="/order-summary">
+          <ListOrderedIcon />
+        </Link>
       </div>
       <div className="">
         <ModeToggle />

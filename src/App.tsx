@@ -3,13 +3,15 @@ import ProductList from "./pages/ProductList";
 import Cart from "./pages/Cart";
 import OrderSummary from "./pages/OrderSummary";
 import NavBar from "./components/navbar/NavBar";
+import Home from "./pages/Home";
 
 const App = () => {
   return (
     <Router>
       <NavBar />
       <Routes>
-        <Route path="/" element={<ProductList />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/products" element={<ProductList />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order-summary" element={<OrderSummary />} />
         <Route
