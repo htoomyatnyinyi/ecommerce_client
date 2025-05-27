@@ -19,7 +19,8 @@ const Home: React.FC = () => {
           <div className="p-2 m-1 bg-amber-200 w-full h-full"></div>
         </div>
         <div className="md:col-span-1 outline max-h-screen overflow-auto gap-5 p-2 m-1 ">
-          {/* {products?.map((product) => (
+          {/* {products?.map((product) => ( */}
+          {products?.data?.map((product) => (
             <div key={product.id} className="grid grid-rows-4  h-96 border">
               <h1>{product.title} title</h1>
               <p>{product.description} description</p>
@@ -33,7 +34,7 @@ const Home: React.FC = () => {
                 Add to Cart
               </button>
             </div>
-          ))} */}
+          ))}
         </div>
       </div>
     </div>

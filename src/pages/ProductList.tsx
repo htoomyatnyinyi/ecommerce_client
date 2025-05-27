@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useGetProductsQuery } from "@/redux/query/productApi";
 import { addToCart } from "@/redux/slice/cartSlice";
 import { useDispatch } from "react-redux";
+import ProductForm from "@/components/product/ProductForm";
 
 interface VariantOption {
   id: string;
@@ -78,6 +79,7 @@ const ProductList: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Our Products</h1>
+      <ProductForm />
       {isGetProductsError ? (
         <div className="text-red-500 text-center py-4">
           Failed to load products. Please try again later.
@@ -299,6 +301,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
 };
 
 export default ProductList;
+
 // import { useGetProductsQuery } from "@/redux/query/productApi";
 // import { addToCart } from "@/redux/slice/cartSlice";
 // import { useDispatch } from "react-redux";
