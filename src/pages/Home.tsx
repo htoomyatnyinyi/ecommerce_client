@@ -10,7 +10,7 @@ const Home: React.FC = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: </div>;
 
-  console.log(products, "check at frontedn");
+  // console.log(products, "check at frontedn");
 
   return (
     <div>

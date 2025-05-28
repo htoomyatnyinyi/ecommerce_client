@@ -5,6 +5,7 @@ import OrderSummary from "./pages/OrderSummary";
 import NavBar from "./components/navbar/NavBar";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
+import ProductForm from "./components/product/ProductForm";
 
 const App = () => {
   return (
@@ -13,6 +14,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/newProduct" element={<ProductForm />} />
         <Route path="/products" element={<ProductList />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order-summary" element={<OrderSummary />} />

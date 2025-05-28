@@ -1,7 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ModeToggle } from "../theme/ModeToggle";
-import { CarTaxiFront, Home, List, ListOrderedIcon } from "lucide-react";
+import {
+  CarTaxiFront,
+  FormInput,
+  Home,
+  List,
+  ListOrderedIcon,
+} from "lucide-react";
+import Cart from "@/pages/Cart";
 
 const NavBar: React.FC = () => {
   return (
@@ -16,6 +23,12 @@ const NavBar: React.FC = () => {
         </Link>
         <Link to="/signin">
           <CarTaxiFront />
+        </Link>
+        <Link to="/newProduct">
+          <FormInput />
+        </Link>
+        <Link to="/cart">
+          <Cart />
         </Link>
         <Link to="/order-summary">
           <ListOrderedIcon />
