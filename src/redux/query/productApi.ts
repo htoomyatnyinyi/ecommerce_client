@@ -1,4 +1,3 @@
-// src/features/productApi.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export type Produts = {
@@ -16,17 +15,33 @@ export type Produts = {
 
 export const productApi = createApi({
   reducerPath: "productApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080" }), // Replace with your API
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:8080",
+    credentials: "include",
+  }),
+
   endpoints: (builder) => ({
     // getProducts: builder.query<Produts[], void>({
-    getProducts: builder.query<{ data: Product[] }, void>({
+    getProducts: builder.query<{ data: Produts[] }, void>({
       query: () => "/api/products",
     }),
 
     getProductById: builder.query({
       query: (id) => `/api/products/${id}`,
     }),
+
+    createNewProduct: builder.mutation({
+      query: (productFormData) => ({
+        url: "/api/products",
+        method: "POST",
+        body: productFormData,
+      }),
+    }),
   }),
 });
 
-export const { useGetProductsQuery, useGetProductByIdQuery } = productApi;
+export const {
+  useGetProductsQuery,
+  useGetProductByIdQuery,
+  useCreateNewProductMutation,
+} = productApi;

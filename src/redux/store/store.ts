@@ -1,6 +1,7 @@
 // src/store.js
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
+import { authApi } from "../query/authApi";
 import { productApi } from "../query/productApi";
 import cartReducer from "../slice/cartSlice";
 import orderReducer from "../slice/orderSlice";
@@ -12,9 +13,12 @@ export const store = configureStore({
     order: orderReducer,
     theme: themeReducer,
     [productApi.reducerPath]: productApi.reducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(productApi.middleware),
+    getDefaultMiddleware()
+      .concat(authApi.middleware)
+      .concat(productApi.middleware),
 });
 
 setupListeners(store.dispatch);

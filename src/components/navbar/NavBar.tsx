@@ -14,7 +14,7 @@ const NavBar: React.FC = () => {
         <Link to="/products">
           <List />
         </Link>
-        <Link to="/cart">
+        <Link to="/signin">
           <CarTaxiFront />
         </Link>
         <Link to="/order-summary">
