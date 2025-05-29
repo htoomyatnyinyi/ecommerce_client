@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ModeToggle } from "../theme/ModeToggle";
 import {
+  AppleIcon,
   CarTaxiFront,
   FormInput,
   Home,
@@ -20,6 +21,9 @@ const NavBar: React.FC = () => {
         </Link>
         <Link to="/products">
           <List />
+        </Link>
+        <Link to="/product">
+          <AppleIcon />
         </Link>
         <Link to="/signin">
           <CarTaxiFront />

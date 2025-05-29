@@ -6,6 +6,7 @@ import NavBar from "./components/navbar/NavBar";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import ProductForm from "./components/product/ProductForm";
+import Product from "./pages/Product";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/newProduct" element={<ProductForm />} />
         <Route path="/products" element={<ProductList />} />
+        <Route path="/product" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order-summary" element={<OrderSummary />} />
         <Route
