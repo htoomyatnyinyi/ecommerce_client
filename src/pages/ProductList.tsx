@@ -77,7 +77,7 @@ const ProductList: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Our Products</h1>
+      <h1 className="text-3xl font-bold  mb-6">Our Products</h1>
       {isGetProductsError ? (
         <div className="text-red-500 text-center py-4">
           Failed to load products. Please try again later.
@@ -119,7 +119,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <div className=" rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
         <div className="relative">
           {primaryImage ? (
             <img
@@ -130,13 +130,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             />
           ) : (
             <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500">No Image</span>
+              <span className="">No Image</span>
             </div>
           )}
         </div>
         <div className="p-4">
           <h2
-            className="text-xl font-semibold text-gray-800 cursor-pointer hover:text-blue-600 transition-colors"
+            className="text-xl font-semibold  cursor-pointer hover:text-blue-600 transition-colors"
             onClick={() => setIsModalOpen(true)}
             aria-label={`View details for ${product.title}`}
           >
@@ -159,7 +159,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           )}
           <button
             onClick={() => onAddToCart(product)}
-            className={`mt-4 w-full py-2 rounded-md text-white ${
+            className={`mt-4 w-full py-2 rounded-md  ${
               product.variants[0]?.stock > 0
                 ? "bg-blue-600 hover:bg-blue-700"
                 : "bg-gray-400 cursor-not-allowed"
@@ -195,9 +195,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
   onAddToCart,
 }) => {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-gray-800">{product.title}</h2>
+    <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+      <div className=" backdrop-blur-3xl rounded-lg p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold ">{product.title}</h2>
         <p className="text-gray-600 mt-2">{product.description}</p>
         <div className="mt-4">
           {product.images.map((image) => (
@@ -255,7 +255,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
 const SkeletonCard: React.FC = () => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+    <div className=" rounded-lg shadow-md overflow-hidden animate-pulse">
       <div className="w-full h-48 bg-gray-200"></div>
       <div className="p-4">
         <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>

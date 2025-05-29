@@ -15,10 +15,13 @@ export const store = configureStore({
     [productApi.reducerPath]: productApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
   },
+
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(authApi.middleware)
       .concat(productApi.middleware),
 });
 
+// Add RootState type
 setupListeners(store.dispatch);
+export type RootState = ReturnType<typeof store.getState>;
