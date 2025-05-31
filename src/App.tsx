@@ -1,32 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProductList from "./pages/ProductList";
-import Cart from "./pages/Cart";
-import OrderSummary from "./pages/OrderSummary";
-import NavBar from "./components/navbar/NavBar";
-import Home from "./pages/Home";
-import SignIn from "./pages/SignIn";
-import ProductForm from "./components/product/ProductForm";
-import Product from "./pages/Product";
+import React from "react";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes/Routes.jsx";
 
-const App = () => {
+const App: React.FC = () => {
   return (
-    <Router>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/newProduct" element={<ProductForm />} />
-        <Route path="/products" element={<ProductList />} />
-        <Route path="/product" element={<Product />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/order-summary" element={<OrderSummary />} />
-        <Route
-          path="/order-confirmation"
-          element={<div>Order Placed Successfully!</div>}
-        />
-      </Routes>
-    </Router>
+    <div>
+      {/* // <div className="bg-white dark:bg-black dark:text-white text-cyan-900"> */}
+      <RouterProvider router={router} />
+    </div>
   );
 };
 

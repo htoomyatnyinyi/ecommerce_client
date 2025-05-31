@@ -4,23 +4,26 @@ import { useGetProductsQuery } from "@/redux/query/productApi";
 import { addToCart } from "@/redux/slice/cartSlice";
 
 const Product: React.FC = () => {
-  const { data: products, error, isLoading } = useGetProductsQuery();
+  const { data: products, error, isLoading } = useGetProductsQuery({});
   const dispatch = useDispatch();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: </div>;
 
-  // console.log(products, "check at frontedn");
+  console.log(products, "check at frontedn");
 
   return (
     <div>
+      <h1 className="text-8xl font-serif font-semibold bg-gradient-to-br from-slate-100 to-slate-900 text-transparent text-clip bg-clip-text">
+        HTOO MYAT NYI NYI
+      </h1>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-2 h-screen">
         <div className="md:h-screen outline md:col-span-2 ">
-          <div className="p-2 m-1 bg-amber-200 w-full h-full"></div>
+          <div className="p-2 m-1 bg-amber-200 w-full h-full">{products}</div>
         </div>
         <div className="md:col-span-1 outline max-h-screen overflow-auto gap-5 p-2 m-1 ">
           {/* {products?.map((product) => ( */}
-          {products?.data?.map((product) => (
+          {products?.map((product: any) => (
             <div key={product.id} className="grid grid-rows-4  h-96 border">
               <h1>{product.title} title</h1>
               <p>{product.description} description</p>
