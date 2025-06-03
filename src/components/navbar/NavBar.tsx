@@ -54,6 +54,9 @@ const NavBar: React.FC = () => {
             <Link to="/product" className="hover:underline">
               Product
             </Link>
+            <Link to="/product_form" className="hover:underline">
+              Product
+            </Link>
           </li>
         </ul>
       </div>

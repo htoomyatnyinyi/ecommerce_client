@@ -22,6 +22,7 @@ import SignIn from "@/pages/auth/SignIn";
 import Product from "@/pages/Product";
 import ProductList from "@/pages/ProductList";
 import { NavigationBar } from "@/components/navbar/NavigationBar";
+import ProductForm from "@/components/product/ProductForm";
 
 const NotFound = () => {
   return (
@@ -112,6 +113,10 @@ export const router = createBrowserRouter([
       {
         path: "/product", // Assuming public, adjust if needed
         element: <Product />,
+      },
+      {
+        path: "/product_form", // Assuming public, adjust if needed
+        element: <ProductForm />,
       },
       {
         path: "/products", // Assuming public, adjust if needed
