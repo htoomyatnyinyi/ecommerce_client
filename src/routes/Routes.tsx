@@ -1,26 +1,12 @@
 import { createBrowserRouter, Outlet } from "react-router-dom"; // Keep Outlet
-// import { Navigate } from "react-router-dom";
-// import { useAuthMeQuery } from "../redux/api/authApi.js";
 
-// import Navigation from "../components/navbar/Navigation.jsx";
-// import SignIn from "../pages/auth/SignIn.jsx";
-// import SignUp from "../pages/auth/SignUp.jsx";
-// import Register from "../pages/auth/Register.jsx";
-// import Home from "../pages/Home.jsx";
-// import Job from "../pages/job/Job.jsx";
-// import Employer from "../pages/dashboard/employer/Employer.jsx";
-// import JobDashboard from "../pages/dashboard/employer/JobDashboard.jsx";
-// import EmployerProfile from "../pages/profile/EmployerProfile.jsx";
-// import UserProfile from "../pages/profile/UserProfile.jsx";
-// import UserDashboard from "../pages/dashboard/user/UserDashboard.jsx";
-// import Resume from "../pages/profile/Resume.jsx";
 import NavBar from "@/components/navbar/NavBar";
 import Home from "@/pages/Home";
 import SignUp from "@/pages/auth/SignUp";
 import SignIn from "@/pages/auth/SignIn";
 
 import Product from "@/pages/Product";
-import ProductList from "@/pages/ProductList";
+// import ProductList from "@/pages/ProductList";
 import { NavigationBar } from "@/components/navbar/NavigationBar";
 import ProductForm from "@/components/product/ProductForm";
 
@@ -118,10 +104,10 @@ export const router = createBrowserRouter([
         path: "/product_form", // Assuming public, adjust if needed
         element: <ProductForm />,
       },
-      {
-        path: "/products", // Assuming public, adjust if needed
-        element: <ProductList />,
-      },
+      // {
+      //   path: "/products", // Assuming public, adjust if needed
+      //   element: <ProductList />,
+      // },
 
       // // --- Employer Routes (Protected) ---
       // {
