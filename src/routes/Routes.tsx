@@ -1,5 +1,4 @@
 import { createBrowserRouter, Outlet } from "react-router-dom"; // Keep Outlet
-
 import NavBar from "@/components/navbar/NavBar";
 import Home from "@/pages/Home";
 import SignUp from "@/pages/auth/SignUp";
@@ -7,7 +6,6 @@ import SignIn from "@/pages/auth/SignIn";
 
 import Product from "@/pages/Product";
 // import ProductList from "@/pages/ProductList";
-import { NavigationBar } from "@/components/navbar/NavigationBar";
 import ProductForm from "@/components/product/ProductForm";
 
 const NotFound = () => {
@@ -69,8 +67,8 @@ const NotFound = () => {
 // Keep AppLayout as it is
 const AppLayout = () => (
   <>
+    {/* <NavigationBar /> */}
     <NavBar />
-    <NavigationBar />
     <main className="pt-16">
       {/* Adjust padding as needed */}
       <Outlet /> {/* Renders the matched child route component */}

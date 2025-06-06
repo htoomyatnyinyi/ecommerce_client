@@ -6,6 +6,7 @@ import { productApi } from "../query/productApi";
 import cartReducer from "../slice/cartSlice";
 import orderReducer from "../slice/orderSlice";
 import themeReducer from "../slice/themeSlice";
+import { dashboardApi } from "../query/dashboardApi";
 
 export const store = configureStore({
   reducer: {
@@ -14,11 +15,13 @@ export const store = configureStore({
     theme: themeReducer,
     [productApi.reducerPath]: productApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(authApi.middleware)
+      .concat(dashboardApi.middleware)
       .concat(productApi.middleware),
 });
 

@@ -2,6 +2,8 @@ import React from "react";
 import homeImage from "../assets/utils/1.png";
 import { Link } from "react-router-dom";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import UITEST from "./UITEST";
+import Dashboard from "./admin/dashboard";
 
 const Home: React.FC = () => {
   return (
@@ -15,7 +17,10 @@ const Home: React.FC = () => {
           <h1 className="text-4xl sm:text-7xl font-bold p-2 m-2 bg-gradient-to-tr from-slate-900 to-slate-400 text-transparent bg-clip-text">
             Let Bring The Gratest <br /> Opportunity For You
           </h1>
-          <div className="p-2 m-1 ">Join In</div>
+          <div className="p-2 m-1 ">
+            Join In <UITEST />
+            <Dashboard />
+          </div>
           <ThemeToggle />
         </div>
       </section>
@@ -161,7 +166,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
-
       {/* Footer or Ending Section */}
       <section className="py-16 px-4 text-center">
         <h1 className="text-3xl sm:text-5xl p-8 text-center font-bold">

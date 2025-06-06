@@ -2,85 +2,48 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
+
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080" }),
-  tagTypes: ["Cart"],
+
   endpoints: (builder) => ({
-    getProducts: builder.query({
-      query: () => "/api/products",
-    }),
-
-    getProductById: builder.query({
-      query: (id) => `/api/products/${id}`,
-    }),
-
-    createNewProduct: builder.mutation({
-      query: (productFormData) => ({
-        url: "/api/products",
+    createAccount: builder.mutation({
+      query: (authData) => ({
+        url: "/api/auth",
         method: "POST",
-        body: productFormData,
+        body: authData,
       }),
     }),
 
-    getCart: builder.query<CartItem[], { userId: string }>({
-      query: ({ userId }) => `/api/cart/${userId}`,
-      providesTags: ["Cart"],
+    getAccount: builder.query({
+      query: () => "/api/auth",
     }),
 
-    addToCart: builder.mutation({
-      query: ({ userId, productId, variantId, quantity }) => ({
-        url: "/api/cart/add",
-        method: "POST",
-        body: { userId, productId, variantId, quantity },
-      }),
-      invalidatesTags: ["Cart"],
+    getAccountById: builder.query({
+      query: (id) => `/api/auth/${id}`,
     }),
 
-    updateCartItem: builder.mutation({
-      query: ({ userId, productId, variantId, quantity }) => ({
-        url: "/api/cart/update",
+    updateAccount: builder.mutation({
+      query: (updateData) => ({
+        url: "/api/auth",
         method: "PUT",
-        body: { userId, productId, variantId, quantity },
+        body: updateData,
       }),
-      invalidatesTags: ["Cart"],
     }),
 
-    removeFromCart: builder.mutation({
-      query: ({ userId, productId, variantId }) => ({
-        url: "/api/cart/remove",
+    deleteAccunt: builder.mutation({
+      query: (accountId) => ({
+        url: "/api/auth",
         method: "DELETE",
-        body: { userId, productId, variantId },
+        body: accountId,
       }),
-      invalidatesTags: ["Cart"],
-    }),
-
-    clearCart: builder.mutation({
-      query: ({ userId }) => ({
-        url: "/api/cart/clear",
-        method: "DELETE",
-        body: { userId },
-      }),
-      invalidatesTags: ["Cart"],
-    }),
-
-    createOrder: builder.mutation({
-      query: ({ userId }) => ({
-        url: "/api/orders",
-        method: "POST",
-        body: { userId },
-      }),
-      invalidatesTags: ["Cart"],
     }),
   }),
 });
 
 export const {
-  useGetProductsQuery,
-  useGetProductByIdQuery,
-  useCreateNewProductMutation,
-  useGetCartQuery,
-  useAddToCartMutation,
-  useUpdateCartItemMutation,
-  useRemoveFromCartMutation,
-  useClearCartMutation,
-  useCreateOrderMutation,
-} = productApi;
+  useCreateAccountMutation,
+  useGetAccountQuery,
+  useGetAccountByIdQuery,
+  useUpdateAccountMutation,
+  useDeleteAccuntMutation,
+} = dashboardApi;

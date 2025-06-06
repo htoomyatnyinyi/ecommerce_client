@@ -54,7 +54,7 @@ export function NavigationBar() {
     <NavigationMenu viewport={false}>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Home</NavigationMenuTrigger>
+          <NavigationMenuTrigger>Ecommerce</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
@@ -64,10 +64,10 @@ export function NavigationBar() {
                     href="/"
                   >
                     <div className="mt-4 mb-2 text-lg font-medium">
-                      shadcn/ui
+                      coffeeShop/hmnn
                     </div>
                     <p className="text-muted-foreground text-sm leading-tight">
-                      Beautifully designed components built with Tailwind CSS.
+                      Beautifully designed built with 80 % and 100 % cotton.
                     </p>
                   </a>
                 </NavigationMenuLink>
@@ -102,7 +102,12 @@ export function NavigationBar() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/docs">Docs</Link>
+            <Link to="/product">Shop</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link to="/product_form">Form</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
@@ -139,15 +144,15 @@ export function NavigationBar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Simple</NavigationMenuTrigger>
+          <NavigationMenuTrigger>Account</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[200px] gap-4">
               <li>
                 <NavigationMenuLink asChild>
-                  <Link to="#">Components</Link>
+                  <Link to="/signin">Components</Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
-                  <Link to="#">Documentation</Link>
+                  <Link to="signup">Documentation</Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
                   <Link to="#">Blocks</Link>

@@ -1,30 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-// const NavBar: React.FC = () => {
-//   return (
-//     <div className="grid bg-amber-200 grid-cols-10 gap-2 w-full">
-//       <div className="grid bg-amber-300 col-span-1">Ecommerce</div>
-//       <div className="grid bg-amber-400 col-span-3">
-//         <div className="grid row-span-4">
-//           <Link to="/">Home</Link>
-//           <Link to="/products">ProductList</Link>
-//           <Link to="/product">Product</Link>
-//         </div>
-//       </div>
-//       <div className="grid bg-amber-500 col-span-2">
-//         <div>
-//           <Link to="/signin">SignIn</Link>
-//           <Link to="/signup">SignUp</Link>
-//         </div>
-//         <div>Account</div>
-//         <div>CART</div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default NavBar;
+import { NavigationBar } from "./NavigationBar";
+import logo from "@/assets/utils/1.png";
 
 const NavBar: React.FC = () => {
   return (
@@ -32,14 +9,18 @@ const NavBar: React.FC = () => {
     <nav className="grid  grid-cols-10 md:grid-cols-10 gap-2 w-full p-2 items-center">
       {/* Brand/Logo Section */}
       <div className="col-span-2 md:col-span-2p-2 flex items-center justify-center font-bold text-lg">
-        Ecommerce
+        <img
+          src={logo}
+          alt="loogo"
+          height={40}
+          width={40}
+          className="dark:invert"
+        />
       </div>
 
       {/* Primary Navigation Links */}
       <div className="col-span-4 md:col-span-4  p-2">
-        <ul className="flex space-x-4">
-          {" "}
-          {/* Flexbox for horizontal links */}
+        {/* <ul className="flex space-x-4">
           <li>
             <Link to="/" className="hover:underline">
               Home
@@ -58,15 +39,14 @@ const NavBar: React.FC = () => {
               Product
             </Link>
           </li>
-        </ul>
+        </ul> */}
+        <NavigationBar />
       </div>
 
       {/* User Actions & Cart */}
       <div className="col-span-4 md:col-span-4p-2 flex justify-end items-center space-x-6">
-        {" "}
         {/* Align to end, add spacing */}
         <div className="flex space-x-4">
-          {" "}
           {/* Flexbox for Sign In/Up links */}
           <Link to="/signin" className="hover:underline">
             SignIn
