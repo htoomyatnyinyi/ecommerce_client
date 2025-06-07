@@ -5,6 +5,10 @@ type SignInData = {
   password: string | undefined;
 };
 
+type VerifyEmailToken = {
+  token: string;
+};
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
@@ -21,7 +25,15 @@ export const authApi = createApi({
         body: authData,
       }),
     }),
+
+    verifyEmailToken: builder.mutation<any, VerifyEmailToken>({
+      query: (token) => ({
+        url: "/api/auth/verify-email",
+        method: "POST",
+        body: token,
+      }),
+    }),
   }),
 });
 
-export const { useSignInMutation } = authApi;
+export const { useSignInMutation, useVerifyEmailTokenMutation } = authApi;

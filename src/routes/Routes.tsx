@@ -7,6 +7,7 @@ import SignIn from "@/pages/auth/SignIn";
 import Product from "@/pages/Product";
 // import ProductList from "@/pages/ProductList";
 import ProductForm from "@/components/product/ProductForm";
+import VerifyEmail from "@/pages/VerifyEmail";
 
 const NotFound = () => {
   return (
@@ -102,6 +103,11 @@ export const router = createBrowserRouter([
         path: "/product_form", // Assuming public, adjust if needed
         element: <ProductForm />,
       },
+      {
+        path: "/verify-email", // Assuming public, adjust if needed
+        element: <VerifyEmail />,
+      },
+
       // {
       //   path: "/products", // Assuming public, adjust if needed
       //   element: <ProductList />,
