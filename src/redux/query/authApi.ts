@@ -15,6 +15,7 @@ export const authApi = createApi({
     baseUrl: "http://localhost:8080",
     credentials: "include",
   }), // Replace with your API
+
   endpoints: (builder) => ({
     // getProducts: builder.query<Produts[], void>({
 

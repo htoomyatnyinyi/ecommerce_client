@@ -3,28 +3,31 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
 
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:8080",
+    credentials: "include",
+  }),
 
   endpoints: (builder) => ({
     createAccount: builder.mutation({
       query: (authData) => ({
-        url: "/api/auth",
+        url: "/admin/account",
         method: "POST",
         body: authData,
       }),
     }),
 
     getAccount: builder.query({
-      query: () => "/api/auth",
+      query: () => "/admin/accounts",
     }),
 
     getAccountById: builder.query({
-      query: (id) => `/api/auth/${id}`,
+      query: (id) => `/admin/account/${id}`,
     }),
 
     updateAccount: builder.mutation({
       query: (updateData) => ({
-        url: "/api/auth",
+        url: `/admin/account/${updateData.id}`,
         method: "PUT",
         body: updateData,
       }),
@@ -32,9 +35,9 @@ export const dashboardApi = createApi({
 
     deleteAccunt: builder.mutation({
       query: (accountId) => ({
-        url: "/api/auth",
+        url: `/admin/account/${accountId}`,
         method: "DELETE",
-        body: accountId,
+        body: { id: accountId },
       }),
     }),
   }),

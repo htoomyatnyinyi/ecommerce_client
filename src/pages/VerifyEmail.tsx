@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useVerifyEmailTokenMutation } from "@/redux/query/authApi";
 
@@ -12,6 +12,14 @@ const VerifyEmail: React.FC = () => {
     verifyEmailToken,
     { isLoading: isVerifyEmailLoading, isError: isVerifyEmailError },
   ] = useVerifyEmailTokenMutation();
+
+  useEffect(() => {
+    if (verify_email_token) {
+      handleVerifyEmail(verify_email_token);
+    } else {
+      console.error("No token found in the URL.");
+    }
+  }, [verify_email_token]);
 
   const handleVerifyEmail = async (token: string | null) => {
     if (!token) {
@@ -41,15 +49,16 @@ const VerifyEmail: React.FC = () => {
             {isVerifyEmailLoading ? (
               <div>Loading ...</div>
             ) : (
-              <div>
+              <div className="flex flex-col items-center justify-center">
                 <h1>Verify Email Token</h1>
                 <p>{verify_email_token}</p>
-                <button
+                <h1>USER EMAIL VERIFY SUCCESSFULLY</h1>
+                {/* <button
                   onClick={() => handleVerifyEmail(verify_email_token)}
                   className="border p-2 m-1"
                 >
                   Click To Verify
-                </button>
+                </button> */}
               </div>
             )}
           </div>

@@ -8,7 +8,8 @@ import Product from "@/pages/Product";
 // import ProductList from "@/pages/ProductList";
 import ProductForm from "@/components/product/ProductForm";
 import VerifyEmail from "@/pages/VerifyEmail";
-
+import Dashboard from "@/pages/admin/Dashboard";
+// import { NavigationBar } from "@/components/navbar/NavigationBar";
 const NotFound = () => {
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
@@ -70,7 +71,8 @@ const AppLayout = () => (
   <>
     {/* <NavigationBar /> */}
     <NavBar />
-    <main className="pt-16">
+    <main className="">
+      {/* <main className="pt-16"> */}
       {/* Adjust padding as needed */}
       <Outlet /> {/* Renders the matched child route component */}
     </main>
@@ -104,7 +106,11 @@ export const router = createBrowserRouter([
         element: <ProductForm />,
       },
       {
-        path: "/verify-email", // Assuming public, adjust if needed
+        path: "/dashboard/admin", // Assuming public, adjust if needed
+        element: <Dashboard />, // Replace with your actual admin dashboard component
+      },
+      {
+        path: "/verify-email/", // Assuming public, adjust if needed
         element: <VerifyEmail />,
       },
 

@@ -56,7 +56,10 @@ export interface CartItem {
 
 export const productApi = createApi({
   reducerPath: "productApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:8080",
+    credentials: "include",
+  }),
   tagTypes: ["Cart"],
   endpoints: (builder) => ({
     getProducts: builder.query({

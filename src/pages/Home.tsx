@@ -3,7 +3,6 @@ import homeImage from "../assets/utils/1.png";
 import { Link } from "react-router-dom";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import UITEST from "./UITEST";
-import Dashboard from "./admin/dashboard";
 
 const Home: React.FC = () => {
   return (
@@ -19,7 +18,6 @@ const Home: React.FC = () => {
           </h1>
           <div className="p-2 m-1 ">
             Join In <UITEST />
-            <Dashboard />
           </div>
           <ThemeToggle />
         </div>
@@ -133,7 +131,7 @@ const Home: React.FC = () => {
               with our innovative solutions. Experience the difference and take
               the first step towards a brighter future.
             </p>
-            <p>Job Seeker</p>
+            {/* <p>Job Seeker</p>
             <div className=" text-center bg-cyan-900 text-white">
               <p>xyz@mail.com</p>
               <label>Password </label>
@@ -144,7 +142,7 @@ const Home: React.FC = () => {
               <p>itland@mail.com</p>
               <label>Password </label>
               <p>abc</p>
-            </div>
+            </div> */}
             <div className="pt-5">
               Optional Call to Action Button
               <Link
@@ -168,9 +166,6 @@ const Home: React.FC = () => {
       </div>
       {/* Footer or Ending Section */}
       <section className="py-16 px-4 text-center">
-        <h1 className="text-3xl sm:text-5xl p-8 text-center font-bold">
-          Have A Good Day!
-        </h1>
         <p>DEVELOP_BY_HTOO_MYAT_NYI_NYI</p>
       </section>
     </div>
