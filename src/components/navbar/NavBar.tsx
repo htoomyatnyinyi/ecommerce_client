@@ -2,8 +2,12 @@ import React from "react";
 import { NavigationBar } from "./NavigationBar";
 import logo from "@/assets/utils/1.png";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const NavBar: React.FC = () => {
+  const cartcount = useSelector((state: any) => state.cart?.items.length);
+
+  // console.log("Cart Count:", cartcount);
   return (
     // Main Navigation Container: Full width grid, responsive columns, amber background
     <nav className="grid  grid-cols-10 md:grid-cols-10 gap-2 w-full p-2 items-center">
@@ -26,7 +30,12 @@ const NavBar: React.FC = () => {
 
       {/* User Actions & Cart */}
       <div className="col-span-4 md:col-span-4p-2 flex justify-end items-center space-x-6">
-        <div className="font-bold">CART</div>{" "}
+        <div className="font-bold">
+          <Link to="/product/cart">
+            <h1>{cartcount}</h1>
+            <p>Shopping Cart</p>
+          </Link>
+        </div>
       </div>
     </nav>
   );
