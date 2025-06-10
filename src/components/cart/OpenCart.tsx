@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sheet";
 import React from "react";
 
-const UITEST: React.FC = () => {
+const OpenCart: React.FC = () => {
   return (
     <div>
       <Sheet>
@@ -20,7 +20,7 @@ const UITEST: React.FC = () => {
               This action cannot be undone. This will permanently delete your
               account and remove your data from our servers.
             </SheetDescription>
-            <LogicForm />
+            <Cart />
             <DialogPage />
           </SheetHeader>
         </SheetContent>
@@ -29,7 +29,8 @@ const UITEST: React.FC = () => {
   );
 };
 
-export default UITEST;
+export default OpenCart;
+
 import {
   Dialog,
   DialogContent,
@@ -38,13 +39,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import LogicForm from "./test/LogicForm";
+import Cart from "@/pages/Cart";
 
 const DialogPage = () => {
   return (
     <div>
       <Dialog>
-        <DialogTrigger>Open</DialogTrigger>
+        <DialogTrigger>Open Dialog</DialogTrigger>
         <DialogContent>
           <div className="overflow-auto">
             <DialogHeader>
@@ -53,7 +54,7 @@ const DialogPage = () => {
                 This action cannot be undone. This will permanently delete your
                 account and remove your data from our servers.
               </DialogDescription>
-              {/* <LogicForm /> */}
+              <Cart />
             </DialogHeader>
           </div>
         </DialogContent>

@@ -3,6 +3,7 @@ import { NavigationBar } from "./NavigationBar";
 import logo from "@/assets/utils/1.png";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import OpenCart from "../cart/OpenCart";
 
 const NavBar: React.FC = () => {
   const cartcount = useSelector((state: any) => state.cart?.items.length);
@@ -33,7 +34,8 @@ const NavBar: React.FC = () => {
         <div className="font-bold">
           <Link to="/product/cart">
             <h1>{cartcount}</h1>
-            <p>Shopping Cart</p>
+            {/* <p>Shopping Cart</p> */}
+            <OpenCart />
           </Link>
         </div>
       </div>
