@@ -78,10 +78,14 @@ export const productApi = createApi({
       }),
     }),
 
-    getCart: builder.query<CartItem[], { userId: string }>({
-      query: ({ userId }) => `/api/cart/${userId}`,
+    getCart: builder.query<CartItem[], void>({
+      query: () => `/api/cart`,
       providesTags: ["Cart"],
     }),
+    // getCart: builder.query<CartItem[], { userId: string }>({
+    //   query: ({ userId }) => `/api/cart/${userId}`,
+    //   providesTags: ["Cart"],
+    // }),
 
     addToCart: builder.mutation({
       query: ({ userId, productId, variantId, quantity }) => ({

@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ImageCarousel from "./ImageCarousel";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/redux/slice/cartSlice";
 import ProductDetailsDialog from "./ProductDetailsDialog";
-
+import type { RootState } from "@/redux/store/store";
 // interface ProductProps {
 //   product: {
 //     id: number;
@@ -46,7 +46,9 @@ import ProductDetailsDialog from "./ProductDetailsDialog";
 const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const dispatch = useDispatch();
 
-  console.log(product, "Product Card Component");
+  const quantity = useSelector((state: RootState) => state.cart.items);
+  console.log(quantity);
+
   return (
     <div>
       <Card>
@@ -62,18 +64,18 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             </button>
           </CardAction> */}
           <CardAction>
-            <button className="text-blue-500 border hover:bg-blue-500 hover:text-white transition-colors duration-300 p-2 m-1 rounded-md">
-              {/* View Details */}
-              <ProductDetailsDialog />
-            </button>
+            {/* View Details */}
+            <ProductDetailsDialog />
+            {/* <button className="text-blue-500 border hover:bg-blue-500 hover:text-white transition-colors duration-300 p-2 m-1 rounded-md">
+            </button> */}
           </CardAction>
         </CardHeader>
         <CardContent>
           <ImageCarousel product_image={product.images} />
-          <p>Card Content</p>
+          {/* <p>Card Content</p> */}
         </CardContent>
         <CardFooter>
-          <p>Card Footer</p>
+          {/* <p>Card Footer</p> */}
           <button
             onClick={() => dispatch(addToCart(product))}
             className="text-green-500 border hover:bg-green-500 hover:text-white transition-colors duration-300 p-2 m-1 rounded-md"
