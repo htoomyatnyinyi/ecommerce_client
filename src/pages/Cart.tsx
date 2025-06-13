@@ -3,19 +3,81 @@ import React from "react";
 
 const Cart: React.FC = () => {
   const { data: carts, isLoading: isGetCartLoading } = useGetCartQuery();
+
   console.log(carts, "check");
+
   return (
     <div>
       {isGetCartLoading ? (
         <div>Loading...</div>
       ) : (
-        <div>{carts?.map((e) => e.id)}</div>
+        <div>
+          {carts?.map((cart: any) => (
+            <div key={cart.id}>
+              <p>{cart.id}</p>
+              <div>
+                {cart.items?.map((q: any) => (
+                  <div key={q.id}>
+                    {q.id}
+                    <CartItem item={q} />
+                  </div>
+                ))}
+              </div>
+              <CartSummary items={cart.items || []} />
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
 };
 
 export default Cart;
+
+const CartItem = ({ item }: { item: any }) => {
+  const { product, variant, quantity } = item;
+
+  return (
+    <div className="p-2 m-1 border">
+      <div className="bg-slate-200 p-2">
+        <h3>{product.title}</h3>
+        <p>SKU: {variant.sku}</p>
+        <p>Price: ${variant.price}</p>
+        <p>Quantity: {quantity}</p>
+      </div>
+      <div className="text-xl">
+        <p>Total: ${(variant.price * quantity).toFixed(2)}</p>
+      </div>
+    </div>
+  );
+};
+
+const CartSummary = ({ items }: { items: any }) => {
+  const subtotal = items.reduce((acc: number, item: any) => {
+    return acc + item.variant.price * item.quantity;
+  }, 0);
+
+  const tax = subtotal * 0.1; // Example 10% tax
+  const total = subtotal + tax;
+
+  return (
+    <div className="p-2 m-1 border">
+      <h3>Order Summary</h3>
+      <div className="summary-row">
+        <span>Subtotal:</span>
+        <span>${subtotal.toFixed(2)}</span>
+      </div>
+      <div className="summary-row">
+        <span>Tax (10%):</span>
+        <span>${tax.toFixed(2)}</span>
+      </div>
+      <div className="summary-row total">
+        <span>Total:</span>
+        <span>${total.toFixed(2)}</span>
+      </div>
+    </div>
+  );
+};
 
 // import { useSelector, useDispatch } from "react-redux";
 // import {

@@ -44,6 +44,22 @@ export interface Product {
   quantity: number;
   selectedVariantId?: string; // Track selected variant
 }
+// export interface Product {
+//   id: string;
+//   title: string;
+//   description: string;
+//   createdAt: string;
+//   updateAt: string;
+//   userId: string;
+//   categoryId: string | null;
+//   brandId: string | null;
+//   variants: Variant[];
+//   images: Image[];
+//   category: string | null;
+//   brand: string | null;
+//   quantity: number;
+//   selectedVariantId?: string; // Track selected variant
+// }
 
 export interface CartItem {
   id: string;
@@ -54,19 +70,26 @@ export interface CartItem {
   variant: Variant;
 }
 
+export interface Category {
+  id: string;
+  categoryName: string;
+}
+
 export const productApi = createApi({
   reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:8080",
     credentials: "include",
   }),
-  tagTypes: ["Cart"],
+
+  tagTypes: ["Cart", "Category"],
+
   endpoints: (builder) => ({
-    getProducts: builder.query({
+    getProducts: builder.query<Product[], void>({
       query: () => "/api/products",
     }),
 
-    getProductById: builder.query({
+    getProductById: builder.query<Product, any>({
       query: (id) => `/api/products/${id}`,
     }),
 
@@ -76,6 +99,20 @@ export const productApi = createApi({
         method: "POST",
         body: productFormData,
       }),
+    }),
+
+    createNewCategory: builder.mutation({
+      query: (categoryName) => ({
+        url: "/api/category",
+        method: "POST",
+        body: categoryName,
+      }),
+      invalidatesTags: ["Category"],
+    }),
+
+    getCategory: builder.query<Category[], void>({
+      query: () => "/api/category",
+      providesTags: ["Category"],
     }),
 
     getCart: builder.query<CartItem[], void>({
@@ -88,37 +125,36 @@ export const productApi = createApi({
     // }),
 
     addToCart: builder.mutation({
-      query: ({ userId, productId, variantId, quantity }) => ({
+      query: ({ productId, variantId, quantity }) => ({
         url: "/api/cart/add",
         method: "POST",
-        body: { userId, productId, variantId, quantity },
+        body: { productId, variantId, quantity },
       }),
       invalidatesTags: ["Cart"],
     }),
 
     updateCartItem: builder.mutation({
-      query: ({ userId, productId, variantId, quantity }) => ({
+      query: ({ productId, variantId, quantity }) => ({
         url: "/api/cart/update",
         method: "PUT",
-        body: { userId, productId, variantId, quantity },
+        body: { productId, variantId, quantity },
       }),
       invalidatesTags: ["Cart"],
     }),
 
     removeFromCart: builder.mutation({
-      query: ({ userId, productId, variantId }) => ({
+      query: ({ productId, variantId }) => ({
         url: "/api/cart/remove",
         method: "DELETE",
-        body: { userId, productId, variantId },
+        body: { productId, variantId },
       }),
       invalidatesTags: ["Cart"],
     }),
 
     clearCart: builder.mutation({
-      query: ({ userId }) => ({
+      query: () => ({
         url: "/api/cart/clear",
         method: "DELETE",
-        body: { userId },
       }),
       invalidatesTags: ["Cart"],
     }),
@@ -138,6 +174,8 @@ export const {
   useGetProductsQuery,
   useGetProductByIdQuery,
   useCreateNewProductMutation,
+  useCreateNewCategoryMutation,
+  useGetCategoryQuery,
   useGetCartQuery,
   useAddToCartMutation,
   useUpdateCartItemMutation,
