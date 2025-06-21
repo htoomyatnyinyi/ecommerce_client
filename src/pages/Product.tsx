@@ -3,8 +3,16 @@ import {
   useGetProductByIdQuery,
 } from "@/redux/query/productApi";
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+// import { RootState } from "@reduxjs/toolkit/query";
+import type { RootState } from "@/redux/store/store";
+import SearchForm from "@/components/search/SearchForm";
 
 const Product: React.FC = () => {
+  const dispatch = useDispatch();
+
+  const query = useSelector((state: RootState) => state.search.query);
+
   const { data: getProducts, isLoading: isGetProductLoading } =
     useGetProductsQuery();
 
@@ -12,20 +20,41 @@ const Product: React.FC = () => {
   //   useGetAccountByIdQuery("fjfkalfklwfwlfwlflwjlk");
 
   // if (isGetProductLoading) return <p>Loading</p>;
-  console.log(getProducts);
+  // console.log(getProducts);
 
   // if (isGetProductByIdLoading) return <p>Loading</p>;
 
+  console.log(query, " searh");
+
+  // const handleAddToCart = async (product) => {
+  //   // Update local Redux store
+  //   dispatch(
+  //     addToCart({ id: product.id, name: product.name, price: product.price })
+  //   );
+
+  //   // Optionally sync with server
+  //   try {
+  //     await addToCartApi({
+  //       id: product.id,
+  //       name: product.name,
+  //       price: product.price,
+  //     }).unwrap();
+  //     console.log("Added to cart on server");
+  //   } catch (err) {
+  //     console.error("Failed to add to cart on server:", err);
+  //   }
+  // };
+
   return (
     <div>
-      <div>hi</div>
+      <SearchForm />
       <div>
         {isGetProductLoading ? (
           <div>Loading...</div>
         ) : (
           <div className="p-2 m-1 border">
             <div>
-              {getProducts?.responseProducts.map((product: any) => (
+              {getProducts?.responseProducts?.map((product: any) => (
                 <div key={product.id} className="p-2 m-1 border">
                   <ProductCard productDetails={product} />
                 </div>
@@ -43,8 +72,27 @@ export default Product;
 const ProductCard = ({ productDetails }: { productDetails: any }) => {
   console.log(productDetails, "details");
   return (
-    <div>
-      <h1>Hello</h1>
+    <div key={productDetails.id}>
+      <h1>{productDetails.title}</h1>
+      <h1>{productDetails.description}</h1>
+      <p>{productDetails.categoryId} category</p>
+      <div>
+        {productDetails.images.map((image: any) => (
+          <div key={image.id}>
+            {image.url}
+            <img src={image.url} alt={image.altText} />
+          </div>
+        ))}
+      </div>
+      <div>
+        {productDetails.variants.map((variant: any) => (
+          <div key={variant.id}>
+            <p>{variant.price}</p>
+            <p>{variant.sku}</p>
+            <p>{variant.stock}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

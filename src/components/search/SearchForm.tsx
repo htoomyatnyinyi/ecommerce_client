@@ -1,0 +1,48 @@
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setQuery, clearQuery } from "@/redux/slice/searchSlice";
+import type { RootState } from "@/redux/store/store";
+import { useGetProductsQuery } from "@/redux/query/productApi";
+
+const SearchForm: React.FC = () => {
+  // Select the query from the Redux store
+  const query = useSelector((state: RootState) => state.search.query);
+  const dispatch = useDispatch();
+
+  // Handle input change
+  const handleChange = (e: any) => {
+    dispatch(setQuery(e.target.value));
+  };
+
+  // Handle form submission
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    console.log("Search query:", query);
+    // Add logic to handle search (e.g., API call)
+  };
+
+  // Handle clearing the search
+  const handleClear = () => {
+    dispatch(clearQuery());
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className=" p-2 m-1">
+      <input
+        type="text"
+        value={query}
+        onChange={handleChange}
+        placeholder="Search..."
+        className="search-box"
+      />
+      <button type="submit" className="p-2 m-1 border">
+        Search
+      </button>
+      <button type="button" onClick={handleClear} className="p-2 m-1 border">
+        Clear
+      </button>
+    </form>
+  );
+};
+
+export default SearchForm;

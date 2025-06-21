@@ -5,10 +5,13 @@ import { productApi } from "../query/productApi";
 import cartReducer from "../slice/cartSlice";
 import orderReducer from "../slice/orderSlice";
 import themeReducer from "../slice/themeSlice";
+import searchReducer from "../slice/searchSlice";
+
 import { dashboardApi } from "../query/dashboardApi";
 
 export const store = configureStore({
   reducer: {
+    search: searchReducer,
     cart: cartReducer,
     order: orderReducer,
     theme: themeReducer,
