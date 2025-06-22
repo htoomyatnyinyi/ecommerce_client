@@ -1,221 +1,176 @@
+import { useState } from "react";
+import { useGetProductsQuery } from "@/redux/query/productApi";
+import { addToCart } from "@/redux/slice/cartSlice";
+import { useDispatch } from "react-redux";
 import {
-  useGetProductsQuery,
-  useGetProductByIdQuery,
-} from "@/redux/query/productApi";
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-// import { RootState } from "@reduxjs/toolkit/query";
-import type { RootState } from "@/redux/store/store";
-import SearchForm from "@/components/search/SearchForm";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-const Product: React.FC = () => {
+// --------------- Product Detail Component (for Dialog Content) ---------------
+
+const ProductDetail = ({ product }: { product: any }) => {
   const dispatch = useDispatch();
+  // State to track the selected variant
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
-  const query = useSelector((state: RootState) => state.search.query);
-
-  const { data: getProducts, isLoading: isGetProductLoading } =
-    useGetProductsQuery();
-
-  // const { data: getProductById, isLoading: isGetProductByIdLoading } =
-  //   useGetAccountByIdQuery("fjfkalfklwfwlfwlflwjlk");
-
-  // if (isGetProductLoading) return <p>Loading</p>;
-  // console.log(getProducts);
-
-  // if (isGetProductByIdLoading) return <p>Loading</p>;
-
-  console.log(query, " searh");
-
-  // const handleAddToCart = async (product) => {
-  //   // Update local Redux store
-  //   dispatch(
-  //     addToCart({ id: product.id, name: product.name, price: product.price })
-  //   );
-
-  //   // Optionally sync with server
-  //   try {
-  //     await addToCartApi({
-  //       id: product.id,
-  //       name: product.name,
-  //       price: product.price,
-  //     }).unwrap();
-  //     console.log("Added to cart on server");
-  //   } catch (err) {
-  //     console.error("Failed to add to cart on server:", err);
-  //   }
-  // };
+  const handleAddToCart = () => {
+    if (selectedVariant) {
+      // Dispatching an item with product info and selected variant details
+      const itemToAdd = {
+        ...product, // Includes product id, title, etc.
+        variant: selectedVariant, // The specific variant chosen
+      };
+      dispatch(addToCart(itemToAdd));
+      // Optionally, close the dialog or show a confirmation message
+    }
+  };
 
   return (
-    <div>
-      <SearchForm />
-      <div>
-        {isGetProductLoading ? (
-          <div>Loading...</div>
-        ) : (
-          <div className="p-2 m-1 border">
-            <div>
-              {getProducts?.responseProducts?.map((product: any) => (
-                <div key={product.id} className="p-2 m-1 border">
-                  <ProductCard productDetails={product} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[80vh] overflow-y-auto">
+      {/* Image Gallery Column */}
+      <div className="flex flex-col gap-4">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold">
+            {product.title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          {product.images?.map((image: any) => (
+            <img
+              key={image.id}
+              src={image.url}
+              alt={product.title}
+              className="w-full h-auto object-cover rounded-lg shadow-md"
+            />
+          ))}
+        </div>
       </div>
+
+      {/* Details & Actions Column */}
+      <div className="flex flex-col space-y-4">
+        <div>
+          <h3 className="font-semibold text-lg mb-2">Description</h3>
+          <p className="text-gray-600">{product.description}</p>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-lg mb-2">Choose Variant</h3>
+          <div className="flex flex-wrap gap-2">
+            {product.variants.map((variant: any) => (
+              <Button
+                key={variant.id}
+                variant={
+                  selectedVariant?.id === variant.id ? "default" : "outline"
+                }
+                onClick={() => setSelectedVariant(variant)}
+              >
+                {/* Assuming a simple variant naming, can be improved */}
+                {variant.variantOptions
+                  .map((opt) => opt.attributeValue)
+                  .join(" / ")}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <p className="text-3xl font-bold">
+            Price: ${selectedVariant ? selectedVariant.price : "N/A"}
+          </p>
+          <p className="text-sm text-gray-500">
+            Stock:{" "}
+            {selectedVariant ? selectedVariant.stock : "Select a variant"}
+          </p>
+        </div>
+
+        <Button
+          onClick={handleAddToCart}
+          disabled={!selectedVariant || selectedVariant.stock === 0}
+          size="lg"
+          className="mt-auto"
+        >
+          {selectedVariant?.stock === 0 ? "Out of Stock" : "Add To Cart"}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// --------------- Product Card Component ---------------
+
+const ProductCard = ({ product }: { product: any }) => {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <div className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer group">
+          <div className="w-full h-48 overflow-hidden">
+            <img
+              src={product.images?.[0]?.url || "/placeholder.svg"} // Fallback image
+              alt={product.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+          <div className="p-4">
+            <h3 className="text-lg font-semibold truncate">{product.title}</h3>
+            <p className="text-gray-500 mt-1 truncate">{product.description}</p>
+            {/* Displaying price range of variants */}
+            <p className="text-md font-bold mt-2">
+              ${Math.min(...product.variants.map((v) => v.price))} - $
+              {Math.max(...product.variants.map((v) => v.price))}
+            </p>
+          </div>
+        </div>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <ProductDetail product={product} />
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// --------------- Main Product Page Component ---------------
+
+const Product = () => {
+  const { data: productsResponse, isLoading, isError } = useGetProductsQuery();
+
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Loading products...</p>
+      </div>
+    );
+  if (isError)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>An error occurred while fetching products.</p>
+      </div>
+    );
+
+  console.log(productsResponse?.responseProducts);
+  const products = productsResponse?.responseProducts || [];
+
+  return (
+    <div className="container mx-auto p-4 md:p-8">
+      <h1 className="text-3xl font-bold mb-8 text-center">Our Products</h1>
+      {products.length > 0 ? (
+        // Grid container is OUTSIDE the map function
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((product: any) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p>No products found.</p>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Product;
-
-const ProductCard = ({ productDetails }: { productDetails: any }) => {
-  console.log(productDetails, "details");
-  return (
-    <div key={productDetails.id}>
-      <h1>{productDetails.title}</h1>
-      <h1>{productDetails.description}</h1>
-      <p>{productDetails.categoryId} category</p>
-      <div>
-        {productDetails.images.map((image: any) => (
-          <div key={image.id}>
-            {image.url}
-            <img src={image.url} alt={image.altText} />
-          </div>
-        ))}
-      </div>
-      <div>
-        {productDetails.variants.map((variant: any) => (
-          <div key={variant.id}>
-            <p>{variant.price}</p>
-            <p>{variant.sku}</p>
-            <p>{variant.stock}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// import React from "react";
-// import {
-//   useGetProductsQuery,
-//   // useGetProductByIdQuery,
-// } from "@/redux/query/productApi";
-// // import { addToCart } from "@/redux/slice/cartSlice";
-// import { useDispatch } from "react-redux";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog";
-// // import { Button } from "@/components/ui/button";
-
-// const Product: React.FC = () => {
-//   const dispatch = useDispatch();
-//   const {
-//     data: products,
-//     isLoading: isGetProductsLoading,
-//     error: isGerProductError,
-//   } = useGetProductsQuery({});
-
-//   if (isGerProductError) return <p>There is And Error</p>;
-//   console.log(products?.data);
-
-//   const handleDetails = async (productAddToCart: any) => {
-//     console.log("Hi This is Product For Add To Cart Info", productAddToCart);
-//   };
-
-//   return (
-//     <div className="h-screen ">
-//       {isGetProductsLoading ? (
-//         <div>Loading..</div>
-//       ) : (
-//         <div>
-//           {products?.data?.map((product: any) => (
-//             <div
-//               key={product.id}
-//               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
-//             >
-//               <Dialog>
-//                 <div onClick={() => handleDetails(product.id)}>
-//                   <div>
-//                     {product.images.map((image: any) => (
-//                       <div key={image.id}>
-//                         <DialogTrigger>
-//                           <img
-//                             src={image.url}
-//                             alt="imageUrl"
-//                             className="bg-cover w-auto h-auto"
-//                           />
-//                           <p>{product.title}</p>
-//                           <p>{product.description}</p>
-//                         </DialogTrigger>
-//                       </div>
-//                     ))}
-//                   </div>
-//                 </div>
-//                 <DialogContent>
-//                   <div className="overflow-auto">
-//                     <DialogHeader>
-//                       <DialogTitle>Product Detail</DialogTitle>
-//                       <DialogDescription>
-//                         {/* <div className="p-2 m-1">
-//                           <h1>{product.title}</h1>
-//                           <h1>{product.description}</h1>
-//                           <div>
-//                             {product.images.map((image: any) => (
-//                               <div key={image.id} className="p-2 m-1">
-//                                 <img src={image.url} alt="imageUrl" />
-//                               </div>
-//                             ))}
-//                           </div>
-//                           <div>
-//                             {product.variants.map((variant: any) => (
-//                               <div key={variant.id} className="p-2 m-1">
-//                                 <p>SKU: {variant.sku}</p>
-//                                 <p>Price: {variant.price}</p>
-//                                 <p>Stock: {variant.stock}</p>
-//                                 <div>
-//                                   {variant.variantOptions.map(
-//                                     (variantOption: any) => (
-//                                       <div key={variantOption.key}>
-//                                         <span>
-//                                           {variantOption.attributeName}
-//                                         </span>
-//                                         -
-//                                         <span>
-//                                           {variantOption.attributeValue}
-//                                         </span>
-//                                         : available =
-//                                         <span>
-//                                           {variantOption.attributeStock}
-//                                         </span>
-//                                       </div>
-//                                     )
-//                                   )}
-//                                 </div>
-//                               </div>
-//                             ))}
-//                           </div>
-//                           <Button onClick={() => dispatch(addToCart(product))}>
-//                             Add To Cart
-//                           </Button>
-//                         </div> */}
-//                       </DialogDescription>
-//                     </DialogHeader>
-//                   </div>
-//                 </DialogContent>
-//               </Dialog>
-//             </div>
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default Product;
