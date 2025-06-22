@@ -2,7 +2,6 @@ import React from "react";
 import homeImage from "../assets/utils/1.png";
 import { Link } from "react-router-dom";
 import ThemeToggle from "@/components/theme/ThemeToggle";
-import UITEST from "./UITEST";
 
 const Home: React.FC = () => {
   return (
@@ -16,9 +15,7 @@ const Home: React.FC = () => {
           <h1 className="text-4xl sm:text-7xl font-bold p-2 m-2 bg-gradient-to-tr from-slate-900 to-slate-400 text-transparent bg-clip-text">
             Let Bring The Gratest <br /> Opportunity For You
           </h1>
-          <div className="p-2 m-1 ">
-            Join In <UITEST />
-          </div>
+          <div className="p-2 m-1 ">Join In</div>
           <ThemeToggle />
         </div>
       </section>

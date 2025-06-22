@@ -3,13 +3,8 @@ import NavBar from "@/components/navbar/NavBar";
 import Home from "@/pages/Home";
 import SignUp from "@/pages/auth/SignUp";
 import SignIn from "@/pages/auth/SignIn";
-
-import Product from "@/pages/Product";
-// import ProductList from "@/pages/ProductList";
-import ProductForm from "@/components/product/ProductForm";
 import VerifyEmail from "@/pages/VerifyEmail";
-import Dashboard from "@/pages/admin/Dashboard";
-import Cart from "@/pages/Cart";
+
 // import { NavigationBar } from "@/components/navbar/NavigationBar";
 const NotFound = () => {
   return (
@@ -98,22 +93,7 @@ export const router = createBrowserRouter([
         path: "/signup",
         element: <SignUp />,
       },
-      {
-        path: "/product", // Assuming public, adjust if needed
-        element: <Product />,
-      },
-      {
-        path: "/product/cart", // Assuming public, adjust if needed
-        element: <Cart />,
-      },
-      {
-        path: "/product_form", // Assuming public, adjust if needed
-        element: <ProductForm />,
-      },
-      {
-        path: "/dashboard/admin", // Assuming public, adjust if needed
-        element: <Dashboard />, // Replace with your actual admin dashboard component
-      },
+
       {
         path: "/verify-email/", // Assuming public, adjust if needed
         element: <VerifyEmail />,
