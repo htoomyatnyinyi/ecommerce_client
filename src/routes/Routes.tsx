@@ -4,6 +4,7 @@ import Home from "@/pages/Home";
 import SignUp from "@/pages/auth/SignUp";
 import SignIn from "@/pages/auth/SignIn";
 import VerifyEmail from "@/pages/VerifyEmail";
+import Product from "@/pages/Product";
 
 // import { NavigationBar } from "@/components/navbar/NavigationBar";
 const NotFound = () => {
@@ -92,6 +93,10 @@ export const router = createBrowserRouter([
       {
         path: "/signup",
         element: <SignUp />,
+      },
+      {
+        path: "/product",
+        element: <Product />,
       },
 
       {
