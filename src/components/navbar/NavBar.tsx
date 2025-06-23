@@ -4,9 +4,10 @@ import logo from "@/assets/utils/1.png";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import OpenCart from "../cart/OpenCart";
+import NavbarCart from "./NavBarCart";
 
 const NavBar: React.FC = () => {
-  const cartcount = useSelector((state: any) => state.cart?.items.length);
+  // const cartcount = useSelector((state: any) => state.cart?.items.length);
 
   // console.log("Cart Count:", cartcount);
   return (
@@ -33,8 +34,10 @@ const NavBar: React.FC = () => {
       <div className="col-span-4 md:col-span-4p-2 flex justify-end items-center space-x-6">
         <div className="font-bold">
           <Link to="/product/cart">
-            <h1>{cartcount}</h1>
+            {/* <h1>{cartcount}</h1> */}
+
             {/* <p>Shopping Cart</p> */}
+            <NavbarCart />
             <OpenCart />
           </Link>
         </div>

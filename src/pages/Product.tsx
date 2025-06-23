@@ -1,5 +1,6 @@
 import { useGetProductsQuery } from "@/redux/query/productApi";
 import React, { useState } from "react"; // 1. Import useState
+import ProductDetails from "./ProductDetails";
 
 // Main Component (Parent)
 const Product: React.FC = () => {
@@ -84,68 +85,69 @@ const ProductCard = ({
 };
 
 // Product Details Component (Child)
-const ProductDetails = ({
-  product,
-  onBack,
-}: {
-  product: any;
-  onBack: () => void;
-}) => {
-  return (
-    <div className="p-4 border rounded-lg shadow-lg">
-      {/* 5. "Back" button to return to the list */}
-      <button
-        onClick={onBack}
-        className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        &larr; Back to List
-      </button>
+// const ProductDetails = ({
+//   product,
+//   onBack,
+// }: {
+//   product: any;
+//   onBack: () => void;
+// }) => {
+//   return (
+//     <div className="p-4 border rounded-lg shadow-lg">
+//       {/* 5. "Back" button to return to the list */}
+//       <button
+//         onClick={onBack}
+//         className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+//       >
+//         &larr; Back to List
+//       </button>
 
-      <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
-      <p className="text-lg text-gray-700 mb-4">{product.description}</p>
+//       <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
+//       <p className="text-lg text-gray-700 mb-4">{product.description}</p>
 
-      <div className="flex flex-wrap gap-4 mb-4">
-        {product.images.map((image: any) => (
-          <img
-            key={image.id}
-            src={image.url}
-            alt={image.altText}
-            className="h-40 w-40 object-cover rounded-md border"
-          />
-        ))}
-      </div>
+//       <div className="flex flex-wrap gap-4 mb-4">
+//         {product.images.map((image: any) => (
+//           <img
+//             key={image.id}
+//             src={image.url}
+//             alt={image.altText}
+//             className="h-40 w-40 object-cover rounded-md border"
+//           />
+//         ))}
+//       </div>
 
-      <div className="mb-4">
-        <h3 className="text-xl font-semibold">Variants</h3>
-        {product.variants.map((variant: any) => (
-          <div key={variant.id} className="border p-3 my-2 rounded">
-            <p>
-              <strong>Price:</strong> ${variant.price}
-            </p>
-            <p>
-              <strong>SKU:</strong> {variant.sku}
-            </p>
-            <p>
-              <strong>Stock:</strong> {variant.stock}
-            </p>
-            <div className="mt-2">
-              {variant.variantOptions.map((opt: any) => (
-                <span
-                  key={opt.id}
-                  className="mr-2 bg-gray-200 px-2 py-1 rounded"
-                >
-                  {opt.attributeName}: {opt.attributeValue}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+//       <div className="mb-4">
+//         <h3 className="text-xl font-semibold">Variants</h3>
+//         {product.variants.map((variant: any) => (
+//           <div key={variant.id} className="border p-3 my-2 rounded">
+//             <p>
+//               <strong>Price:</strong> ${variant.price}
+//             </p>
+//             <p>
+//               <strong>SKU:</strong> {variant.sku}
+//             </p>
+//             <p>
+//               <strong>Stock:</strong> {variant.stock}
+//             </p>
+//             <div className="mt-2">
+//               {variant.variantOptions.map((opt: any) => (
+//                 <span
+//                   key={opt.id}
+//                   className="mr-2 bg-gray-200 px-2 py-1 rounded"
+//                 >
+//                   {opt.attributeName}: {opt.attributeValue}
+//                 </span>
+//               ))}
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
 
 export default Product;
+
 // import { useGetProductsQuery } from "@/redux/query/productApi";
 // import React from "react";
 

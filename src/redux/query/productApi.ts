@@ -2,7 +2,11 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const productApi = createApi({
   reducerPath: "productApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:8080",
+    credentials: "include",
+  }),
+
   endpoints: (builder) => ({
     getProducts: builder.query<any, void>({
       query: () => "/api/products",
@@ -15,10 +19,23 @@ export const productApi = createApi({
         body: product,
       }),
     }),
+
+    // NEW: Add a mutation for adding items to the cart
+    addToCart: builder.mutation({
+      query: (cartItem: { variantId: string; quantity: number }) => ({
+        url: "/api/cart",
+        method: "POST",
+        body: cartItem,
+      }),
+    }),
   }),
 });
 
-export const { useGetProductsQuery, useCreateProductMutation } = productApi;
+export const {
+  useGetProductsQuery,
+  useCreateProductMutation,
+  useAddToCartMutation,
+} = productApi;
 
 // import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
