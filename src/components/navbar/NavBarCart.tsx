@@ -11,7 +11,7 @@ const NavbarCart = () => {
   return (
     <button className="relative">
       {/* <ShoppingCartIcon className="h-6 w-6" /> */}
-      Cart
+      SHOPPING CART
       {totalQuantity > 0 && (
         <span className="absolute -top-2 -right-2 flex items-center justify-center h-5 w-5 rounded-full bg-red-500 text-white text-xs">
           {totalQuantity}

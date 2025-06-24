@@ -2,8 +2,8 @@ import React from "react";
 import { NavigationBar } from "./NavigationBar";
 import logo from "@/assets/utils/1.png";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import OpenCart from "../cart/OpenCart";
+// import { useSelector } from "react-redux";
+// import OpenCart from "../cart/OpenCart";
 import NavbarCart from "./NavBarCart";
 
 const NavBar: React.FC = () => {
@@ -38,7 +38,7 @@ const NavBar: React.FC = () => {
 
             {/* <p>Shopping Cart</p> */}
             <NavbarCart />
-            <OpenCart />
+            {/* <OpenCart /> */}
           </Link>
         </div>
       </div>

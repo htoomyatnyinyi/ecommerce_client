@@ -11,8 +11,11 @@ const ProductDetails = ({
   onBack: () => void;
 }) => {
   const dispatch = useDispatch();
+
   const [addToCart, { isLoading }] = useAddToCartMutation();
   const [quantity, setQuantity] = useState(1);
+  // from list
+  console.log(product, "check to get product id");
 
   // Assuming you want to add the first variant for simplicity
   // A real implementation would let the user select color/size
@@ -35,6 +38,7 @@ const ProductDetails = ({
     // 2. Send request to the server
     try {
       await addToCart({
+        productId: product.id,
         variantId: selectedVariant.id,
         quantity: quantity,
       }).unwrap();

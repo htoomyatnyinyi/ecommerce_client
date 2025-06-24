@@ -6,6 +6,7 @@ import SignIn from "@/pages/auth/SignIn";
 import VerifyEmail from "@/pages/VerifyEmail";
 import Product from "@/pages/Product";
 import ProductForm from "@/pages/ProductForm";
+import Cart from "@/pages/Cart";
 
 // import { NavigationBar } from "@/components/navbar/NavigationBar";
 const NotFound = () => {
@@ -98,6 +99,10 @@ export const router = createBrowserRouter([
       {
         path: "/product",
         element: <Product />,
+      },
+      {
+        path: "/product/cart",
+        element: <Cart />,
       },
       {
         path: "/product_form",
