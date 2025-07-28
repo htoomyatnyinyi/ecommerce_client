@@ -7,6 +7,9 @@ import VerifyEmail from "@/pages/VerifyEmail";
 import Product from "@/pages/Product";
 import ProductForm from "@/pages/ProductForm";
 import Cart from "@/pages/Cart";
+import Dashboard from "@/pages/dashboard/Dashboard";
+import AdminDashboard from "@/pages/dashboard/admin/AdminDashboard";
+import ProductDashboard from "@/pages/dashboard/admin/ProductDashboard";
 
 // import { NavigationBar } from "@/components/navbar/NavigationBar";
 const NotFound = () => {
@@ -86,6 +89,15 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+
+      {
+        path: "/dashboard",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "/dashboard/products",
+        element: <ProductDashboard />,
       },
 
       {

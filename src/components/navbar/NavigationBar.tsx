@@ -158,7 +158,7 @@ export function NavigationBar() {
                   <Link to="/signup">SignUp</Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
-                  <Link to="/dashboard/admin">Dashboard</Link>
+                  <Link to="/dashboard">Dashboard</Link>
                 </NavigationMenuLink>
               </li>
             </ul>

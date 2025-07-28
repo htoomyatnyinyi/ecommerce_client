@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 // import { useSelector } from "react-redux";
 // import OpenCart from "../cart/OpenCart";
 import NavbarCart from "./NavBarCart";
+import { ModeToggle } from "../theme/mode-toggle";
 
 const NavBar: React.FC = () => {
   // const cartcount = useSelector((state: any) => state.cart?.items.length);
@@ -40,6 +41,7 @@ const NavBar: React.FC = () => {
             <NavbarCart />
             {/* <OpenCart /> */}
           </Link>
+          <ModeToggle />
         </div>
       </div>
     </nav>
