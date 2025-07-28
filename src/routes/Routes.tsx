@@ -3,11 +3,10 @@ import NavBar from "@/components/navbar/NavBar";
 import Home from "@/pages/Home";
 import SignUp from "@/pages/auth/SignUp";
 import SignIn from "@/pages/auth/SignIn";
-import VerifyEmail from "@/pages/VerifyEmail";
+import VerifyEmail from "@/pages/auth/VerifyEmail";
 import Product from "@/pages/Product";
-import ProductForm from "@/pages/ProductForm";
-import Cart from "@/pages/Cart";
-import Dashboard from "@/pages/dashboard/Dashboard";
+import ProductForm from "@/components/product/ProductForm";
+// import Cart from "@/components/cart/OpenCart";
 import AdminDashboard from "@/pages/dashboard/admin/AdminDashboard";
 import ProductDashboard from "@/pages/dashboard/admin/ProductDashboard";
 
@@ -112,10 +111,10 @@ export const router = createBrowserRouter([
         path: "/product",
         element: <Product />,
       },
-      {
-        path: "/product/cart",
-        element: <Cart />,
-      },
+      // {
+      //   path: "/product/cart",
+      //   element: <Cart />,
+      // },
       {
         path: "/product_form",
         element: <ProductForm />,

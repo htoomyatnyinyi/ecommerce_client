@@ -21,7 +21,7 @@ const AdminDashboard: React.FC = () => {
           {getCarts?.getCart.map((cart: any) => (
             <div>{cart.quantity}</div>
           ))}
-          <p>{getCarts.totalPrice}</p>
+          <p>{getCarts?.totalPrice}</p>
         </div>
       </div>
     </Dashboard>

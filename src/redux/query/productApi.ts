@@ -13,6 +13,10 @@ export const productApi = createApi({
       query: () => "/api/products",
     }),
 
+    getProductById: builder.query<any, void>({
+      query: (product_id) => `/api/products/${product_id}`,
+    }),
+
     createProduct: builder.mutation({
       query: (product) => ({
         url: "/api/products",
@@ -47,14 +51,42 @@ export const productApi = createApi({
         body: order,
       }),
     }),
+
+    //
+    createNewProduct: builder.mutation({
+      query: (productFormData) => ({
+        url: "/api/products",
+        method: "POST",
+        body: productFormData,
+      }),
+    }),
+
+    createNewCategory: builder.mutation({
+      query: (categoryName) => ({
+        url: "/api/category",
+        method: "POST",
+        body: categoryName,
+      }),
+      invalidatesTags: ["Category"],
+    }),
+
+    getCategory: builder.query<any, void>({
+      query: () => "/api/category",
+      providesTags: ["Category"],
+    }),
   }),
 });
 
 export const {
   useGetProductsQuery,
+  useGetProductByIdQuery,
   useCreateProductMutation,
   useAddToCartMutation,
   useGetCartQuery,
+  //
+  useCreateNewCategoryMutation,
+  useCreateNewProductMutation,
+  useGetCategoryQuery,
 } = productApi;
 
 // import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
