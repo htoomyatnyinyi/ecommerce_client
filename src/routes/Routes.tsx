@@ -10,6 +10,7 @@ import ProductForm from "@/components/product/ProductForm";
 import AdminDashboard from "@/pages/dashboard/admin/AdminDashboard";
 import ProductDashboard from "@/pages/dashboard/admin/ProductDashboard";
 
+import Products from "@/pages/products/Products";
 // import { NavigationBar } from "@/components/navbar/NavigationBar";
 const NotFound = () => {
   return (
@@ -111,10 +112,10 @@ export const router = createBrowserRouter([
         path: "/product",
         element: <Product />,
       },
-      // {
-      //   path: "/product/cart",
-      //   element: <Cart />,
-      // },
+      {
+        path: "/products",
+        element: <Products />,
+      },
       {
         path: "/product_form",
         element: <ProductForm />,
