@@ -129,3 +129,105 @@ const Sheet = () => {
     </>
   );
 };
+
+// import React, { useState } from "react";
+
+// const Sample: React.FC = () => {
+//   const [formData, setFormData] = useState({
+//     email: "",
+//     password: "",
+//   });
+//   const [cars, setCars] = useState<any>([]);
+
+//   // add data
+//   const [year, setYear] = useState(new Date().getFullYear());
+//   const [model, setModel] = useState("");
+//   const [manufacture, setManufacture] = useState("");
+//   // console.log(cars, year, model, manufacture);
+//   console.log(cars);
+
+//   const handleAdd = () => {
+//     const newCar = {
+//       // a: year,
+//       b: model,
+//       c: manufacture,
+//     };
+
+//     setCars((data: any) => [...data, newCar]);
+
+//     setModel("");
+//     setManufacture("");
+//   };
+
+//   const handleRemove = (id: number) => {
+//     setCars((data: any) =>
+//       data.filter((_: null, arrIndex: any) => arrIndex !== id)
+//     );
+//   };
+
+//   return (
+//     <div className="h-screen">
+//       <div className="container mx-auto">
+//         <div className="" onMouseOver={() => console.log("over")}>
+//           <p>
+//             {formData.email} & {formData.password}
+//           </p>
+//           <input
+//             type="email"
+//             value={formData.email}
+//             onChange={(e) =>
+//               setFormData({ ...formData, email: e.target.value })
+//             }
+//             className="p-2 m-1 border"
+//             placeholder="email"
+//           />
+//           <input
+//             type="password"
+//             value={formData.password}
+//             onChange={(e) =>
+//               setFormData({ ...formData, password: e.target.value })
+//             }
+//             className="p-2 m-1 border"
+//             placeholder="email"
+//           />
+//         </div>
+//         <div className="flex-col">
+//           <div className="p-2 m-1 ">
+//             {cars.map((car: any, index: number) => (
+//               <div
+//                 key={index}
+//                 onClick={() => handleRemove(index)}
+//                 className="border m-1 p-2"
+//               >
+//                 <p>{car.b}</p>
+//                 <p>{car.c}</p>
+//               </div>
+//             ))}
+//           </div>
+//           <input
+//             type="date"
+//             // onChange={(d) => setYear(d.target.value)}
+//             className="p-2 border"
+//           />
+//           <input
+//             type="text"
+//             value={model}
+//             onChange={(e) => setModel(e.target.value)}
+//             className="p-2 border"
+//           />
+//           <input
+//             type="text"
+//             value={manufacture}
+//             onChange={(e) => setManufacture(e.target.value)}
+//             className="p-2 border"
+//           />
+//           <button onClick={handleAdd} className="p-2 m-1 bg-green-500">
+//             Add to Array
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Sample;
