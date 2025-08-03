@@ -9,6 +9,11 @@ export const productApi = createApi({
   tagTypes: ["Cart", "Category"],
 
   endpoints: (builder) => ({
+    // GET http://localhost:8080/api/products?search=shirt
+    searchProducts: builder.query<any, string>({
+      query: (query) => `/api/products?search=${query}`,
+    }),
+
     getProducts: builder.query<any, void>({
       query: () => "/api/products",
     }),
@@ -79,6 +84,7 @@ export const productApi = createApi({
 
 export const {
   useGetProductsQuery,
+  useSearchProductsQuery,
   useGetProductByIdQuery,
   useCreateProductMutation,
   useAddToCartMutation,

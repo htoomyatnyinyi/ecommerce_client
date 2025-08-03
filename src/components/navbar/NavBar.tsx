@@ -34,7 +34,7 @@ const NavBar: React.FC = () => {
       {/* User Actions & Cart */}
       <div className="col-span-4 md:col-span-4p-2 flex justify-end items-center space-x-6">
         <div className="font-bold">
-          <Link to="/product/cart">
+          <Link to="/products/cart">
             {/* <h1>{cartcount}</h1> */}
 
             {/* <p>Shopping Cart</p> */}

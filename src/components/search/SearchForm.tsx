@@ -2,12 +2,19 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setQuery, clearQuery } from "@/redux/slice/searchSlice";
 import type { RootState } from "@/redux/store/store";
-import { useGetProductsQuery } from "@/redux/query/productApi";
+import { useSearchProductsQuery } from "@/redux/query/productApi";
 
 const SearchForm: React.FC = () => {
+  const dispatch = useDispatch();
   // Select the query from the Redux store
   const query = useSelector((state: RootState) => state.search.query);
-  const dispatch = useDispatch();
+
+  const { data: searchProducts, isLoading: isSearching } =
+    useSearchProductsQuery(query, { skip: !query });
+
+  if (isSearching) return <p>Searching ...</p>;
+
+  // console.log(searchProducts, "searcing");
 
   // Handle input change
   const handleChange = (e: any) => {
@@ -17,7 +24,7 @@ const SearchForm: React.FC = () => {
   // Handle form submission
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    console.log("Search query:", query);
+    console.log("Search query:", query, e);
     // Add logic to handle search (e.g., API call)
   };
 

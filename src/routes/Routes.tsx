@@ -12,6 +12,8 @@ import ProductDashboard from "@/pages/dashboard/admin/ProductDashboard";
 
 import Products from "@/pages/products/Products";
 import ProductDetails from "@/pages/products/ProductDetails";
+import Cart from "@/pages/carts/Cart";
+import Checkout from "@/pages/carts/Checkout";
 // import { NavigationBar } from "@/components/navbar/NavigationBar";
 const NotFound = () => {
   return (
@@ -116,6 +118,14 @@ export const router = createBrowserRouter([
       {
         path: "/products",
         element: <Products />,
+      },
+      {
+        path: "/products/cart",
+        element: <Cart />,
+      },
+      {
+        path: "/checkout",
+        element: <Checkout />,
       },
       {
         path: "/products/:id",

@@ -1,22 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   useGetProductByIdQuery,
   useGetProductsQuery,
 } from "@/redux/query/productApi";
-import ProductImageGallery from "./ProductImageGallery"; // New component
-import RelatedProducts from "./RelatedProducts"; // New component
+import ProductImageGallery from "./ProductImageGallery";
+import RelatedProducts from "./RelatedProducts";
+import SearchForm from "@/components/search/SearchForm";
+import QuantitySelector from "./QuantitySelector";
+import { useDispatch } from "react-redux";
+import { addItemToCart } from "@/redux/slice/cartSlice";
 
 const ProductDetails: React.FC = () => {
+  const dispatch = useDispatch();
   // Use a specific type for params for better type safety
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: any }>();
+  // --- State for selection ---
+  const [selectedVariant, setSelectedVariant] = useState<any | null>(null);
+  const [quantity, setQuantity] = useState(1);
 
-  // Fetch the single product. The 'skip' option is great!
+  console.log(selectedVariant);
+
   const {
     data: product,
     isLoading: isProductLoading,
     isError,
   } = useGetProductByIdQuery(id, { skip: !id });
+
+  // --- Auto-select the first available variant when product data loads ---
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product]);
 
   // Fetch all products for the 'Related Products' section
   const { data: allProducts, isLoading: areProductsLoading } =
@@ -33,8 +49,27 @@ const ProductDetails: React.FC = () => {
     );
   }
 
+  const handleAddToCart = () => {
+    if (selectedVariant) {
+      dispatch(
+        addItemToCart({
+          ...product, // Send product info
+          variant: selectedVariant, // Send selected variant info
+          quantity: quantity,
+        })
+      );
+      // Optionally, show a success message here
+      console.log("Added to cart:", {
+        product: product.title,
+        variant: selectedVariant,
+        quantity,
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto p-4 md:p-8">
+      <SearchForm />
       {/* Main product details section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-16">
         {/* Left side: Image Gallery */}
@@ -45,10 +80,10 @@ const ProductDetails: React.FC = () => {
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
             {product.title}
           </h1>
-          <p className="text-gray-600 mb-6">{product.description}</p>
+          <p className="mb-6">{product.description}</p>
           <div className="mt-4 border-t pt-4">
             <h3 className="text-xl font-semibold mb-2">Available Options</h3>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               {product.variants.map((variant: any) => (
                 <div
                   key={variant.id}
@@ -56,7 +91,7 @@ const ProductDetails: React.FC = () => {
                 >
                   <div>
                     <p>
-                      <span className="font-semibold">Size:</span>{" "}
+                      <span className="font-semibold">Size:</span>
                       {variant.size}
                     </p>
                     <p className="text-sm text-gray-400">SKU: {variant.sku}</p>
@@ -71,6 +106,42 @@ const ProductDetails: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div> */}
+
+            {/* --- Variant Selection --- */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-2">Size:</h3>
+              <div className="flex flex-wrap gap-2">
+                {product.variants.map((variant: any) => (
+                  <button
+                    key={variant.id}
+                    onClick={() => setSelectedVariant(variant)}
+                    className={`py-2 px-4 rounded-md border-2 transition-colors duration-200 ${
+                      selectedVariant?.id === variant.id
+                        ? "bg-blue-600 border-blue-600 text-white" // Selected style
+                        : "bg-white/10 border-gray-600 hover:border-gray-400" // Default style
+                    }`}
+                  >
+                    {variant.size}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* --- Price Display (updates when variant changes) --- */}
+            <p className="text-3xl font-bold mb-6">
+              ${selectedVariant ? selectedVariant.price : "---"}
+            </p>
+
+            {/* --- Add to Cart Section --- */}
+            <div className="flex items-center gap-4">
+              <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
+              <button
+                onClick={handleAddToCart}
+                disabled={!selectedVariant} // Disable button if no variant is selected
+                className="flex-grow bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
+              >
+                Add to Cart
+              </button>
             </div>
           </div>
         </div>
@@ -87,6 +158,7 @@ const ProductDetails: React.FC = () => {
 };
 
 export default ProductDetails;
+
 // import React from "react";
 // import {
 //   useGetProductByIdQuery,

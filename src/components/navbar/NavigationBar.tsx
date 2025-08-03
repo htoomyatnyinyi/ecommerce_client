@@ -105,7 +105,7 @@ export function NavigationBar() {
             </NavigationMenuItem> */}
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/product">Shop</Link>
+            <Link to="/products">Shop</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
