@@ -1,11 +1,8 @@
-// src/pages/CheckoutPage.tsx
-
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 // import { clearCart } from "@/redux/slice/cartSlice";
 import type { RootState } from "@/redux/store/store";
-import { removeFromCart } from "@/redux/slice/cartSlice";
 
 const Checkout: React.FC = () => {
   const dispatch = useDispatch();
@@ -43,7 +40,6 @@ const Checkout: React.FC = () => {
 
     // Clear the cart and navigate to a success page or homepage
     // dispatch(clearCart());
-    dispatch(removeFromCart());
     alert("Thank you for your order!");
     navigate("/");
   };

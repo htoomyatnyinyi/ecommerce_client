@@ -13,7 +13,6 @@ const Products = () => {
             <div>Loading ...</div>
           ) : (
             <div>
-              <h1>title</h1>
               <ProductLists products={products?.products} />
             </div>
           )}
