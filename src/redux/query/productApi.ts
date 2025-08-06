@@ -44,6 +44,27 @@ export const productApi = createApi({
       invalidatesTags: ["Cart"],
     }),
 
+    removeCartItem: builder.mutation({
+      query: (removeCartItemId) => ({
+        url: "/api/cart",
+        method: "DELETE",
+        body: removeCartItemId,
+        // need to adjust with backend
+        // url: `/api/cart/${removeCartItemId}`,
+        // method: "DELETE",
+      }),
+      invalidatesTags: ["Cart"],
+    }),
+
+    updateCartItem: builder.mutation({
+      query: ({ cartItemId, quantity }) => ({
+        url: "/api/cart/quantity", // This will hit your backend's updateCart endpoint
+        method: "PUT",
+        body: { cartItemId, quantity },
+      }),
+      invalidatesTags: ["Cart"], // Invalidate 'Cart' tag after update
+    }),
+
     getCart: builder.query<any, void>({
       query: () => "/api/cart",
       providesTags: ["Cart"],
@@ -88,6 +109,8 @@ export const {
   useGetProductByIdQuery,
   useCreateProductMutation,
   useAddToCartMutation,
+  useRemoveCartItemMutation,
+  useUpdateCartItemMutation,
   useGetCartQuery,
   //
   useCreateNewCategoryMutation,

@@ -3,7 +3,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import type { RootState } from "@/redux/store/store";
 import { removeFromCart, updateQuantity } from "@/redux/slice/cartSlice";
-import { useGetCartQuery } from "@/redux/query/productApi";
+import {
+  useGetCartQuery,
+  useRemoveCartItemMutation,
+} from "@/redux/query/productApi";
 
 const Cart: React.FC = () => {
   const dispatch = useDispatch();
@@ -15,6 +18,8 @@ const Cart: React.FC = () => {
   const { items, totalQuantity, totalPrice } = useSelector(
     (state: RootState) => state.cart
   );
+  const [removeCartItem, { isLoading: isRemovingCartItem }] =
+    useRemoveCartItemMutation();
 
   // Calculate subtotal using useMemo for performance
   const subtotal = useMemo(() => {
@@ -24,8 +29,10 @@ const Cart: React.FC = () => {
     );
   }, [items]);
 
-  const handleRemove = (variantId: string) => {
-    dispatch(removeFromCart(variantId));
+  const handleRemove = (cartItemId: string) => {
+    console.log(cartItemId, "remove");
+    dispatch(removeFromCart(cartItemId));
+    removeCartItem({ removeCartItemId: cartItemId });
   };
 
   const handleQuantityChange = (id: string, quantity: number) => {
@@ -36,10 +43,12 @@ const Cart: React.FC = () => {
     return (
       <div className="text-center p-10">
         <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
-        <Link to="/" className="bg-blue-600 text-white py-2 px-4 rounded-lg">
+        <Link
+          to="/products"
+          className="bg-blue-600 text-white py-2 px-4 rounded-lg"
+        >
           Continue Shopping
         </Link>
-        {/* {carts?.getCart.map((cart) => cart.id)} */}
       </div>
     );
   }
@@ -52,7 +61,7 @@ const Cart: React.FC = () => {
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
             <div
-              key={item.variant.id}
+              key={item.id}
               className="flex items-center bg-white/5 p-4 rounded-lg"
             >
               <img
@@ -81,7 +90,7 @@ const Cart: React.FC = () => {
                   min="1"
                 />
                 <button
-                  onClick={() => handleRemove(item.variant.id)}
+                  onClick={() => handleRemove(item.id)} // item.variant.id not sure
                   className="text-red-500 hover:text-red-400"
                 >
                   Remove
