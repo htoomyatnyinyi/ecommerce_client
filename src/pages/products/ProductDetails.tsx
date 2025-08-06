@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
+  useAddToCartMutation,
   useGetProductByIdQuery,
   useGetProductsQuery,
 } from "@/redux/query/productApi";
@@ -13,13 +14,17 @@ import { addItemToCart } from "@/redux/slice/cartSlice";
 
 const ProductDetails: React.FC = () => {
   const dispatch = useDispatch();
+
   // Use a specific type for params for better type safety
   const { id } = useParams<{ id: any }>();
+
   // --- State for selection ---
   const [selectedVariant, setSelectedVariant] = useState<any | null>(null);
   const [quantity, setQuantity] = useState(1);
 
-  console.log(selectedVariant);
+  // console.log(selectedVariant);
+
+  const [addToCart, { isLoading: isAddToCartLoading }] = useAddToCartMutation();
 
   const {
     data: product,
@@ -58,12 +63,18 @@ const ProductDetails: React.FC = () => {
           quantity: quantity,
         })
       );
-      // Optionally, show a success message here
-      console.log("Added to cart:", {
-        product: product.title,
-        variant: selectedVariant,
+
+      addToCart({
+        productId: product.id,
+        variantId: selectedVariant.id,
         quantity,
       });
+      // // Optionally, show a success message here
+      // console.log("Added to cart:", {
+      //   product: product.title,
+      //   variant: selectedVariant,
+      //   quantity,
+      // });
     }
   };
 

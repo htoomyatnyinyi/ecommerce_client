@@ -1,14 +1,20 @@
-// src/pages/CartPage.tsx
-
 import React, { useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import type { RootState } from "@/redux/store/store";
 import { removeFromCart, updateQuantity } from "@/redux/slice/cartSlice";
+import { useGetCartQuery } from "@/redux/query/productApi";
 
 const Cart: React.FC = () => {
   const dispatch = useDispatch();
-  const { items } = useSelector((state: RootState) => state.cart);
+
+  const {} = useGetCartQuery();
+  // const { data: carts } = useGetCartQuery();
+  // console.log(carts, " atCart components");
+
+  const { items, totalQuantity, totalPrice } = useSelector(
+    (state: RootState) => state.cart
+  );
 
   // Calculate subtotal using useMemo for performance
   const subtotal = useMemo(() => {
@@ -19,11 +25,11 @@ const Cart: React.FC = () => {
   }, [items]);
 
   const handleRemove = (variantId: string) => {
-    dispatch(removeFromCart({ variantId }));
+    dispatch(removeFromCart(variantId));
   };
 
-  const handleQuantityChange = (variantId: string, quantity: number) => {
-    dispatch(updateQuantity({ variantId, quantity }));
+  const handleQuantityChange = (id: string, quantity: number) => {
+    dispatch(updateQuantity({ id, quantity }));
   };
 
   if (items.length === 0) {
@@ -33,6 +39,7 @@ const Cart: React.FC = () => {
         <Link to="/" className="bg-blue-600 text-white py-2 px-4 rounded-lg">
           Continue Shopping
         </Link>
+        {/* {carts?.getCart.map((cart) => cart.id)} */}
       </div>
     );
   }
@@ -91,9 +98,17 @@ const Cart: React.FC = () => {
             <span>Subtotal</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between mb-4">
+          <div className="flex justify-between mb-2">
             <span>Shipping</span>
             <span>Free</span>
+          </div>
+          <div className="flex justify-between mb-2">
+            <span>Backend Price</span>
+            <span>{totalPrice}</span>
+          </div>
+          <div className="flex justify-between mb-4">
+            <span>Total Quantity</span>
+            <span>{totalQuantity}</span>
           </div>
           <div className="border-t pt-4 flex justify-between font-bold text-lg">
             <span>Total</span>
