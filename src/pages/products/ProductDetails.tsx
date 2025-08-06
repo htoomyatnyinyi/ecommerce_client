@@ -151,7 +151,7 @@ const ProductDetails: React.FC = () => {
                 disabled={!selectedVariant} // Disable button if no variant is selected
                 className="flex-grow bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
               >
-                Add to Cart
+                {isAddToCartLoading ? "Loading .." : "Add To Cart"}
               </button>
             </div>
           </div>

@@ -1,4 +1,3 @@
-// src/components/QuantitySelector.tsx
 import React from "react";
 
 interface Props {

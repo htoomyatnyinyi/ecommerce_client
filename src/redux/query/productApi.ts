@@ -49,9 +49,6 @@ export const productApi = createApi({
         url: "/api/cart",
         method: "DELETE",
         body: removeCartItemId,
-        // need to adjust with backend
-        // url: `/api/cart/${removeCartItemId}`,
-        // method: "DELETE",
       }),
       invalidatesTags: ["Cart"],
     }),

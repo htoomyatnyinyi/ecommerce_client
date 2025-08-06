@@ -67,6 +67,21 @@ const cartSlice = createSlice({
       }
     );
 
+    builder.addMatcher(
+      productApi.endpoints.updateCartItem.matchFulfilled,
+      (state, action) => {
+        console.log(
+          action,
+          "at update extra reducer to get quantity and cartItemId"
+        );
+        // const { id, quantity } = action.meta.arg; // Get id and quantity from the mutation's args
+        // const item = state.items.find((item) => item.id === id);
+        // if (item) {
+        //   item.quantity = quantity; // Update state with the new quantity
+        // }
+      }
+    );
+
     // ✅ after POST /cart (addToCart), you can optimistically update state
     builder.addMatcher(
       productApi.endpoints.addToCart.matchFulfilled,
