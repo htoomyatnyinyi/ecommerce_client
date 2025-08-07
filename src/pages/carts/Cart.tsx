@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import type { RootState } from "@/redux/store/store";
-
+// import { removeFromCart, updateQuantity } from "@/redux/slice/cartSlice";
 import {
   useGetCartQuery,
   useRemoveCartItemMutation,
@@ -10,7 +10,11 @@ import {
 } from "@/redux/query/productApi";
 
 const Cart: React.FC = () => {
-  const { isLoading } = useGetCartQuery();
+  // const dispatch = useDispatch();
+
+  const {} = useGetCartQuery();
+  // const { data: carts } = useGetCartQuery();
+  // console.log(carts, " atCart components");
 
   const { items, totalQuantity, totalPrice } = useSelector(
     (state: RootState) => state.cart
@@ -19,6 +23,10 @@ const Cart: React.FC = () => {
   const [removeCartItem, { isLoading: isRemovingCartItem }] =
     useRemoveCartItemMutation();
 
+  // const [updateCartItem, { isLoading: isUpdateCartItemQuantityLoading }] =
+  //   useUpdateCartItemMutation();
+
+  // Calculate subtotal using useMemo for performance
   const subtotal = useMemo(() => {
     return items.reduce(
       (total, item) => total + item.variant.price * item.quantity,
@@ -27,12 +35,20 @@ const Cart: React.FC = () => {
   }, [items]);
 
   const handleRemove = (cartItemId: string) => {
+    // console.log(cartItemId, "remove");
+    // dispatch(removeFromCart(cartItemId));
     removeCartItem({ removeCartItemId: cartItemId });
   };
 
-  if (isLoading) {
-    return <div className="text-center p-10">Loading cart...</div>;
-  }
+  // const handleQuantityChange = (cartItemId: string, quantity: number) => {
+  //   // dispatch(updateQuantity({ id, quantity }));
+  //   updateCartItem({ cartItemId, quantity });
+  // };
+
+  // const handleQuantityChange = (id: string, quantity: number) => {
+  //   // dispatch(updateQuantity({ id, quantity }));
+
+  // };
 
   if (items.length === 0) {
     return (
@@ -52,7 +68,7 @@ const Cart: React.FC = () => {
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="text-3xl font-bold mb-6">Your Shopping Cart</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Cart Items */}
+        {/* Cart Items List */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
             <div
@@ -72,12 +88,26 @@ const Cart: React.FC = () => {
                 <p className="font-semibold">${item.variant.price}</p>
               </div>
               <div className="flex items-center gap-4">
+                {/* <input
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    handleQuantityChange(
+                      item.variant.id,
+                      parseInt(e.target.value, 10)
+                    )
+                  }
+                  className="w-16 p-1 text-center bg-gray-700 rounded"
+                  min="1"
+                /> */}
                 <QuantityUpdater
-                  initialQuantity={item.quantity}
+                  quantity={item.quantity}
                   cartItemId={item.id}
+                  items={items} // test
                 />
+                {/* <QuantityUpdater quantity={item.quantity} setQuantity={4} /> */}
                 <button
-                  onClick={() => handleRemove(item.id)}
+                  onClick={() => handleRemove(item.id)} // item.variant.id not sure
                   className="text-red-500 hover:text-red-400"
                 >
                   {isRemovingCartItem ? "Removing..." : "Remove"}
@@ -92,8 +122,7 @@ const Cart: React.FC = () => {
           <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
           <div className="flex justify-between mb-2">
             <span>Subtotal</span>
-            <span>{subtotal} MMK</span>
-            {/* <span>${subtotal.toFixed(2)}</span> */}
+            <span>${subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Shipping</span>
@@ -101,7 +130,7 @@ const Cart: React.FC = () => {
           </div>
           <div className="flex justify-between mb-2">
             <span>Backend Price</span>
-            <span>{totalPrice} MMK</span>
+            <span>{totalPrice}</span>
           </div>
           <div className="flex justify-between mb-4">
             <span>Total Quantity</span>
@@ -109,8 +138,7 @@ const Cart: React.FC = () => {
           </div>
           <div className="border-t pt-4 flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span>{subtotal} MMK</span>
-            {/* <span>${subtotal.toFixed(2)}</span> */}
+            <span>${subtotal.toFixed(2)}</span>
           </div>
           <Link to="/checkout">
             <button className="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700">
@@ -123,244 +151,62 @@ const Cart: React.FC = () => {
   );
 };
 
-interface QuantityProps {
-  initialQuantity: number;
+interface Props {
+  quantity: number;
   cartItemId: string;
+  items: any;
+  // setQuantity: (quantity: number) => void;
 }
 
-const QuantityUpdater: React.FC<QuantityProps> = ({
-  initialQuantity,
-  cartItemId,
-}) => {
-  const [quantity, setQuantity] = useState(initialQuantity);
-  const [updateCartItem, { isLoading }] = useUpdateCartItemMutation();
+const QuantityUpdater: React.FC<Props> = ({ quantity, cartItemId, items }) => {
+  const [number, setNumber] = useState(quantity);
 
-  const handleUpdate = (newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setQuantity(newQuantity);
-    updateCartItem({ cartItemId, quantity: newQuantity });
+  const abc = items.find((e: any) => e.id === cartItemId);
+  const updateQuantity = { ...abc, quantity: number };
+  // console.log(abc, abc.quantity, "abc find");
+  console.log(
+    updateQuantity,
+    updateQuantity.quantity,
+    "final update the slice"
+  );
+
+  // const increment = () => setNumber(number + 1);
+  // const decrement = () => setNumber(number > 1 ? number - 1 : 1);
+
+  const [updateCartItem, { isLoading: isUpdateCartItemQuantityLoading }] =
+    useUpdateCartItemMutation();
+
+  const increment = (quantity: number) => {
+    console.log(cartItemId, quantity);
+    setNumber(number + 1);
+    // updateCartItem({ cartItemId, quantity });
+  };
+  const decrement = (quantity: number) => {
+    console.log(cartItemId, quantity);
+    setNumber(number > 1 ? number - 1 : 1);
+    // updateCartItem({ cartItemId, quantity });
   };
 
   return (
     <div className="flex items-center border rounded-lg">
-      <button
-        onClick={() => handleUpdate(quantity - 1)}
-        className="px-4 py-2 text-lg"
-      >
+      <button onClick={() => decrement(number)} className="px-4 py-2 text-lg">
         -
       </button>
       <span className="px-4 py-2 text-lg">
-        {isLoading ? "Loading..." : quantity}
+        {isUpdateCartItemQuantityLoading ? (
+          <div>Loading...</div>
+        ) : (
+          <div>{quantity}</div>
+        )}
       </span>
-      <button
-        onClick={() => handleUpdate(quantity + 1)}
-        className="px-4 py-2 text-lg"
-      >
+      <button onClick={() => increment(number)} className="px-4 py-2 text-lg">
         +
       </button>
+      {/* <button onClick={increment} className="px-4 py-2 text-lg">
+        +
+      </button> */}
     </div>
   );
 };
 
 export default Cart;
-// import React, { useMemo, useState } from "react";
-// import { useSelector, useDispatch } from "react-redux";
-// import { Link } from "react-router-dom";
-// import type { RootState } from "@/redux/store/store";
-// // import { removeFromCart, updateQuantity } from "@/redux/slice/cartSlice";
-// import {
-//   useGetCartQuery,
-//   useRemoveCartItemMutation,
-//   useUpdateCartItemMutation,
-// } from "@/redux/query/productApi";
-
-// const Cart: React.FC = () => {
-//   // const dispatch = useDispatch();
-
-//   const {} = useGetCartQuery();
-//   // const { data: carts } = useGetCartQuery();
-//   // console.log(carts, " atCart components");
-
-//   const { items, totalQuantity, totalPrice } = useSelector(
-//     (state: RootState) => state.cart
-//   );
-
-//   const [removeCartItem, { isLoading: isRemovingCartItem }] =
-//     useRemoveCartItemMutation();
-
-//   // const [updateCartItem, { isLoading: isUpdateCartItemQuantityLoading }] =
-//   //   useUpdateCartItemMutation();
-
-//   // Calculate subtotal using useMemo for performance
-//   const subtotal = useMemo(() => {
-//     return items.reduce(
-//       (total, item) => total + item.variant.price * item.quantity,
-//       0
-//     );
-//   }, [items]);
-
-//   const handleRemove = (cartItemId: string) => {
-//     console.log(cartItemId, "remove");
-//     // dispatch(removeFromCart(cartItemId));
-//     removeCartItem({ removeCartItemId: cartItemId });
-//   };
-
-//   // const handleQuantityChange = (cartItemId: string, quantity: number) => {
-//   //   // dispatch(updateQuantity({ id, quantity }));
-//   //   updateCartItem({ cartItemId, quantity });
-//   // };
-
-//   // const handleQuantityChange = (id: string, quantity: number) => {
-//   //   // dispatch(updateQuantity({ id, quantity }));
-
-//   // };
-
-//   if (items.length === 0) {
-//     return (
-//       <div className="text-center p-10">
-//         <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
-//         <Link
-//           to="/products"
-//           className="bg-blue-600 text-white py-2 px-4 rounded-lg"
-//         >
-//           Continue Shopping
-//         </Link>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="container mx-auto p-4 md:p-8">
-//       <h1 className="text-3xl font-bold mb-6">Your Shopping Cart</h1>
-//       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-//         {/* Cart Items List */}
-//         <div className="lg:col-span-2 space-y-4">
-//           {items.map((item) => (
-//             <div
-//               key={item.id}
-//               className="flex items-center bg-white/5 p-4 rounded-lg"
-//             >
-//               <img
-//                 src={item.image}
-//                 alt={item.title}
-//                 className="w-24 h-24 object-cover rounded-md mr-4"
-//               />
-//               <div className="flex-grow">
-//                 <p className="font-bold">{item.title}</p>
-//                 <p className="text-sm text-gray-400">
-//                   Size: {item.variant.size}
-//                 </p>
-//                 <p className="font-semibold">${item.variant.price}</p>
-//               </div>
-//               <div className="flex items-center gap-4">
-//                 {/* <input
-//                   type="number"
-//                   value={item.quantity}
-//                   onChange={(e) =>
-//                     handleQuantityChange(
-//                       item.variant.id,
-//                       parseInt(e.target.value, 10)
-//                     )
-//                   }
-//                   className="w-16 p-1 text-center bg-gray-700 rounded"
-//                   min="1"
-//                 /> */}
-//                 <QuantityUpdater
-//                   quantity={item.quantity}
-//                   cartItemId={item.id}
-//                 />
-//                 {/* <QuantityUpdater quantity={item.quantity} setQuantity={4} /> */}
-//                 <button
-//                   onClick={() => handleRemove(item.id)} // item.variant.id not sure
-//                   className="text-red-500 hover:text-red-400"
-//                 >
-//                   {isRemovingCartItem ? "Removing..." : "Remove"}
-//                 </button>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-
-//         {/* Order Summary */}
-//         <div className="bg-white/5 p-6 rounded-lg h-fit">
-//           <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
-//           <div className="flex justify-between mb-2">
-//             <span>Subtotal</span>
-//             <span>${subtotal.toFixed(2)}</span>
-//           </div>
-//           <div className="flex justify-between mb-2">
-//             <span>Shipping</span>
-//             <span>Free</span>
-//           </div>
-//           <div className="flex justify-between mb-2">
-//             <span>Backend Price</span>
-//             <span>{totalPrice}</span>
-//           </div>
-//           <div className="flex justify-between mb-4">
-//             <span>Total Quantity</span>
-//             <span>{totalQuantity}</span>
-//           </div>
-//           <div className="border-t pt-4 flex justify-between font-bold text-lg">
-//             <span>Total</span>
-//             <span>${subtotal.toFixed(2)}</span>
-//           </div>
-//           <Link to="/checkout">
-//             <button className="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700">
-//               Proceed to Checkout
-//             </button>
-//           </Link>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// interface Props {
-//   quantity: number;
-//   cartItemId: string;
-//   // setQuantity: (quantity: number) => void;
-// }
-
-// const QuantityUpdater: React.FC<Props> = ({ quantity, cartItemId }) => {
-//   const [number, setNumber] = useState(quantity);
-
-//   // const increment = () => setNumber(number + 1);
-//   // const decrement = () => setNumber(number > 1 ? number - 1 : 1);
-
-//   const [updateCartItem, { isLoading: isUpdateCartItemQuantityLoading }] =
-//     useUpdateCartItemMutation();
-
-//   const increment = (quantity: number) => {
-//     console.log(cartItemId, quantity);
-//     setNumber(number + 1);
-//     updateCartItem({ cartItemId, quantity });
-//   };
-//   const decrement = (quantity: number) => {
-//     console.log(cartItemId, quantity);
-//     setNumber(number > 1 ? number - 1 : 1);
-//     updateCartItem({ cartItemId, quantity });
-//   };
-
-//   return (
-//     <div className="flex items-center border rounded-lg">
-//       <button onClick={() => decrement(number)} className="px-4 py-2 text-lg">
-//         -
-//       </button>
-//       <span className="px-4 py-2 text-lg">
-//         {isUpdateCartItemQuantityLoading ? (
-//           <div>Loading...</div>
-//         ) : (
-//           <div>{quantity}</div>
-//         )}
-//       </span>
-//       <button onClick={() => increment(number)} className="px-4 py-2 text-lg">
-//         +
-//       </button>
-//       {/* <button onClick={increment} className="px-4 py-2 text-lg">
-//         +
-//       </button> */}
-//     </div>
-//   );
-// };
-
-// export default Cart;

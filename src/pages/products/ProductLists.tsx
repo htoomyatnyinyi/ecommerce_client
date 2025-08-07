@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const ProductLists = ({ products }: { products: any }) => {
   return (
-    <div>
+    <div className="grid">
       <div>
         <div className="">
           {products.map((product: any) => (
