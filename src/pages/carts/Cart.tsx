@@ -10,7 +10,7 @@ import {
 } from "@/redux/query/productApi";
 
 const Cart: React.FC = () => {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const {} = useGetCartQuery();
   // const { data: carts } = useGetCartQuery();
@@ -101,9 +101,9 @@ const Cart: React.FC = () => {
                   min="1"
                 /> */}
                 <QuantityUpdater
-                  quantity={item.quantity}
+                  initialQuantity={item.quantity}
                   cartItemId={item.id}
-                  items={items} // test
+                  // items={items} // test
                 />
                 {/* <QuantityUpdater quantity={item.quantity} setQuantity={4} /> */}
                 <button
@@ -152,23 +152,23 @@ const Cart: React.FC = () => {
 };
 
 interface Props {
-  quantity: number;
+  initialQuantity: number;
   cartItemId: string;
-  items: any;
+  // items: any;
   // setQuantity: (quantity: number) => void;
 }
 
-const QuantityUpdater: React.FC<Props> = ({ quantity, cartItemId, items }) => {
-  const [number, setNumber] = useState(quantity);
+const QuantityUpdater: React.FC<Props> = ({ initialQuantity, cartItemId }) => {
+  const [quantity, setQuantity] = useState(initialQuantity);
 
-  const abc = items.find((e: any) => e.id === cartItemId);
-  const updateQuantity = { ...abc, quantity: number };
-  // console.log(abc, abc.quantity, "abc find");
-  console.log(
-    updateQuantity,
-    updateQuantity.quantity,
-    "final update the slice"
-  );
+  // const abc = items.find((e: any) => e.id === cartItemId);
+  // const updateQuantity = { ...abc, quantity: number };
+  // // console.log(abc, abc.quantity, "abc find");
+  // console.log(
+  //   updateQuantity,
+  //   updateQuantity.quantity,
+  //   "final update the slice"
+  // );
 
   // const increment = () => setNumber(number + 1);
   // const decrement = () => setNumber(number > 1 ? number - 1 : 1);
@@ -176,35 +176,29 @@ const QuantityUpdater: React.FC<Props> = ({ quantity, cartItemId, items }) => {
   const [updateCartItem, { isLoading: isUpdateCartItemQuantityLoading }] =
     useUpdateCartItemMutation();
 
-  const increment = (quantity: number) => {
-    console.log(cartItemId, quantity);
-    setNumber(number + 1);
-    // updateCartItem({ cartItemId, quantity });
-  };
-  const decrement = (quantity: number) => {
-    console.log(cartItemId, quantity);
-    setNumber(number > 1 ? number - 1 : 1);
-    // updateCartItem({ cartItemId, quantity });
+  const handleUpdate = (newQuantity: number) => {
+    if (newQuantity < 1) return;
+    setQuantity(newQuantity);
+    updateCartItem({ cartItemId, quantity: newQuantity });
   };
 
   return (
     <div className="flex items-center border rounded-lg">
-      <button onClick={() => decrement(number)} className="px-4 py-2 text-lg">
+      <button
+        onClick={() => handleUpdate(quantity - 1)}
+        className="px-4 py-2 text-lg"
+      >
         -
       </button>
       <span className="px-4 py-2 text-lg">
-        {isUpdateCartItemQuantityLoading ? (
-          <div>Loading...</div>
-        ) : (
-          <div>{quantity}</div>
-        )}
+        {isUpdateCartItemQuantityLoading ? "..." : quantity}
       </span>
-      <button onClick={() => increment(number)} className="px-4 py-2 text-lg">
+      <button
+        onClick={() => handleUpdate(quantity + 1)}
+        className="px-4 py-2 text-lg"
+      >
         +
       </button>
-      {/* <button onClick={increment} className="px-4 py-2 text-lg">
-        +
-      </button> */}
     </div>
   );
 };

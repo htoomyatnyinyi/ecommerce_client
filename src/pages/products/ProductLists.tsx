@@ -1,21 +1,22 @@
 import { Link } from "react-router-dom";
 
 const ProductLists = ({ products }: { products: any }) => {
+  console.log(products, "products");
   return (
-    <div className="grid">
+    <div className="">
       <div>
         <div className="">
           {products.map((product: any) => (
             <div key={product.id}>
               <Link to={`/products/${product.id}`}>
                 <h3>{product.title}</h3>
-                <p>
+                <div>
                   {product.description && (
                     <p className="text-gray-600">{product.description}</p>
                   )}
-                </p>
+                </div>
                 <div className="flex">
-                  {product.images.map((image: any) => (
+                  {product.images.map((image: any, index: number) => (
                     <div key={image.id}>
                       <img
                         src={image.url}

@@ -1,3 +1,11 @@
+// import React from "react";
+
+// const Checkout: React.FC = () => {
+//   return <div>Checkout</div>;
+// };
+
+// export default Checkout;
+
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -62,8 +70,8 @@ const Checkout: React.FC = () => {
           />
           <input
             type="email"
-            name="email"
             placeholder="Email Address"
+            name="email"
             onChange={handleInputChange}
             className="w-full p-3 bg-gray-700 rounded"
             required
