@@ -77,7 +77,7 @@ const NavBar: React.FC = () => {
         {/* Logo */}
         <div className="flex items-center gap-12">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-primary dark: p-2 rounded-2xl group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-primary/20">
+            <div className="bg-primary p-2 rounded-2xl group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-primary/20">
               <img
                 src={logo}
                 alt="OASIS"
@@ -206,7 +206,7 @@ const NavBar: React.FC = () => {
             <div className="flex flex-col gap-6">
               <MobileNavLink to="/" label="Home" />
               <MobileNavLink to="/products" label="Shop" />
-              <MobileNavLink to="/product_form" label="Sell Product" />
+              <MobileNavLink to="/products/manage/new" label="Sell Product" />
               <MobileNavLink to={getDashboardPath()} label="Dashboard" />
             </div>
 

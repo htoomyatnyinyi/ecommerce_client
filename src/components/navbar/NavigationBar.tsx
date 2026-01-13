@@ -69,7 +69,7 @@ export function NavigationBar() {
               <ListItem href="/faq" title="Concierge">
                 Help center, shipping, and return policies.
               </ListItem>
-              <ListItem href="/product_form" title="Sell with Us">
+              <ListItem href="/products/manage/new" title="Sell with Us">
                 Join our elite circle of merchants.
               </ListItem>
             </ul>

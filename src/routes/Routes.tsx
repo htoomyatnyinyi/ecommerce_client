@@ -1,41 +1,59 @@
-import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
+import React, { lazy, Suspense } from "react";
+import {
+  createBrowserRouter,
+  Outlet,
+  Navigate,
+  ScrollRestoration,
+} from "react-router-dom";
 import NavBar from "@/components/navbar/NavBar";
-import Home from "@/pages/Home";
-import SignUp from "@/pages/auth/SignUp";
-import SignIn from "@/pages/auth/SignIn";
-import VerifyEmail from "@/pages/auth/VerifyEmail";
-import Product from "@/pages/Product";
-import ProductForm from "@/components/product/ProductForm";
-import AdminDashboard from "@/pages/dashboard/admin/AdminDashboard";
-import ProductDashboard from "@/pages/dashboard/admin/ProductDashboard";
-import EmployerDashboard from "@/pages/dashboard/employer/EmployerDashboard";
-import UserDashboard from "@/pages/dashboard/user/UserDashboard";
-
-import Products from "@/pages/products/Products";
-import ProductDetails from "@/pages/products/ProductDetails";
-import Cart from "@/pages/carts/Cart";
-import Checkout from "@/pages/carts/Checkout";
 import { useAuthMeQuery } from "@/redux/query/authApi";
 import { Loader2 } from "lucide-react";
 
-/**
- * Loading Screen for Auth Checks
- */
-const AuthLoading = () => (
-  <div className="h-screen w-full flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      <p className="font-bold italic animate-pulse">
-        Establishing secure connection...
-      </p>
+// --- Lazy Load Pages ---
+const Home = lazy(() => import("@/pages/Home"));
+const SignUp = lazy(() => import("@/pages/auth/SignUp"));
+const SignIn = lazy(() => import("@/pages/auth/SignIn"));
+const VerifyEmail = lazy(() => import("@/pages/auth/VerifyEmail"));
+const Products = lazy(() => import("@/pages/products/Products"));
+const ProductDetails = lazy(() => import("@/pages/products/ProductDetails"));
+const Cart = lazy(() => import("@/pages/carts/Cart"));
+const Checkout = lazy(() => import("@/pages/carts/Checkout"));
+
+const AdminDashboard = lazy(
+  () => import("@/pages/dashboard/admin/AdminDashboard")
+);
+const ProductDashboard = lazy(
+  () => import("@/pages/dashboard/admin/ProductDashboard")
+);
+const EmployerDashboard = lazy(
+  () => import("@/pages/dashboard/employer/EmployerDashboard")
+);
+const UserDashboard = lazy(
+  () => import("@/pages/dashboard/user/UserDashboard")
+);
+const ProductForm = lazy(() => import("@/components/product/ProductForm"));
+
+const GsapPlayground = lazy(() => import("@/pages/Test/A"));
+
+const PageLoader = () => (
+  <div className="h-[80vh] w-full flex items-center justify-center bg-background/50 backdrop-blur-sm">
+    <div className="flex flex-col items-center gap-6">
+      <div className="relative">
+        <Loader2 className="w-16 h-16 text-primary animate-spin opacity-20" />
+        <Loader2 className="w-16 h-16 text-primary animate-spin absolute inset-0 [animation-duration:3s]" />
+      </div>
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-black italic tracking-tighter animate-pulse">
+          OASIS.
+        </h2>
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground">
+          Loading Experience
+        </p>
+      </div>
     </div>
   </div>
 );
 
-/**
- * ProtectedRoute Component
- * Handles authentication and role-based access control
- */
 const ProtectedRoute = ({
   children,
   allowedRoles,
@@ -45,45 +63,55 @@ const ProtectedRoute = ({
 }) => {
   const { data: user, isLoading, isError } = useAuthMeQuery();
 
-  console.log(user, "check auth");
-  if (isLoading) return <AuthLoading />;
-
-  if (isError || !user) {
-    return <Navigate to="/signin" replace />;
-  }
-
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Redirect unauthorized users back to home or a common dashboard
-    console.warn(
-      `Unauthorized access attempt by ${user.role} to restricted route.`
-    );
+  if (isLoading) return <PageLoader />;
+  if (isError || !user) return <Navigate to="/signin" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role))
     return <Navigate to="/" replace />;
-  }
 
   return <>{children}</>;
 };
 
-const NotFound = () => {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center p-4 h-screen">
-      <h1 className="text-6xl font-black italic tracking-tighter mb-4">
-        404 - <span className="text-primary">Lost.</span>
-      </h1>
-      <p className="text-xl font-medium text-muted-foreground mb-8">
-        The page you are looking for has drifted away from our oasis.
-      </p>
-      <Navigate to="/" />
-    </div>
-  );
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { data: user, isLoading } = useAuthMeQuery();
+  if (isLoading) return <PageLoader />;
+  if (user) {
+    const dashboardMap: Record<string, string> = {
+      ADMIN: "/dashboard",
+      EMPLOYER: "/employer/dashboard",
+      USER: "/user/dashboard",
+    };
+    return <Navigate to={dashboardMap[user.role] || "/"} replace />;
+  }
+  return <>{children}</>;
 };
 
+const NotFound = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-background">
+    <h1 className="text-[10rem] font-black italic tracking-tighter opacity-10">
+      404
+    </h1>
+    <h2 className="text-4xl font-black italic -mt-10 mb-8">
+      Lost in <span className="text-primary">Oasis.</span>
+    </h2>
+    <a
+      href="/"
+      className="px-10 py-4 bg-primary text-primary-foreground rounded-2xl font-black italic"
+    >
+      Return Home
+    </a>
+  </div>
+);
+
 const AppLayout = () => (
-  <>
+  <div className="flex flex-col min-h-screen">
     <NavBar />
-    <main className="">
-      <Outlet />
+    <main className="flex-grow">
+      <Suspense fallback={<PageLoader />}>
+        <Outlet />
+      </Suspense>
     </main>
-  </>
+    <ScrollRestoration />
+  </div>
 );
 
 export const router = createBrowserRouter([
@@ -92,15 +120,31 @@ export const router = createBrowserRouter([
     children: [
       // --- Public Routes ---
       { path: "/", element: <Home /> },
-      { path: "/signin", element: <SignIn /> },
-      { path: "/signup", element: <SignUp /> },
-      { path: "/product", element: <Product /> },
       { path: "/products", element: <Products /> },
       { path: "/products/:id", element: <ProductDetails /> },
       { path: "/products/cart", element: <Cart /> },
       { path: "/verify-email", element: <VerifyEmail /> },
+      { path: "/gsap", element: <GsapPlayground /> },
 
-      // --- Authenticated Shared Routes ---
+      // --- Guest Only ---
+      {
+        path: "/signin",
+        element: (
+          <PublicRoute>
+            <SignIn />
+          </PublicRoute>
+        ),
+      },
+      {
+        path: "/signup",
+        element: (
+          <PublicRoute>
+            <SignUp />
+          </PublicRoute>
+        ),
+      },
+
+      // --- Authenticated Shared ---
       {
         path: "/checkout",
         element: (
@@ -110,43 +154,7 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // --- Admin Exclusive Routes ---
-      {
-        path: "/dashboard",
-        element: (
-          <ProtectedRoute allowedRoles={["ADMIN"]}>
-            <AdminDashboard />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "/dashboard/products",
-        element: (
-          <ProtectedRoute allowedRoles={["ADMIN"]}>
-            <ProductDashboard />
-          </ProtectedRoute>
-        ),
-      },
-
-      // --- Employer Exclusive Routes ---
-      {
-        path: "/employer/dashboard",
-        element: (
-          <ProtectedRoute allowedRoles={["EMPLOYER"]}>
-            <EmployerDashboard />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "/product_form",
-        element: (
-          <ProtectedRoute allowedRoles={["EMPLOYER", "ADMIN"]}>
-            <ProductForm />
-          </ProtectedRoute>
-        ),
-      },
-
-      // --- User Exclusive Routes ---
+      // --- User Profile ---
       {
         path: "/user/dashboard",
         element: (
@@ -156,7 +164,45 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // --- Catch-all ---
+      // --- Merchant / Employer Console ---
+      {
+        path: "/employer",
+        element: (
+          <ProtectedRoute allowedRoles={["EMPLOYER", "ADMIN"]}>
+            <Outlet />
+          </ProtectedRoute>
+        ),
+        children: [
+          { path: "dashboard", element: <EmployerDashboard /> },
+          { path: "products/new", element: <ProductForm /> },
+        ],
+      },
+
+      // --- Managed Product Route (Unified Path) ---
+      {
+        path: "/products/manage/new",
+        element: (
+          <ProtectedRoute allowedRoles={["EMPLOYER", "ADMIN"]}>
+            <ProductForm />
+          </ProtectedRoute>
+        ),
+      },
+
+      // --- Admin Dashboard ---
+      {
+        path: "/dashboard",
+        element: (
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <Outlet />
+          </ProtectedRoute>
+        ),
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: "products", element: <ProductDashboard /> },
+          { path: "products/new", element: <ProductForm /> },
+        ],
+      },
+
       { path: "*", element: <NotFound /> },
     ],
   },

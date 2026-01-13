@@ -1,9 +1,45 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   useCreateNewCategoryMutation,
   useCreateNewProductMutation,
   useGetCategoryQuery,
 } from "@/redux/query/productApi";
+import {
+  Plus,
+  Trash2,
+  Image as ImageIcon,
+  Package,
+  Settings2,
+  CheckCircle2,
+  ChevronRight,
+  ChevronLeft,
+  Loader2,
+  AlertCircle,
+  Tag,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface VariantOption {
   attributeName: string;
@@ -26,79 +62,54 @@ interface Image {
 interface FormData {
   title: string;
   description: string;
-  categoryId: string | null; // Add categoryId to formData
-  newCategoryName: string; // For creating a new category
+  categoryId: string | null;
+  newCategoryName: string;
   variants: Variant[];
   images: Image[];
 }
 
-interface Category {
-  id: string;
-  categoryName: string;
-}
+// interface Category {
+//   id: string;
+//   categoryName: string;
+// }
 
 const ProductForm: React.FC = () => {
-  const [createNewProduct, { isLoading: isCreateNewProductLoading }] =
+  const navigate = useNavigate();
+  const [createNewProduct, { isLoading: isCreatingProduct }] =
     useCreateNewProductMutation();
-  const [createNewCategory, { isLoading: isCreatingNewCategoryLoading }] =
+  const [createNewCategory, { isLoading: isCreatingCategory }] =
     useCreateNewCategoryMutation();
-  const { data: categories = [], isLoading: isGetCategoriesLoading } =
+  const { data: categories = [], isLoading: isCategoriesLoading } =
     useGetCategoryQuery();
 
   const [step, setStep] = useState(1);
-  const [error, setError] = useState<string | null>(null); // For validation errors
+  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
-    title: "T Shirt",
-    description: "this t shirt is 100 % cotton",
+    title: "",
+    description: "",
     categoryId: null,
     newCategoryName: "",
     variants: [
       {
-        sku: "SKU-101",
-        price: "39",
-        stock: 10,
-        variantOptions: [
-          { attributeName: "color", attributeValue: "green" },
-          { attributeName: "size", attributeValue: "M" },
-        ],
-      },
-      {
-        sku: "SKU-102",
-        price: "40",
-        stock: 20,
-        variantOptions: [
-          { attributeName: "color", attributeValue: "black" },
-          { attributeName: "size", attributeValue: "L" },
-        ],
+        sku: "",
+        price: "",
+        stock: 0,
+        variantOptions: [{ attributeName: "Color", attributeValue: "" }],
       },
     ],
     images: [
       {
-        url: "https://images.pexels.com/photos/807598/pexels-photo-807598.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        altText: "pixel image",
+        url: "",
+        altText: "",
         isPrimary: true,
-      },
-      {
-        url: "https://images.pexels.com/photos/807598/pexels-photo-807598.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        altText: "pixel image",
-        isPrimary: false, // Fixed: Only one image should be primary
       },
     ],
   });
 
-  if (
-    isCreateNewProductLoading ||
-    isCreatingNewCategoryLoading ||
-    isGetCategoriesLoading
-  ) {
-    return <p>Loading...</p>;
-  }
-
-  // Handle input changes
   const handleChange = (field: keyof FormData, value: any) => {
     setFormData({ ...formData, [field]: value });
-    setError(null); // Clear error on input change
+    setError(null);
   };
 
   const handleVariantChange = (
@@ -112,15 +123,15 @@ const ProductForm: React.FC = () => {
   };
 
   const handleVariantOptionChange = (
-    variantIndex: number,
-    optionIndex: number,
+    vIdx: number,
+    oIdx: number,
     field: keyof VariantOption,
     value: string
   ) => {
     const newVariants = [...formData.variants];
-    const newOptions = [...newVariants[variantIndex].variantOptions];
-    newOptions[optionIndex] = { ...newOptions[optionIndex], [field]: value };
-    newVariants[variantIndex].variantOptions = newOptions;
+    const newOptions = [...newVariants[vIdx].variantOptions];
+    newOptions[oIdx] = { ...newOptions[oIdx], [field]: value };
+    newVariants[vIdx].variantOptions = newOptions;
     setFormData({ ...formData, variants: newVariants });
   };
 
@@ -134,13 +145,17 @@ const ProductForm: React.FC = () => {
     setFormData({ ...formData, images: newImages });
   };
 
-  // Add/remove variants and images
   const addVariant = () => {
     setFormData({
       ...formData,
       variants: [
         ...formData.variants,
-        { sku: "", price: "", stock: 0, variantOptions: [] },
+        {
+          sku: "",
+          price: "",
+          stock: 0,
+          variantOptions: [{ attributeName: "", attributeValue: "" }],
+        },
       ],
     });
   };
@@ -181,1180 +196,533 @@ const ProductForm: React.FC = () => {
 
   const removeImage = (index: number) => {
     const newImages = formData.images.filter((_, i) => i !== index);
-    if (!newImages.some((img) => img.isPrimary) && newImages.length > 0) {
+    if (!newImages.some((img) => img.isPrimary) && newImages.length > 0)
       newImages[0].isPrimary = true;
-    }
     setFormData({ ...formData, images: newImages });
   };
 
-  // Validate form data
-  const validateForm = (): string | null => {
-    if (!formData.title.trim()) return "Title is required";
-    if (!formData.description.trim()) return "Description is required";
-    if (!formData.categoryId && !formData.newCategoryName.trim()) {
-      return "Please select a category or enter a new category name";
-    }
-    if (formData.variants.length === 0)
-      return "At least one variant is required";
-    for (const variant of formData.variants) {
-      if (!variant.sku.trim()) return "SKU is required for all variants";
-      if (!variant.price.trim()) return "Price is required for all variants";
-      if (variant.stock < 0) return "Stock cannot be negative";
-      if (variant.variantOptions.length === 0)
-        return "At least one variant option is required";
-      for (const option of variant.variantOptions) {
-        if (!option.attributeName.trim() || !option.attributeValue.trim()) {
-          return "All variant options must have a name and value";
-        }
-      }
-    }
-    if (formData.images.length === 0) return "At least one image is required";
-    if (!formData.images.some((img) => img.isPrimary))
-      return "One image must be set as primary";
-    for (const image of formData.images) {
-      if (!image.url.trim()) return "Image URL is required";
-      if (!image.altText.trim()) return "Alt text is required for all images";
-    }
+  const validateForm = () => {
+    if (!formData.title) return "Title is required";
+    if (!formData.description) return "Description is required";
+    if (!formData.categoryId && !formData.newCategoryName)
+      return "Select or create a category";
     return null;
   };
 
-  // Navigation and submission
-  const nextStep = async () => {
-    if (step < 3) {
-      setStep(step + 1);
-      return;
-    }
-
-    // Validate form
+  const handleSubmit = async () => {
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
+      toast.error(validationError);
       return;
     }
 
     try {
       let categoryId = formData.categoryId;
-
-      // Create new category if newCategoryName is provided
-      if (!categoryId && formData.newCategoryName.trim()) {
-        const categoryResponse = await createNewCategory({
+      if (!categoryId && formData.newCategoryName) {
+        const catRes = await createNewCategory({
           name: formData.newCategoryName,
         }).unwrap();
-        categoryId = categoryResponse.id; // Assuming the response includes the new category ID
+        categoryId = catRes.id;
       }
 
-      if (!categoryId) {
-        setError("Category is required");
-        return;
-      }
-
-      // Prepare payload for product creation
       const payload = {
         title: formData.title,
         description: formData.description,
-        categoryId, // Include categoryId
-        variants: formData.variants.map((variant) => ({
-          ...variant,
-          options: variant.variantOptions, // Rename for backend
-          variantOptions: undefined,
+        categoryId,
+        variants: formData.variants.map((v) => ({
+          ...v,
+          options: v.variantOptions,
         })),
         images: formData.images,
       };
 
-      const response = await createNewProduct(payload).unwrap();
-      console.log("Product created:", response);
-      // Optionally reset form or redirect
-    } catch (error) {
-      console.error("Error creating product:", error);
-      setError("Failed to create product. Please try again.");
+      console.log(payload, "payload category");
+
+      await createNewProduct(payload).unwrap();
+      toast.success("Product created successfully!");
+      navigate("/dashboard/products");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to create product");
     }
   };
 
-  const prevStep = () => {
-    setStep(step - 1);
-    setError(null);
-  };
+  const steps = [
+    { id: 1, label: "Description", icon: <Package className="w-4 h-4" /> },
+    { id: 2, label: "Variants", icon: <Settings2 className="w-4 h-4" /> },
+    { id: 3, label: "Media", icon: <ImageIcon className="w-4 h-4" /> },
+  ];
+
+  if (isCategoriesLoading) return <PageLoader />;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Create New Product
-      </h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      <div className="flex justify-between mb-6">
-        {[1, 2, 3].map((s) => (
-          <div
-            key={s}
-            className={`flex-1 text-center py-2 rounded-md ${
-              step === s
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-700"
-            }`}
-          >
-            Step {s}:{" "}
-            {s === 1 ? "Product Info" : s === 2 ? "Variants" : "Images"}
+    <div className="min-h-screen bg-background pt-24 pb-20 px-4">
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-border/50 pb-8">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-primary font-black italic uppercase tracking-widest text-[10px]">
+              <Plus className="w-3 h-3" /> New Listing
+            </div>
+            <h1 className="text-5xl font-black italic tracking-tighter">
+              Create <span className="text-primary text-6xl">Product.</span>
+            </h1>
+            <p className="text-muted-foreground font-medium text-lg">
+              Detailed specifications for your global catalog item.
+            </p>
           </div>
-        ))}
-      </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        {step === 1 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Step 1: Product Information
-            </h2>
-            <div className="mb-4">
-              <label htmlFor="title" className="block text-gray-700">
-                Title
-              </label>
-              <input
-                id="title"
-                type="text"
-                value={formData.title}
-                onChange={(e) => handleChange("title", e.target.value)}
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="description" className="block text-gray-700">
-                Description
-              </label>
-              <textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleChange("description", e.target.value)}
-                className="w-full p-2 border rounded-md"
-                rows={4}
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="category" className="block text-gray-700">
-                Category
-              </label>
-              <select
-                id="category"
-                value={formData.categoryId || ""}
-                onChange={(e) =>
-                  handleChange("categoryId", e.target.value || null)
-                }
-                className="w-full p-2 border rounded-md"
+          {/* Step Indicator */}
+          <div className="flex gap-2 bg-secondary/20 p-1.5 rounded-2xl border border-border/50">
+            {steps.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setStep(s.id)}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                  step === s.id
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
               >
-                <option value="">Select a category</option>
-                {categories.map((category: Category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.categoryName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="mb-4">
-              <label htmlFor="newCategory" className="block text-gray-700">
-                Or Create New Category
-              </label>
-              <input
-                id="newCategory"
-                type="text"
-                value={formData.newCategoryName}
-                onChange={(e) =>
-                  handleChange("newCategoryName", e.target.value)
-                }
-                placeholder="Enter new category name"
-                className="w-full p-2 border rounded-md"
-                disabled={!!formData.categoryId} // Disable if a category is selected
-              />
-            </div>
+                {s.icon} {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-2xl flex items-center gap-3 text-destructive animate-in fade-in slide-in-from-top-2">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <p className="text-sm font-bold">{error}</p>
           </div>
         )}
 
-        {step === 2 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Step 2: Variants
-            </h2>
-            {formData.variants.map((variant, index) => (
-              <div key={index} className="mb-4 p-4 border rounded-md">
-                <h3 className="text-lg font-medium">Variant {index + 1}</h3>
-                <div className="mb-2">
-                  <label
-                    htmlFor={`sku-${index}`}
-                    className="block text-gray-700"
-                  >
-                    SKU
-                  </label>
-                  <input
-                    id={`sku-${index}`}
-                    type="text"
-                    value={variant.sku}
-                    onChange={(e) =>
-                      handleVariantChange(index, "sku", e.target.value)
-                    }
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor={`price-${index}`}
-                    className="block text-gray-700"
-                  >
-                    Price
-                  </label>
-                  <input
-                    id={`price-${index}`}
-                    type="text"
-                    value={variant.price}
-                    onChange={(e) =>
-                      handleVariantChange(index, "price", e.target.value)
-                    }
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor={`stock-${index}`}
-                    className="block text-gray-700"
-                  >
-                    Stock
-                  </label>
-                  <input
-                    id={`stock-${index}`}
-                    type="number"
-                    value={variant.stock}
-                    onChange={(e) =>
-                      handleVariantChange(
-                        index,
-                        "stock",
-                        parseInt(e.target.value) || 0
-                      )
-                    }
-                    className="w-full p-2 border rounded-md"
-                    min="0"
-                  />
-                </div>
-                <div className="mt-2">
-                  <h4 className="text-sm font-medium">Variant Options</h4>
-                  {variant.variantOptions.map((option, optIndex) => (
-                    <div key={optIndex} className="flex space-x-2 mt-2">
-                      <div className="flex-1">
-                        <label
-                          htmlFor={`attr-name-${index}-${optIndex}`}
-                          className="block text-gray-700"
-                        >
-                          Attribute Name
-                        </label>
-                        <input
-                          id={`attr-name-${index}-${optIndex}`}
-                          type="text"
-                          value={option.attributeName}
-                          onChange={(e) =>
-                            handleVariantOptionChange(
-                              index,
-                              optIndex,
-                              "attributeName",
-                              e.target.value
-                            )
-                          }
-                          className="w-full p-2 border rounded-md"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label
-                          htmlFor={`attr-value-${index}-${optIndex}`}
-                          className="block text-gray-700"
-                        >
-                          Attribute Value
-                        </label>
-                        <input
-                          id={`attr-value-${index}-${optIndex}`}
-                          type="text"
-                          value={option.attributeValue}
-                          onChange={(e) =>
-                            handleVariantOptionChange(
-                              index,
-                              optIndex,
-                              "attributeValue",
-                              e.target.value
-                            )
-                          }
-                          className="w-full p-2 border rounded-md"
-                        />
-                      </div>
-                      <button
-                        onClick={() => removeVariantOption(index, optIndex)}
-                        className="mt-6 text-red-500 hover:text-red-700"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Form Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {step === 1 && (
+              <Card className="rounded-[2.5rem] border-border/50 bg-card/50 backdrop-blur-xl overflow-hidden shadow-2xl">
+                <CardHeader className="p-8">
+                  <CardTitle className="text-2xl font-black italic">
+                    General Info
+                  </CardTitle>
+                  <CardDescription>
+                    The core identity of your product.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-8 pt-0 space-y-6">
+                  <div className="space-y-2">
+                    <Label className="font-bold ml-1">Product Title</Label>
+                    <Input
+                      placeholder="e.g. Signature Cotton Tee"
+                      className="h-14 rounded-2xl bg-secondary/20 border-border/50 text-lg"
+                      value={formData.title}
+                      onChange={(e) => handleChange("title", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-bold ml-1">Description</Label>
+                    <Textarea
+                      placeholder="Narrate your product's story..."
+                      className="min-h-[200px] rounded-2xl bg-secondary/20 border-border/50 p-6 text-base resize-none"
+                      value={formData.description}
+                      onChange={(e) =>
+                        handleChange("description", e.target.value)
+                      }
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="font-bold ml-1 flex items-center gap-2">
+                        <Tag className="w-4 h-4" /> Category
+                      </Label>
+                      <Select
+                        value={formData.categoryId || "none"}
+                        onValueChange={(val) =>
+                          handleChange(
+                            "categoryId",
+                            val === "none" ? null : val
+                          )
+                        }
                       >
-                        Remove
-                      </button>
+                        <SelectTrigger className="h-14 rounded-2xl bg-secondary/20 border-border/50">
+                          <SelectValue placeholder="Select Category" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-2xl border-border/50">
+                          <SelectItem value="none">
+                            None / New Category
+                          </SelectItem>
+                          {categories.map((c: any) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.categoryName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  ))}
-                  <button
-                    onClick={() => addVariantOption(index)}
-                    className="mt-2 text-blue-600 hover:text-blue-800"
-                  >
-                    + Add Option
-                  </button>
-                </div>
-                {formData.variants.length > 1 && (
-                  <button
-                    onClick={() => removeVariant(index)}
-                    className="mt-2 text-red-500 hover:text-red-700"
-                  >
-                    Remove Variant
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              onClick={addVariant}
-              className="mt-4 text-blue-600 hover:text-blue-800"
-            >
-              + Add Variant
-            </button>
-          </div>
-        )}
 
-        {step === 3 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Step 3: Images
-            </h2>
-            {formData.images.map((image, index) => (
-              <div key={index} className="mb-4 p-4 border rounded-md">
-                <div className="mb-2">
-                  <label
-                    htmlFor={`url-${index}`}
-                    className="block text-gray-700"
-                  >
-                    Image URL
-                  </label>
-                  <input
-                    id={`url-${index}`}
-                    type="text"
-                    value={image.url}
-                    onChange={(e) =>
-                      handleImageChange(index, "url", e.target.value)
-                    }
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor={`altText-${index}`}
-                    className="block text-gray-700"
-                  >
-                    Alt Text
-                  </label>
-                  <input
-                    id={`altText-${index}`}
-                    type="text"
-                    value={image.altText}
-                    onChange={(e) =>
-                      handleImageChange(index, "altText", e.target.value)
-                    }
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <input
-                    id={`isPrimary-${index}`}
-                    type="checkbox"
-                    checked={image.isPrimary}
-                    onChange={(e) =>
-                      handleImageChange(index, "isPrimary", e.target.checked)
-                    }
-                    className="mr-2"
-                  />
-                  <label htmlFor={`isPrimary-${index}`}>Primary Image</label>
-                </div>
-                {formData.images.length > 1 && (
-                  <button
-                    onClick={() => removeImage(index)}
-                    className="mt-2 text-red-500 hover:text-red-700"
-                  >
-                    Remove Image
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              onClick={addImage}
-              className="mt-4 text-blue-600 hover:text-blue-800"
-            >
-              + Add Image
-            </button>
-          </div>
-        )}
+                    {!formData.categoryId && (
+                      <div className="space-y-2 animate-in zoom-in duration-300">
+                        <Label className="font-bold ml-1">
+                          New Category Name
+                        </Label>
+                        <Input
+                          placeholder="Create New..."
+                          className="h-14 rounded-2xl bg-primary/5 border-primary/20"
+                          value={formData.newCategoryName}
+                          onChange={(e) =>
+                            handleChange("newCategoryName", e.target.value)
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-        <div className="mt-6 flex justify-between">
-          {step > 1 && (
-            <button
-              onClick={prevStep}
-              className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
-            >
-              Previous
-            </button>
-          )}
-          <button
-            onClick={nextStep}
-            className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors ml-auto"
-          >
-            {step === 3 ? "Submit" : "Next"}
-          </button>
+            {step === 2 && (
+              <div className="space-y-6">
+                {formData.variants.map((v, i) => (
+                  <Card
+                    key={i}
+                    className="rounded-[2.5rem] border-border/50 bg-card/50 backdrop-blur-xl relative group"
+                  >
+                    {formData.variants.length > 1 && (
+                      <button
+                        onClick={() => removeVariant(i)}
+                        className="absolute right-4 top-4 p-2 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
+                    <CardHeader className="p-8">
+                      <CardTitle className="text-xl font-black italic flex items-center gap-3">
+                        <span className="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center text-xs not-italic">
+                          {i + 1}
+                        </span>
+                        Variant Configuration
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-8 pt-0 space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-black uppercase tracking-widest opacity-60">
+                            SKU
+                          </Label>
+                          <Input
+                            placeholder="SKU-001"
+                            value={v.sku}
+                            onChange={(e) =>
+                              handleVariantChange(i, "sku", e.target.value)
+                            }
+                            className="rounded-xl bg-secondary/10"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-black uppercase tracking-widest opacity-60">
+                            Price ($)
+                          </Label>
+                          <Input
+                            placeholder="0.00"
+                            value={v.price}
+                            onChange={(e) =>
+                              handleVariantChange(i, "price", e.target.value)
+                            }
+                            className="rounded-xl bg-secondary/10"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-black uppercase tracking-widest opacity-60">
+                            Inventory
+                          </Label>
+                          <Input
+                            type="number"
+                            value={v.stock}
+                            onChange={(e) =>
+                              handleVariantChange(
+                                i,
+                                "stock",
+                                parseInt(e.target.value)
+                              )
+                            }
+                            className="rounded-xl bg-secondary/10"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="p-6 rounded-3xl bg-secondary/5 border border-border/30 space-y-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                            Attributes
+                          </Label>
+                          <Button
+                            onClick={() => addVariantOption(i)}
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 text-[10px] font-black uppercase text-primary"
+                          >
+                            <Plus className="w-3 h-3 mr-1" /> Add Attribute
+                          </Button>
+                        </div>
+                        {v.variantOptions.map((opt, oIdx) => (
+                          <div
+                            key={oIdx}
+                            className="flex gap-4 items-center animate-in slide-in-from-left-2"
+                          >
+                            <Input
+                              placeholder="Name (e.g. Size)"
+                              value={opt.attributeName}
+                              onChange={(e) =>
+                                handleVariantOptionChange(
+                                  i,
+                                  oIdx,
+                                  "attributeName",
+                                  e.target.value
+                                )
+                              }
+                              className="h-10 rounded-xl bg-background"
+                            />
+                            <Input
+                              placeholder="Value (e.g. XL)"
+                              value={opt.attributeValue}
+                              onChange={(e) =>
+                                handleVariantOptionChange(
+                                  i,
+                                  oIdx,
+                                  "attributeValue",
+                                  e.target.value
+                                )
+                              }
+                              className="h-10 rounded-xl bg-background"
+                            />
+                            <button
+                              onClick={() => removeVariantOption(i, oIdx)}
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                <Button
+                  onClick={addVariant}
+                  variant="outline"
+                  className="w-full h-16 rounded-[2rem] border-dashed border-2 border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all font-black uppercase tracking-widest italic text-xs gap-3"
+                >
+                  <Plus className="w-5 h-5" /> Add Another Product Variant
+                </Button>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-6">
+                {formData.images.map((img, i) => (
+                  <Card
+                    key={i}
+                    className="rounded-[2.5rem] border-border/50 bg-card/50 backdrop-blur-xl relative group overflow-hidden"
+                  >
+                    <CardContent className="p-8 flex flex-col md:flex-row gap-8">
+                      <div className="w-full md:w-40 h-40 bg-secondary/20 rounded-2xl overflow-hidden shrink-0 border border-border/50 relative">
+                        {img.url ? (
+                          <img
+                            src={img.url}
+                            alt="preview"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <ImageIcon className="w-10 h-10 opacity-20" />
+                          </div>
+                        )}
+                        {img.isPrimary && (
+                          <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest">
+                            Primary
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-grow space-y-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-black uppercase tracking-widest opacity-60 text-muted-foreground">
+                            Source URL
+                          </Label>
+                          <Input
+                            placeholder="https://..."
+                            value={img.url}
+                            onChange={(e) =>
+                              handleImageChange(i, "url", e.target.value)
+                            }
+                            className="h-12 rounded-xl bg-secondary/10"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-black uppercase tracking-widest opacity-60 text-muted-foreground">
+                            Alt Text
+                          </Label>
+                          <Input
+                            placeholder="Descriptive label..."
+                            value={img.altText}
+                            onChange={(e) =>
+                              handleImageChange(i, "altText", e.target.value)
+                            }
+                            className="h-12 rounded-xl bg-secondary/10"
+                          />
+                        </div>
+                        <div className="flex items-center gap-4 pt-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`primary-${i}`}
+                              checked={img.isPrimary}
+                              onCheckedChange={(val) =>
+                                handleImageChange(i, "isPrimary", !!val)
+                              }
+                            />
+                            <label
+                              htmlFor={`primary-${i}`}
+                              className="text-sm font-bold leading-none cursor-pointer"
+                            >
+                              Set as Primary Media
+                            </label>
+                          </div>
+                          {formData.images.length > 1 && (
+                            <Button
+                              onClick={() => removeImage(i)}
+                              variant="ghost"
+                              size="sm"
+                              className="ml-auto text-destructive hover:bg-destructive/10 rounded-xl"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" /> Remove
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                <Button
+                  onClick={addImage}
+                  variant="outline"
+                  className="w-full h-16 rounded-[2rem] border-dashed border-2 border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all font-black uppercase tracking-widest italic text-xs gap-3"
+                >
+                  <Plus className="w-5 h-5" /> Add More Media Assets
+                </Button>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center pt-8 border-t border-border/50">
+              <Button
+                onClick={() => setStep((s) => Math.max(1, s - 1))}
+                disabled={step === 1}
+                variant="ghost"
+                className="rounded-2xl h-14 px-8 font-black uppercase tracking-widest text-[10px] gap-3"
+              >
+                <ChevronLeft className="w-4 h-4" /> Go Back
+              </Button>
+
+              <Button
+                onClick={
+                  step === 3
+                    ? handleSubmit
+                    : () => setStep((s) => Math.min(3, s + 1))
+                }
+                disabled={isCreatingProduct || isCreatingCategory}
+                className="rounded-2xl h-14 px-10 font-black italic text-lg gap-3 shadow-2xl shadow-primary/20"
+              >
+                {isCreatingProduct || isCreatingCategory ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : step === 3 ? (
+                  <>
+                    Establish Product <CheckCircle2 className="w-5 h-5" />
+                  </>
+                ) : (
+                  <>
+                    Continue Configuration <ChevronRight className="w-5 h-5" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Sidebar / Preview */}
+          <div className="space-y-8">
+            <Card className="rounded-[2.5rem] border-primary/20 bg-primary/5 h-fit sticky top-28 overflow-hidden border">
+              <CardHeader className="p-8">
+                <CardTitle className="text-xl font-black italic">
+                  Platform Summary
+                </CardTitle>
+                <CardDescription>How your listing will appear.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8 pt-0 space-y-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                    Preview Title
+                  </p>
+                  <h3 className="text-2xl font-black italic truncate">
+                    {formData.title || "Untiled Listing"}
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-background/50 border border-primary/10">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
+                      Variants
+                    </p>
+                    <p className="text-xl font-black italic">
+                      {formData.variants.length}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-background/50 border border-primary/10">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
+                      Total Stock
+                    </p>
+                    <p className="text-xl font-black italic">
+                      {formData.variants.reduce(
+                        (acc, v) => acc + (v.stock || 0),
+                        0
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-primary/10">
+                  <div className="flex justify-between items-center text-sm font-black italic">
+                    <span className="text-muted-foreground uppercase tracking-widest text-[10px]">
+                      Merchant Visibility
+                    </span>
+                    <span className="text-green-500">Global Ready</span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="p-0 bg-primary/10 border-t border-primary/20 px-8 py-5">
+                <p className="text-[10px] font-bold text-primary/80 leading-relaxed uppercase tracking-widest">
+                  By establishing this product, it will be immediately available
+                  in the global OASIS ecosystem.
+                </p>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
+const PageLoader = () => (
+  <div className="h-screen w-full flex items-center justify-center bg-background">
+    <div className="flex flex-col items-center gap-4">
+      <Loader2 className="w-12 h-12 text-primary animate-spin" />
+      <p className="font-bold italic animate-pulse">
+        Synchronizing product data...
+      </p>
+    </div>
+  </div>
+);
+
 export default ProductForm;
-// import { useState } from "react";
-// import {
-//   useCreateNewCategoryMutation,
-//   useCreateNewProductMutation,
-//   useGetCategoryQuery,
-// } from "@/redux/query/productApi";
-
-// interface VariantOption {
-//   attributeName: string;
-//   attributeValue: string;
-// }
-
-// interface Variant {
-//   sku: string;
-//   price: string;
-//   stock: number;
-//   variantOptions: VariantOption[];
-// }
-
-// interface Image {
-//   url: string;
-//   altText: string;
-//   isPrimary: boolean;
-// }
-
-// interface FormData {
-//   title: string;
-//   description: string;
-//   variants: Variant[];
-//   images: Image[];
-// }
-
-// const ProductForm: React.FC = () => {
-//   // const dispatch = useDispatch();
-//   const [createNewProduct, { isLoading: isCreateNewProductLoading }] =
-//     useCreateNewProductMutation();
-//   const [createNewCategory, { isLoading: isCreatingNewCategoryLoading }] =
-//     useCreateNewCategoryMutation();
-
-//   if (isCreateNewProductLoading) return <p>Loading</p>;
-//   if (isCreatingNewCategoryLoading) return <p>Loading</p>;
-
-//   const [step, setStep] = useState(1);
-
-//   const [formData, setFormData] = useState<FormData>({
-//     title: "T Shirt",
-//     description: " this t shirt is 100 % cotton",
-//     variants: [
-//       {
-//         sku: "SKU-101",
-//         price: "39",
-//         stock: 10,
-//         variantOptions: [
-//           {
-//             attributeName: "color",
-//             attributeValue: "green",
-//           },
-//           {
-//             attributeName: "size",
-//             attributeValue: "M",
-//           },
-//         ],
-//       },
-//       {
-//         sku: "SKU-102",
-//         price: "40",
-//         stock: 20,
-//         variantOptions: [
-//           {
-//             attributeName: "color",
-//             attributeValue: "black",
-//           },
-//           {
-//             attributeName: "size",
-//             attributeValue: "L",
-//           },
-//         ],
-//       },
-//     ],
-//     images: [
-//       {
-//         url: "https://images.pexels.com/photos/807598/pexels-photo-807598.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-//         altText: "pixel imag",
-//         isPrimary: true,
-//       },
-//       {
-//         url: "https://images.pexels.com/photos/807598/pexels-photo-807598.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-//         altText: "pixel imag",
-//         isPrimary: true,
-//       },
-//     ],
-//   });
-
-//   const { data: getCategories, isLoading: isGetCategoriesLoading } =
-//     useGetCategoryQuery();
-
-//   if (isGetCategoriesLoading) return <p>Loading</p>;
-//   console.log(getCategories, "pf");
-
-//   // Handle input changes
-//   const handleChange = (field: keyof FormData, value: any) => {
-//     setFormData({ ...formData, [field]: value });
-//   };
-
-//   const handleVariantChange = (
-//     index: number,
-//     field: keyof Variant,
-//     value: any
-//   ) => {
-//     const newVariants = [...formData.variants];
-//     newVariants[index] = { ...newVariants[index], [field]: value };
-//     setFormData({ ...formData, variants: newVariants });
-//   };
-
-//   const handleVariantOptionChange = (
-//     variantIndex: number,
-//     optionIndex: number,
-//     field: keyof VariantOption,
-//     value: string
-//   ) => {
-//     const newVariants = [...formData.variants];
-//     const newOptions = [...newVariants[variantIndex].variantOptions];
-//     newOptions[optionIndex] = {
-//       ...newOptions[optionIndex],
-//       [field]: value,
-//     };
-//     newVariants[variantIndex].variantOptions = newOptions;
-//     setFormData({ ...formData, variants: newVariants });
-//   };
-
-//   const handleImageChange = (index: number, field: keyof Image, value: any) => {
-//     const newImages = [...formData.images];
-//     if (field === "isPrimary" && value) {
-//       newImages.forEach((img, i) => (img.isPrimary = i === index));
-//     } else {
-//       newImages[index] = { ...newImages[index], [field]: value };
-//     }
-//     setFormData({ ...formData, images: newImages });
-//   };
-
-//   // Add/remove variants and images
-//   const addVariant = () => {
-//     setFormData({
-//       ...formData,
-//       variants: [
-//         ...formData.variants,
-//         { sku: "", price: "", stock: 0, variantOptions: [] },
-//       ],
-//     });
-//   };
-
-//   const removeVariant = (index: number) => {
-//     setFormData({
-//       ...formData,
-//       variants: formData.variants.filter((_, i) => i !== index),
-//     });
-//   };
-
-//   const addVariantOption = (variantIndex: number) => {
-//     const newVariants = [...formData.variants];
-//     newVariants[variantIndex].variantOptions.push({
-//       attributeName: "",
-//       attributeValue: "",
-//     });
-//     setFormData({ ...formData, variants: newVariants });
-//   };
-
-//   const removeVariantOption = (variantIndex: number, optionIndex: number) => {
-//     const newVariants = [...formData.variants];
-//     newVariants[variantIndex].variantOptions = newVariants[
-//       variantIndex
-//     ].variantOptions.filter((_, i) => i !== optionIndex);
-//     setFormData({ ...formData, variants: newVariants });
-//   };
-
-//   const addImage = () => {
-//     setFormData({
-//       ...formData,
-//       images: [
-//         ...formData.images,
-//         { url: "", altText: "", isPrimary: formData.images.length === 0 },
-//       ],
-//     });
-//   };
-
-//   const removeImage = (index: number) => {
-//     const newImages = formData.images.filter((_, i) => i !== index);
-//     if (!newImages.some((img) => img.isPrimary) && newImages.length > 0) {
-//       newImages[0].isPrimary = true;
-//     }
-//     setFormData({ ...formData, images: newImages });
-//   };
-
-//   // Navigation and submission
-//   // const nextStep = async () => {
-//   //   if (step < 3) setStep(step + 1);
-//   //   // else console.log("Submitting product:", formData);
-//   //   else {
-//   //     try {
-//   //       const response = await createNewProduct(formData);
-//   //       console.log(response, " return data check");
-//   //     } catch (error) {
-//   //       console.error(error);
-//   //     }
-//   //   }
-//   // };
-
-//   const nextStep = async () => {
-//     if (step < 3) {
-//       setStep(step + 1);
-//     } else {
-//       // Transform data before submission
-//       const payload = {
-//         ...formData,
-//         variants: formData.variants.map((variant) => ({
-//           ...variant,
-//           options: variant.variantOptions, // Rename `variantOptions` → `options`
-//           variantOptions: undefined, // Remove the old key (optional)
-//         })),
-//       };
-
-//       try {
-//         const response = await createNewProduct(payload);
-//         console.log(response, " return data check");
-//       } catch (error) {
-//         console.error(error);
-//       }
-
-//       console.log("Submitting:", payload);
-//       // Example: dispatch(createProduct(payload));
-//     }
-//   };
-
-//   const prevStep = () => {
-//     setStep(step - 1);
-//   };
-
-//   return (
-//     <div className="container mx-auto px-4 py-8">
-//       <h1 className="text-3xl font-bold text-gray-800 mb-6">
-//         Create New Product
-//       </h1>
-//       <div className="flex justify-between mb-6">
-//         {[1, 2, 3].map((s) => (
-//           <div
-//             key={s}
-//             className={`flex-1 text-center py-2 rounded-md ${
-//               step === s
-//                 ? "bg-blue-600 text-white"
-//                 : "bg-gray-200 text-gray-700"
-//             }`}
-//           >
-//             Step {s}:{" "}
-//             {s === 1 ? "Product Info" : s === 2 ? "Variants" : "Images"}
-//           </div>
-//         ))}
-//       </div>
-
-//       <div className="bg-white p-6 rounded-lg shadow-md">
-//         {step === 1 && (
-//           <div>
-//             <h2 className="text-xl font-semibold text-gray-800 mb-4">
-//               Step 1: Product Information
-//             </h2>
-//             <div className="mb-4">
-//               <label htmlFor="title" className="block text-gray-700">
-//                 Title
-//               </label>
-//               <input
-//                 id="title"
-//                 type="text"
-//                 value={formData.title}
-//                 onChange={(e) => handleChange("title", e.target.value)}
-//                 className="w-full p-2 border rounded-md"
-//               />
-//             </div>
-//             <div className="mb-4">
-//               <label htmlFor="description" className="block text-gray-700">
-//                 Description
-//               </label>
-//               <textarea
-//                 id="description"
-//                 value={formData.description}
-//                 onChange={(e) => handleChange("description", e.target.value)}
-//                 className="w-full p-2 border rounded-md"
-//                 rows={4}
-//               />
-//             </div>
-//           </div>
-//         )}
-
-//         {step === 2 && (
-//           <div>
-//             <h2 className="text-xl font-semibold text-gray-800 mb-4">
-//               Step 2: Variants
-//             </h2>
-//             {formData.variants.map((variant, index) => (
-//               <div key={index} className="mb-4 p-4 border rounded-md">
-//                 <h3 className="text-lg font-medium">Variant {index + 1}</h3>
-//                 <div className="mb-2">
-//                   <label
-//                     htmlFor={`sku-${index}`}
-//                     className="block text-gray-700"
-//                   >
-//                     SKU
-//                   </label>
-//                   <input
-//                     id={`sku-${index}`}
-//                     type="text"
-//                     value={variant.sku}
-//                     onChange={(e) =>
-//                       handleVariantChange(index, "sku", e.target.value)
-//                     }
-//                     className="w-full p-2 border rounded-md"
-//                   />
-//                 </div>
-//                 <div className="mb-2">
-//                   <label
-//                     htmlFor={`price-${index}`}
-//                     className="block text-gray-700"
-//                   >
-//                     Price
-//                   </label>
-//                   <input
-//                     id={`price-${index}`}
-//                     type="text"
-//                     value={variant.price}
-//                     onChange={(e) =>
-//                       handleVariantChange(index, "price", e.target.value)
-//                     }
-//                     className="w-full p-2 border rounded-md"
-//                   />
-//                 </div>
-//                 <div className="mb-2">
-//                   <label
-//                     htmlFor={`stock-${index}`}
-//                     className="block text-gray-700"
-//                   >
-//                     Stock
-//                   </label>
-//                   <input
-//                     id={`stock-${index}`}
-//                     type="number"
-//                     value={variant.stock}
-//                     onChange={(e) =>
-//                       handleVariantChange(
-//                         index,
-//                         "stock",
-//                         parseInt(e.target.value) || 0
-//                       )
-//                     }
-//                     className="w-full p-2 border rounded-md"
-//                     min="0"
-//                   />
-//                 </div>
-//                 <div className="mt-2">
-//                   <h4 className="text-sm font-medium">Variant Options</h4>
-//                   {variant.variantOptions.map((option, optIndex) => (
-//                     <div key={optIndex} className="flex space-x-2 mt-2">
-//                       <div className="flex-1">
-//                         <label
-//                           htmlFor={`attr-name-${index}-${optIndex}`}
-//                           className="block text-gray-700"
-//                         >
-//                           Attribute Name
-//                         </label>
-//                         <input
-//                           id={`attr-name-${index}-${optIndex}`}
-//                           type="text"
-//                           value={option.attributeName}
-//                           onChange={(e) =>
-//                             handleVariantOptionChange(
-//                               index,
-//                               optIndex,
-//                               "attributeName",
-//                               e.target.value
-//                             )
-//                           }
-//                           className="w-full p-2 border rounded-md"
-//                         />
-//                       </div>
-//                       <div className="flex-1">
-//                         <label
-//                           htmlFor={`attr-value-${index}-${optIndex}`}
-//                           className="block text-gray-700"
-//                         >
-//                           Attribute Value
-//                         </label>
-//                         <input
-//                           id={`attr-value-${index}-${optIndex}`}
-//                           type="text"
-//                           value={option.attributeValue}
-//                           onChange={(e) =>
-//                             handleVariantOptionChange(
-//                               index,
-//                               optIndex,
-//                               "attributeValue",
-//                               e.target.value
-//                             )
-//                           }
-//                           className="w-full p-2 border rounded-md"
-//                         />
-//                       </div>
-//                       <button
-//                         onClick={() => removeVariantOption(index, optIndex)}
-//                         className="mt-6 text-red-500 hover:text-red-700"
-//                       >
-//                         Remove
-//                       </button>
-//                     </div>
-//                   ))}
-//                   <button
-//                     onClick={() => addVariantOption(index)}
-//                     className="mt-2 text-blue-600 hover:text-blue-800"
-//                   >
-//                     + Add Option
-//                   </button>
-//                 </div>
-//                 {formData.variants.length > 1 && (
-//                   <button
-//                     onClick={() => removeVariant(index)}
-//                     className="mt-2 text-red-500 hover:text-red-700"
-//                   >
-//                     Remove Variant
-//                   </button>
-//                 )}
-//               </div>
-//             ))}
-//             <button
-//               onClick={addVariant}
-//               className="mt-4 text-blue-600 hover:text-blue-800"
-//             >
-//               + Add Variant
-//             </button>
-//           </div>
-//         )}
-
-//         {step === 3 && (
-//           <div>
-//             <h2 className="text-xl font-semibold text-gray-800 mb-4">
-//               Step 3: Images
-//             </h2>
-//             {formData.images.map((image, index) => (
-//               <div key={index} className="mb-4 p-4 border rounded-md">
-//                 <div className="mb-2">
-//                   <label
-//                     htmlFor={`url-${index}`}
-//                     className="block text-gray-700"
-//                   >
-//                     Image URL
-//                   </label>
-//                   <input
-//                     id={`url-${index}`}
-//                     type="text"
-//                     value={image.url}
-//                     onChange={(e) =>
-//                       handleImageChange(index, "url", e.target.value)
-//                     }
-//                     className="w-full p-2 border rounded-md"
-//                   />
-//                 </div>
-//                 <div className="mb-2">
-//                   <label
-//                     htmlFor={`altText-${index}`}
-//                     className="block text-gray-700"
-//                   >
-//                     Alt Text
-//                   </label>
-//                   <input
-//                     id={`altText-${index}`}
-//                     type="text"
-//                     value={image.altText}
-//                     onChange={(e) =>
-//                       handleImageChange(index, "altText", e.target.value)
-//                     }
-//                     className="w-full p-2 border rounded-md"
-//                   />
-//                 </div>
-//                 <div className="flex items-center">
-//                   <input
-//                     id={`isPrimary-${index}`}
-//                     type="checkbox"
-//                     checked={image.isPrimary}
-//                     onChange={(e) =>
-//                       handleImageChange(index, "isPrimary", e.target.checked)
-//                     }
-//                     className="mr-2"
-//                   />
-//                   <label htmlFor={`isPrimary-${index}`}>Primary Image</label>
-//                 </div>
-//                 {formData.images.length > 1 && (
-//                   <button
-//                     onClick={() => removeImage(index)}
-//                     className="mt-2 text-red-500 hover:text-red-700"
-//                   >
-//                     Remove Image
-//                   </button>
-//                 )}
-//               </div>
-//             ))}
-//             <button
-//               onClick={addImage}
-//               className="mt-4 text-blue-600 hover:text-blue-800"
-//             >
-//               + Add Image
-//             </button>
-//           </div>
-//         )}
-
-//         <div className="mt-6 flex justify-between">
-//           {step > 1 && (
-//             <button
-//               onClick={prevStep}
-//               className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
-//             >
-//               Previous
-//             </button>
-//           )}
-//           <button
-//             onClick={nextStep}
-//             className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors ml-auto"
-//           >
-//             {step === 3 ? "Submit" : "Next"}
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProductForm;
-
-// // import React, { useState } from "react";
-
-// // interface FormData {
-// //   title: string;
-// //   description: string;
-// //   variants: Variant[];
-// //   images: Image[];
-// // }
-// // interface Variant {
-// //   sku: string;
-// //   price: string;
-// //   stock: number;
-// //   variantOptions: VariantOption[];
-// // }
-
-// // interface VariantOption {
-// //   attributeName: string;
-// //   attributeValue: string;
-// // }
-
-// // interface Image {
-// //   url: string;
-// //   altText: string;
-// //   isPrimary: boolean;
-// // }
-
-// // const ProductForm: React.FC = () => {
-// //   // progress bar
-// //   const [step, setStep] = useState(1);
-
-// //   // post form
-// //   const [formData, setFormData] = useState<FormData>({
-// //     title: "",
-// //     description: "",
-// //     variants: [
-// //       {
-// //         sku: "",
-// //         price: "",
-// //         stock: 0,
-// //         variantOptions: [
-// //           {
-// //             attributeName: "",
-// //             attributeValue: "",
-// //           },
-// //         ],
-// //       },
-// //     ],
-// //     images: [
-// //       {
-// //         url: "string",
-// //         altText: "string",
-// //         isPrimary: true,
-// //       },
-// //     ],
-// //   });
-
-// //   // Handle Input Change for dynamic field {...formData, title: 'new data'} # formData.title = new data
-// //   const handleChange = (field: any, value: any) => {
-// //     setFormData({ ...formData, [field]: value });
-// //   };
-
-// //   // Navigation and submission
-// //   const nextStep = async () => {
-// //     if (step < 3) setStep(step + 1);
-// //     // else console.log("Submitting product:", formData);
-// //     else {
-// //       console.log(formData, "check at post");
-// //       try {
-// //         return; // temp
-// //         // const response = await createNewProduct(formData);
-// //         // console.log(response, "submitted response ");
-// //       } catch (error) {
-// //         console.error(error);
-// //       }
-// //     }
-// //   };
-
-// //   const prevStep = () => {
-// //     setStep(step - 1);
-// //   };
-
-// //   return (
-// //     <div>
-// //       {/* Progress Bar Logic */}
-// //       <div className="flex justify-between mb-6">
-// //         {[1, 2, 3].map((status) => (
-// //           <div
-// //             key={status}
-// //             className={`flex-1 text-center py-2 rounded-md m-2 ${
-// //               step === status
-// //                 ? "bg-blue-600 text-white"
-// //                 : "bg-gray-200 text-gray-700"
-// //             }`}
-// //           >
-// //             Step {status}:{" "}
-// //             {status === 1
-// //               ? "Product Info"
-// //               : status === 2
-// //               ? "Variants Product/"
-// //               : "Images "}
-// //           </div>
-// //         ))}
-// //       </div>
-
-// //       {/* Form  */}
-// //       <div className="p-6 ">
-// //         <div>
-// //           {step === 1 && (
-// //             <div>
-// //               <h2 className="text-xl  mb-4">Step 1: Product Information</h2>
-// //               <div className="mb-4">
-// //                 <label htmlFor="title" className="block ">
-// //                   Title
-// //                 </label>
-// //                 <input
-// //                   id="title"
-// //                   type="text"
-// //                   value={formData.title}
-// //                   onChange={(e) => handleChange("title", e.target.value)}
-// //                   className="w-full p-2 border rounded-md"
-// //                 />
-// //               </div>
-// //               <div className="mb-4">
-// //                 <label htmlFor="description" className="block ">
-// //                   Description
-// //                 </label>
-// //                 <textarea
-// //                   id="description"
-// //                   value={formData.description}
-// //                   onChange={(e) => handleChange("description", e.target.value)}
-// //                   className="w-full p-2 border rounded-md"
-// //                   rows={4}
-// //                 />
-// //               </div>
-// //             </div>
-// //           )}
-// //         </div>
-// //         <div>
-// //           {step === 2 && (
-// //             <div>
-// //               <h2>Setp 2: Variants</h2>
-// //               <div>
-// //                 {formData.variants.map((variant, index) => (
-// //                   <div key={index}>
-// //                     <input
-// //                       type="text"
-// //                       value={variant.sku}
-// //                       onChange={(e) => handleChange("sku", e.target.value)}
-// //                       placeholder="sku"
-// //                       className="p-2 m-1 border"
-// //                     />
-// //                     <input
-// //                       type="text"
-// //                       value={variant.price}
-// //                       onChange={(e) => handleChange("price", e.target.value)}
-// //                       placeholder="price"
-// //                       className="p-2 m-1 border"
-// //                     />
-// //                     <input
-// //                       type="text"
-// //                       value={variant.stock}
-// //                       onChange={(e) => handleChange("stock", e.target.value)}
-// //                       placeholder="stock"
-// //                       className="p-2 m-1 border"
-// //                     />
-// //                     <div>
-// //                       {variant.variantOptions.map((attributeOptions) => (
-// //                         <div>
-// //                           <input
-// //                             type="text"
-// //                             value={attributeOptions.attributeName}
-// //                             onChange={(e) =>
-// //                               handleChange("attributeName", e.target.value)
-// //                             }
-// //                             placeholder="attributeName"
-// //                             className="p-2 m-1 border"
-// //                           />
-// //                           <input
-// //                             type="text"
-// //                             value={attributeOptions.attributeValue}
-// //                             onChange={(e) =>
-// //                               handleChange("attributeValue", e.target.value)
-// //                             }
-// //                             placeholder="attributeValue"
-// //                             className="p-2 m-1 border"
-// //                           />
-// //                         </div>
-// //                       ))}
-// //                     </div>
-// //                   </div>
-// //                 ))}
-// //               </div>
-// //             </div>
-// //           )}
-// //         </div>
-// //         <div>
-// //           {step === 3 && (
-// //             <div>
-// //               <h2>Setp 3: Images</h2>
-// //             </div>
-// //           )}
-// //         </div>
-
-// //         {/* setup step */}
-// //         <div>
-// //           {step > 1 && (
-// //             <button onClick={prevStep} className="p-2 m-1 border">
-// //               Previous
-// //             </button>
-// //           )}
-// //           <button onClick={nextStep} className="p-2 m-1 border">
-// //             {step === 3 ? "Submit" : "Next"}
-// //           </button>
-// //         </div>
-// //       </div>
-// //     </div>
-// //   );
-// // };
-
-// // export default ProductForm;

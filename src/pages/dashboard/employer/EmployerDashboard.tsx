@@ -37,7 +37,7 @@ const EmployerDashboard: React.FC = () => {
             size="lg"
             className="rounded-2xl h-14 px-8 font-black gap-2 shadow-xl shadow-primary/20"
           >
-            <Link to="/product_form">
+            <Link to="/products/manage/new">
               <PlusCircle className="w-5 h-5" />
               Add New Product
             </Link>
