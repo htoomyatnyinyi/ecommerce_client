@@ -89,7 +89,7 @@ function ListItem({
   href,
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"li"> & { href: string; title: string }) {
+}: React.ComponentPropsWithoutRef<"a"> & { href: string; title: string }) {
   return (
     <li>
       <NavigationMenuLink asChild>

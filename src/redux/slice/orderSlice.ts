@@ -1,13 +1,19 @@
-// src/features/orderSlice.js
 import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+
+interface OrderState {
+  orders: any[];
+}
+
+const initialState: OrderState = {
+  orders: [],
+};
 
 const orderSlice = createSlice({
   name: "order",
-  initialState: {
-    orders: [],
-  },
+  initialState,
   reducers: {
-    placeOrder: (state, action) => {
+    placeOrder: (state, action: PayloadAction<any>) => {
       state.orders.push(action.payload);
     },
   },

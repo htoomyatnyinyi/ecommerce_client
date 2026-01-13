@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import type { RootState } from "@/redux/store/store";
 import {
-  useGetCartQuery,
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
 } from "@/redux/query/productApi";
@@ -11,13 +10,13 @@ import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 const Cart: React.FC = () => {
-  const { items, totalPrice } = useSelector((state: RootState) => state.cart);
+  const { items } = useSelector((state: RootState) => state.cart);
 
-  const [removeCartItem, { isLoading: isRemoving }] =
-    useRemoveCartItemMutation();
+  const [removeCartItem] = useRemoveCartItemMutation();
 
   const subtotal = useMemo(() => {
     return items.reduce(
@@ -48,7 +47,7 @@ const Cart: React.FC = () => {
           Looks like you haven't added anything to your bag yet. Let's find
           something special for you.
         </p>
-        <Button asChild rounded-full px-12 h-14 text-md>
+        <Button asChild className="rounded-full px-12 h-14 text-md">
           <Link to="/products">Start Shopping</Link>
         </Button>
       </div>
@@ -164,7 +163,6 @@ const Cart: React.FC = () => {
               <div className="mt-10 space-y-4">
                 <Button
                   asChild
-                  block
                   size="lg"
                   className="w-full h-16 rounded-2xl text-lg font-black group shadow-xl shadow-primary/20"
                 >

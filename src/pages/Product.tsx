@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Gsap from "./Gsap";
 
 const Sample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -9,7 +8,7 @@ const Sample: React.FC = () => {
   const [cars, setCars] = useState<any>([]);
 
   // add data
-  const [year, setYear] = useState(new Date().getFullYear());
+  // const [year, setYear] = useState(new Date().getFullYear());
   const [model, setModel] = useState("");
   const [manufacture, setManufacture] = useState("");
   // console.log(cars, year, model, manufacture);

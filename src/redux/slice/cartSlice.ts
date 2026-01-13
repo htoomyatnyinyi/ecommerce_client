@@ -3,12 +3,18 @@ import { productApi } from "../query/productApi";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 export interface CartItem {
-  id: string;
+  id: string; // Unique for the cart entry (variantId usually)
+  productId: string;
+  variantId: string;
   title: string;
-  price: number;
-  image?: string;
+  image: string;
   quantity: number;
-  variant: any;
+  variant: {
+    id: string;
+    size: string;
+    price: number;
+    discountPrice?: number;
+  };
 }
 
 export interface CartState {
@@ -27,17 +33,22 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    addItemToCart(state, action: PayloadAction<CartItem>) {
+    // Local optimistic update
+    addItemToCart(state, action: PayloadAction<Omit<CartItem, "id">>) {
       const newItem = action.payload;
-      const existingItem = state.items.find((item) => item.id === newItem.id);
+      const existingItem = state.items.find(
+        (item) => item.variantId === newItem.variantId
+      );
 
-      state.totalQuantity = state.totalQuantity + newItem.quantity;
-
-      if (!existingItem) {
-        state.items.push({ ...newItem });
-      } else {
+      if (existingItem) {
         existingItem.quantity += newItem.quantity;
+      } else {
+        // Temporary ID for local state until synced with server
+        state.items.push({ ...newItem, id: newItem.variantId });
       }
+
+      // We'll let the server sync handle the absolute totals,
+      // but we can update them here for immediate feedback if needed.
     },
     removeFromCart(state, action: PayloadAction<string>) {
       state.items = state.items.filter((item) => item.id !== action.payload);
@@ -55,13 +66,28 @@ const cartSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // ✅ when GET /cart is fulfilled, update cart from server
+    // ✅ Synchronize with server cart response
     builder.addMatcher(
       productApi.endpoints.getCart.matchFulfilled,
       (state, action) => {
-        // assume server returns { items: CartItem[], totalQuantity: number }
-        console.log(action, " at extra Reducer");
-        state.items = action.payload.getCart;
+        const serverCart = action.payload.getCart;
+
+        // Map server Prisma structure to our UI structure
+        state.items = serverCart.map((item: any) => ({
+          id: item.id,
+          productId: item.productId,
+          variantId: item.variantId,
+          title: item.product.title,
+          image: item.product.images?.[0]?.url || "",
+          quantity: item.quantity,
+          variant: {
+            id: item.variant.id,
+            size: item.variant.size,
+            price: item.variant.price,
+            discountPrice: item.variant.discountPrice,
+          },
+        }));
+
         state.totalQuantity = action.payload.totalQuantity;
         state.totalPrice = action.payload.totalPrice;
       }
@@ -69,44 +95,15 @@ const cartSlice = createSlice({
 
     builder.addMatcher(
       productApi.endpoints.updateCartItem.matchFulfilled,
-      (state, action) => {
-        console.log(
-          action,
-          "at update extra reducer to get quantity and cartItemId"
-        );
-        // const { id, quantity } = action.meta.arg; // Get id and quantity from the mutation's args
-        // const item = state.items.find((item) => item.id === id);
-        // if (item) {
-        //   item.quantity = quantity; // Update state with the new quantity
-        // }
+      (_state, action) => {
+        console.log("Cart item updated on server", action);
       }
     );
 
-    // ✅ after POST /cart (addToCart), you can optimistically update state
     builder.addMatcher(
       productApi.endpoints.addToCart.matchFulfilled,
-      (state, action) => {
-        console.log(action, "space");
-
-        // const newItem = action.meta.arg.originalArgs; // because we POSTed this data
-        // const existingItem = state.items.find(
-        //   (item) => item.id === newItem.variantId
-        // );
-
-        // state.totalQuantity += newItem.quantity;
-
-        // console.log(existingItem, "check extra reducer post /cart");
-
-        // if (!existingItem) {
-        //   state.items.push({
-        //     id: newItem.variantId,
-        //     title: "", // fallback if title not provided
-        //     price: 0,
-        //     quantity: newItem.quantity,
-        //   });
-        // } else {
-        //   existingItem.quantity += newItem.quantity;
-        // }
+      (_state, action) => {
+        console.log("Item added to cart on server", action);
       }
     );
   },

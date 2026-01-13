@@ -39,7 +39,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Cart from "@/pages/Cart";
+import Cart from "@/pages/carts/Cart";
 
 const DialogPage = () => {
   return (

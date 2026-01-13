@@ -75,7 +75,7 @@ const ProductDetails: React.FC = () => {
         <p className="text-muted-foreground mb-8">
           The product you're looking for might have been moved or doesn't exist.
         </p>
-        <Button asChild rounded-full px-8>
+        <Button asChild className="rounded-full px-8">
           <Link to="/products">Back to Shop</Link>
         </Button>
       </div>
@@ -85,11 +85,20 @@ const ProductDetails: React.FC = () => {
   const handleAddToCart = async () => {
     if (selectedVariant) {
       try {
+        // Optimistic update
         dispatch(
           addItemToCart({
-            ...product,
-            variant: selectedVariant,
+            productId: product.id,
+            variantId: selectedVariant.id,
+            title: product.title,
+            image: product.images?.[0]?.url || "",
             quantity: quantity,
+            variant: {
+              id: selectedVariant.id,
+              size: selectedVariant.size,
+              price: selectedVariant.price,
+              discountPrice: selectedVariant.discountPrice,
+            },
           })
         );
 
@@ -103,8 +112,13 @@ const ProductDetails: React.FC = () => {
           description: `${quantity}x ${selectedVariant.size}`,
           duration: 3000,
         });
-      } catch (err) {
-        toast.error("Failed to add to cart. Please try again.");
+      } catch (err: any) {
+        console.error("Add to cart error:", err);
+        if (err.status === 401) {
+          toast.error("Please sign in to add items to your cart.");
+        } else {
+          toast.error("Failed to add to cart. Please try again.");
+        }
       }
     }
   };

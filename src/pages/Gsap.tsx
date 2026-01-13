@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { Fireworks } from "@fireworks-js/react";
 
+interface TimeLeft {
+  days?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+}
+
 const Gsap = () => {
-  const [timeLeft, setTimeLeft] = useState({});
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({});
   const [isCelebrating, setIsCelebrating] = useState(false);
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
+    const calculateTimeLeft = (): TimeLeft => {
       const now = new Date();
       console.log("Current time:", now);
 
-      //   const nextYear = new Date("January 1, 2026 00:00:00").getTime();
       const nextYear = now.getFullYear() + 1;
       const target = new Date(`${nextYear}-01-01T00:00:00`);
-      const difference = target - now;
+      const difference = target.getTime() - now.getTime();
 
       if (difference > 0) {
         return {
@@ -66,7 +72,7 @@ const Gsap = () => {
     }
   }, [timeLeft, isCelebrating]);
 
-  const formatTime = (time) => time.toString().padStart(2, "0");
+  const formatTime = (time?: number) => (time ?? 0).toString().padStart(2, "0");
 
   return (
     <div className="flex justify-center items-center h-screen  text-white font-sans overflow-hidden relative">
@@ -78,10 +84,10 @@ const Gsap = () => {
           "Happy New Year!"
         ) : (
           <div className="flex space-x-2 md:space-x-4">
-            <span>{formatTime(timeLeft.days || 0)}</span>:
-            <span>{formatTime(timeLeft.hours || 0)}</span>:
-            <span>{formatTime(timeLeft.minutes || 0)}</span>:
-            <span>{formatTime(timeLeft.seconds || 0)}</span>
+            <span>{formatTime(timeLeft.days)}</span>:
+            <span>{formatTime(timeLeft.hours)}</span>:
+            <span>{formatTime(timeLeft.minutes)}</span>:
+            <span>{formatTime(timeLeft.seconds)}</span>
           </div>
         )}
       </div>
@@ -91,15 +97,15 @@ const Gsap = () => {
             rocketsPoint: { min: 40, max: 60 },
             hue: { min: 0, max: 360 },
             delay: { min: 15, max: 30 },
-            speed: 2,
+            // speed: 2,
             acceleration: 1.05,
             friction: 0.95,
             gravity: 1.5,
             particles: 120,
-            trace: 4,
+            // trace: 4,
             explosion: 10,
             autoresize: true,
-            brightness: { min: 50, max: 80, decay: { min: 0.015, max: 0.03 } },
+            brightness: { min: 50, max: 80 },
             mouse: { click: true, move: false, max: 1 },
             sound: { enabled: false },
           }}

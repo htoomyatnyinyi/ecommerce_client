@@ -16,7 +16,7 @@ const Cart: React.FC = () => {
     (state: RootState) => state.cart
   );
 
-  const result = items.find((item) => item.price > 2000);
+  const result = items.find((item) => item.variant.price > 2000);
   console.log(result, result);
 
   const [removeCartItem, { isLoading: isRemovingCartItem }] =

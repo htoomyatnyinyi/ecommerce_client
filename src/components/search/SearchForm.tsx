@@ -9,8 +9,9 @@ const SearchForm: React.FC = () => {
   // Select the query from the Redux store
   const query = useSelector((state: RootState) => state.search.query);
 
-  const { data: searchProducts, isLoading: isSearching } =
-    useSearchProductsQuery(query, { skip: !query });
+  const { isLoading: isSearching } = useSearchProductsQuery(query, {
+    skip: !query,
+  });
 
   if (isSearching) return <p>Searching ...</p>;
 

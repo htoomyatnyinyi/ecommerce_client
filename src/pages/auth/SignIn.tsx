@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useSignInMutation } from "@/redux/query/authApi";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 const SignIn: React.FC = () => {
   const emailRef = useRef<HTMLInputElement>(null);
@@ -90,7 +90,7 @@ const SignIn: React.FC = () => {
         <Button variant="outline" className="w-full">
           Login with Google
         </Button>
-        <Button
+        {/* <Button
           variant="outline"
           onClick={() =>
             toast("Event has been created", {
@@ -103,7 +103,7 @@ const SignIn: React.FC = () => {
           }
         >
           Show Toast
-        </Button>
+        </Button> */}
       </CardFooter>
     </Card>
   );

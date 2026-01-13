@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import type { RootState } from "@/redux/store/store";
 import { Button } from "@/components/ui/button";
@@ -12,23 +12,10 @@ import { toast } from "sonner";
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const { items } = useSelector((state: RootState) => state.cart);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    address: "",
-    city: "",
-    postalCode: "",
-  });
-
   const subtotal = items.reduce(
     (sum, item) => sum + item.variant.price * item.quantity,
     0
   );
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +69,6 @@ const Checkout: React.FC = () => {
                   <Input
                     name="name"
                     placeholder="Full Name"
-                    onChange={handleInputChange}
                     className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
                     required
                   />
@@ -90,7 +76,6 @@ const Checkout: React.FC = () => {
                     type="email"
                     name="email"
                     placeholder="Email Address"
-                    onChange={handleInputChange}
                     className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
                     required
                   />
@@ -98,7 +83,6 @@ const Checkout: React.FC = () => {
                 <Input
                   name="address"
                   placeholder="Street Address"
-                  onChange={handleInputChange}
                   className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
                   required
                 />
@@ -106,14 +90,12 @@ const Checkout: React.FC = () => {
                   <Input
                     name="city"
                     placeholder="City"
-                    onChange={handleInputChange}
                     className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
                     required
                   />
                   <Input
                     name="postalCode"
                     placeholder="Postal Code"
-                    onChange={handleInputChange}
                     className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
                     required
                   />

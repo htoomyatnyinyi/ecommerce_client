@@ -9,7 +9,6 @@ export const productApi = createApi({
   tagTypes: ["Cart", "Category"],
 
   endpoints: (builder) => ({
-    // GET http://localhost:8080/api/products?search=shirt
     searchProducts: builder.query<any, string>({
       query: (query) => `/api/products?search=${query}`,
     }),
@@ -18,11 +17,11 @@ export const productApi = createApi({
       query: () => "/api/products",
     }),
 
-    getProductById: builder.query<any, void>({
+    getProductById: builder.query<any, string | undefined>({
       query: (product_id) => `/api/products/${product_id}`,
     }),
 
-    createProduct: builder.mutation({
+    createProduct: builder.mutation<any, any>({
       query: (product) => ({
         url: "/api/products",
         method: "POST",
@@ -30,13 +29,15 @@ export const productApi = createApi({
       }),
     }),
 
-    // NEW: Add a mutation for adding items to the cart
-    addToCart: builder.mutation({
-      query: (cartItem: {
+    addToCart: builder.mutation<
+      any,
+      {
         productId: string;
         variantId: string;
         quantity: number;
-      }) => ({
+      }
+    >({
+      query: (cartItem) => ({
         url: "/api/cart",
         method: "POST",
         body: cartItem,
@@ -44,22 +45,25 @@ export const productApi = createApi({
       invalidatesTags: ["Cart"],
     }),
 
-    removeCartItem: builder.mutation({
-      query: (removeCartItemId) => ({
+    removeCartItem: builder.mutation<any, { removeCartItemId: string }>({
+      query: (body) => ({
         url: "/api/cart",
         method: "DELETE",
-        body: removeCartItemId,
+        body,
       }),
       invalidatesTags: ["Cart"],
     }),
 
-    updateCartItem: builder.mutation({
+    updateCartItem: builder.mutation<
+      any,
+      { cartItemId: string; quantity: number }
+    >({
       query: ({ cartItemId, quantity }) => ({
-        url: "/api/cart/quantity", // This will hit your backend's updateCart endpoint
+        url: "/api/cart/quantity",
         method: "PUT",
         body: { cartItemId, quantity },
       }),
-      invalidatesTags: ["Cart"], // Invalidate 'Cart' tag after update
+      invalidatesTags: ["Cart"],
     }),
 
     getCart: builder.query<any, void>({
@@ -67,7 +71,7 @@ export const productApi = createApi({
       providesTags: ["Cart"],
     }),
 
-    checkout: builder.mutation({
+    checkout: builder.mutation<any, any>({
       query: (order) => ({
         url: "/checkout",
         method: "POST",
@@ -75,8 +79,7 @@ export const productApi = createApi({
       }),
     }),
 
-    //
-    createNewProduct: builder.mutation({
+    createNewProduct: builder.mutation<any, any>({
       query: (productFormData) => ({
         url: "/api/products",
         method: "POST",
@@ -84,7 +87,7 @@ export const productApi = createApi({
       }),
     }),
 
-    createNewCategory: builder.mutation({
+    createNewCategory: builder.mutation<any, any>({
       query: (categoryName) => ({
         url: "/api/category",
         method: "POST",
@@ -109,7 +112,6 @@ export const {
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
   useGetCartQuery,
-  //
   useCreateNewCategoryMutation,
   useCreateNewProductMutation,
   useGetCategoryQuery,
