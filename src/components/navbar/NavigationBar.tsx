@@ -1,7 +1,4 @@
-// import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-
-import logo from "@/assets/utils/1.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,189 +8,78 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-
-// const components: { title: string; href: string; description: string }[] = [
-//   {
-//     title: "Alert Dialog",
-//     href: "/docs/primitives/alert-dialog",
-//     description:
-//       "A modal dialog that interrupts the user with important content and expects a response.",
-//   },
-//   {
-//     title: "Hover Card",
-//     href: "/docs/primitives/hover-card",
-//     description:
-//       "For sighted users to preview content available behind a link.",
-//   },
-//   {
-//     title: "Progress",
-//     href: "/docs/primitives/progress",
-//     description:
-//       "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-//   },
-//   {
-//     title: "Scroll-area",
-//     href: "/docs/primitives/scroll-area",
-//     description: "Visually or semantically separates content.",
-//   },
-//   {
-//     title: "Tabs",
-//     href: "/docs/primitives/tabs",
-//     description:
-//       "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-//   },
-//   {
-//     title: "Tooltip",
-//     href: "/docs/primitives/tooltip",
-//     description:
-//       "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-//   },
-// ];
+import { cn } from "@/lib/utils";
 
 export function NavigationBar() {
   return (
-    // <div className="flex justify-center items-center">
-    <NavigationMenu viewport={false} className="">
-      <NavigationMenuList>
+    <NavigationMenu>
+      <NavigationMenuList className="gap-1">
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Ecommerce</NavigationMenuTrigger>
+          <NavigationMenuLink
+            asChild
+            className={cn(
+              navigationMenuTriggerStyle(),
+              "bg-transparent font-bold"
+            )}
+          >
+            <Link to="/">Home</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
+        <NavigationMenuItem>
+          <NavigationMenuTrigger className="bg-transparent font-bold">
+            Collections
+          </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-              <li className="row-span-3">
-                <NavigationMenuLink asChild>
-                  <a
-                    className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-6 no-underline outline-hidden select-none focus:shadow-md"
-                    href="/"
-                  >
-                    <img src={logo} alt="logo" />
-                    <div className="mt-4 mb-2 text-lg font-medium">
-                      coffeeShop/hmnn
-                    </div>
-                    <p className="text-muted-foreground text-sm leading-tight">
-                      Beautifully designed built with 80 % and 100 % cotton.
-                    </p>
-                  </a>
-                </NavigationMenuLink>
-              </li>
-              <ListItem href="/docs" title="Introduction">
-                Re-usable components built using Radix UI and Tailwind CSS.
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              <ListItem href="/products?category=Fashion" title="Fashion">
+                Latest trends in apparel and accessories.
               </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
-                How to install dependencies and structure your app.
+              <ListItem href="/products?category=Tech" title="Technology">
+                Cutting-edge gadgets and electronic essentials.
               </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
-                Styles for headings, paragraphs, lists...etc
+              <ListItem href="/products?category=Home" title="Home & Living">
+                Beautiful items to elevate your living space.
+              </ListItem>
+              <ListItem href="/products" title="All Products">
+                Browse our entire curated catalog.
               </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        {/* <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-          <NavigationMenuContent>
-          <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-          {components.map((component) => (
-            <ListItem
-            key={component.title}
-            title={component.title}
-            href={component.href}
-            >
-            {component.description}
-            </ListItem>
-            ))}
-            </ul>
-            </NavigationMenuContent>
-            </NavigationMenuItem> */}
+
         <NavigationMenuItem>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+          <NavigationMenuLink
+            asChild
+            className={cn(
+              navigationMenuTriggerStyle(),
+              "bg-transparent font-bold"
+            )}
+          >
             <Link to="/products">Shop</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
+
         <NavigationMenuItem>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/product_form">Form</Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>List</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="bg-transparent font-bold">
+            Support
+          </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[300px] gap-4">
-              <li>
-                <NavigationMenuLink asChild>
-                  <Link to="#">
-                    <div className="font-medium">Components</div>
-                    <div className="text-muted-foreground">
-                      Browse all components in the library.
-                    </div>
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="#">
-                    <div className="font-medium">Documentation</div>
-                    <div className="text-muted-foreground">
-                      Learn how to use the library.
-                    </div>
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="#">
-                    <div className="font-medium">Blog</div>
-                    <div className="text-muted-foreground">
-                      Read our latest blog posts.
-                    </div>
-                  </Link>
-                </NavigationMenuLink>
-              </li>
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px]">
+              <ListItem href="/dashboard" title="Admin Dashboard">
+                Manage products, orders and site analytics.
+              </ListItem>
+              <ListItem href="/product_form" title="Sell on Oasis">
+                Create new product listings for the marketplace.
+              </ListItem>
+              <ListItem href="/faq" title="Help Center">
+                Common questions about orders, shipping and returns.
+              </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Account</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[200px] gap-4">
-              <li>
-                <NavigationMenuLink asChild>
-                  <Link to="/signin">SignIn</Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="/signup">SignUp</Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="/dashboard">Dashboard</Link>
-                </NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        {/* <NavigationMenuItem>
-          <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
-          <NavigationMenuContent>
-          <ul className="grid w-[200px] gap-4">
-          <li>
-          <NavigationMenuLink asChild>
-          <Link to="#" className="flex-row items-center gap-2">
-          <CircleHelpIcon />
-          Backlog
-          </Link>
-          </NavigationMenuLink>
-          <NavigationMenuLink asChild>
-          <Link to="#" className="flex-row items-center gap-2">
-          <CircleIcon />
-          To Do
-          </Link>
-          </NavigationMenuLink>
-          <NavigationMenuLink asChild>
-          <Link to="#" className="flex-row items-center gap-2">
-          <CircleCheckIcon />
-          Done
-          </Link>
-          </NavigationMenuLink>
-          </li>
-          </ul>
-          </NavigationMenuContent>
-          </NavigationMenuItem> */}
       </NavigationMenuList>
     </NavigationMenu>
-    // </div>
   );
 }
 
@@ -201,14 +87,22 @@ function ListItem({
   title,
   children,
   href,
+  className,
   ...props
-}: React.ComponentPropsWithoutRef<"li"> & { href: string }) {
+}: React.ComponentPropsWithoutRef<"li"> & { href: string; title: string }) {
   return (
-    <li {...props}>
+    <li>
       <NavigationMenuLink asChild>
-        <Link to={href}>
-          <div className="text-sm leading-none font-medium">{title}</div>
-          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+        <Link
+          to={href}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-bold leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
           </p>
         </Link>

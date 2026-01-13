@@ -1,219 +1,210 @@
 import React from "react";
-import { useGetProductsQuery } from "@/redux/query/productApi";
+import Hero from "@/components/hero/Hero";
+import FeaturedCategories from "@/components/category/FeaturedCategories";
+import TrendingProducts from "@/components/product/TrendingProducts";
+import Newsletter from "@/components/home/Newsletter";
+import { MoveRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Home: React.FC = () => {
-  const { data: getProducts, error, isLoading } = useGetProductsQuery();
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: </div>;
-
-  console.log(getProducts, "check at frontedn");
-
   return (
-    <div className="h-screen">
-      <div className="container mx-auto ">
-        <div className="flex lg:flex-row flex-col ">
-          <h1 className="text-xl lg:text-6xl font-serif font-semibold bg-gradient-to-br from-slate-100 to-slate-900 text-transparent text-clip bg-clip-text">
-            HTOO MYAT NYI NYI
-          </h1>
-          <div>
-            {getProducts?.products.map((product: any) => (
-              <div key={product.id}>
-                <p>{product.title}</p>
-                <p>{product.description}</p>
-                <div>
-                  {product.images.map((image: any) => (
-                    <div key={image.id} className="grid grid-cols-5 gap-5">
-                      <h5>{image.url}</h5>
-                      <img
-                        src={image.url}
-                        alt={image.altText}
-                        className="p-2 m-1 cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="flex flex-col min-h-screen">
+      <Hero />
+
+      {/* Brands Ticker (Optional aesthetic addition) */}
+      <div className="py-12 border-y border-border/50 bg-background overflow-hidden relative">
+        <div className="flex animate-scroll whitespace-nowrap gap-16 md:gap-32 items-center grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all">
+          {[
+            "VOGUE",
+            "HARPER'S BAZAAR",
+            "GQ",
+            "ELLE",
+            "WWD",
+            "COSMOPOLITAN",
+          ].map((brand) => (
+            <span
+              key={brand}
+              className="text-2xl md:text-3xl font-black italic tracking-tighter"
+            >
+              {brand}
+            </span>
+          ))}
+          {/* Duplicate for seamless loop */}
+          {[
+            "VOGUE",
+            "HARPER'S BAZAAR",
+            "GQ",
+            "ELLE",
+            "WWD",
+            "COSMOPOLITAN",
+          ].map((brand) => (
+            <span
+              key={brand + "-2"}
+              className="text-2xl md:text-3xl font-black italic tracking-tighter"
+            >
+              {brand}
+            </span>
+          ))}
         </div>
       </div>
+
+      <FeaturedCategories />
+
+      {/* Seasonal Promotion Section */}
+      <section className="container mx-auto px-4 md:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="group relative h-[400px] md:h-[600px] rounded-3xl overflow-hidden shadow-xl">
+            <img
+              src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=2012&auto=format&fit=crop"
+              alt="Shoe Collection"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+            <div className="absolute inset-0 p-12 flex flex-col justify-end">
+              <span className="text-white/80 font-bold uppercase tracking-widest mb-4">
+                Summer Essentials
+              </span>
+              <h3 className="text-white text-4xl md:text-5xl font-black mb-6 italic">
+                Step into <br /> Tomorrow
+              </h3>
+              <Link
+                to="/products"
+                className="flex items-center text-white font-bold group/link"
+              >
+                Shop Footwear{" "}
+                <MoveRight className="ml-2 transition-transform group-hover/link:translate-x-2" />
+              </Link>
+            </div>
+          </div>
+          <div className="group relative h-[400px] md:h-[600px] rounded-3xl overflow-hidden shadow-xl">
+            <img
+              src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1976&auto=format&fit=crop"
+              alt="Accessories"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+            <div className="absolute inset-0 p-12 flex flex-col justify-end">
+              <span className="text-white/80 font-bold uppercase tracking-widest mb-4">
+                Limited Edition
+              </span>
+              <h3 className="text-white text-4xl md:text-5xl font-black mb-6">
+                Accentuate <br /> Your Aura
+              </h3>
+              <Link
+                to="/products"
+                className="flex items-center text-white font-bold group/link"
+              >
+                Explore Accessories{" "}
+                <MoveRight className="ml-2 transition-transform group-hover/link:translate-x-2" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <TrendingProducts />
+
+      <Newsletter />
+
+      {/* Footer Info */}
+      <section className="py-24 border-t border-border/50">
+        <div className="container mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
+          <div className="md:col-span-2">
+            <h4 className="text-2xl font-black italic tracking-tighter mb-6">
+              OASIS.
+            </h4>
+            <p className="text-muted-foreground text-lg max-w-sm">
+              Crafting premium experiences since 2024. We believe in quality,
+              sustainability, and timeless design.
+            </p>
+          </div>
+          <div>
+            <h5 className="font-bold mb-6 uppercase tracking-widest text-sm">
+              Shop
+            </h5>
+            <ul className="space-y-4 text-muted-foreground">
+              <li>
+                <Link
+                  to="/products"
+                  className="hover:text-primary transition-colors"
+                >
+                  All Products
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/products?category=Fashion"
+                  className="hover:text-primary transition-colors"
+                >
+                  Fashion
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/products?category=Tech"
+                  className="hover:text-primary transition-colors"
+                >
+                  Technology
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/products?category=Home"
+                  className="hover:text-primary transition-colors"
+                >
+                  Living
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-bold mb-6 uppercase tracking-widest text-sm">
+              Company
+            </h5>
+            <ul className="space-y-4 text-muted-foreground">
+              <li>
+                <Link
+                  to="/about"
+                  className="hover:text-primary transition-colors"
+                >
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="hover:text-primary transition-colors"
+                >
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/faq"
+                  className="hover:text-primary transition-colors"
+                >
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy"
+                  className="hover:text-primary transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 md:px-8 mt-24 pt-8 border-t border-border/20 text-center text-muted-foreground text-sm">
+          <p>
+            © 2024 OASIS Ecommerce. Crafted with passion by HTOO MYAT NYI NYI.
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
 
 export default Home;
-
-// //
-// import React from "react";
-// import homeImage from "../assets/utils/1.png";
-// import { Link } from "react-router-dom";
-// import ThemeToggle from "@/components/theme/ThemeToggle";
-
-// const Home: React.FC = () => {
-//   return (
-//     <div className="overflow-x-hidden">
-//       {/* Hero Section */}
-//       <section className="grid place-items-center text-center h-screen bg-hero bg-cover bg-center px-4">
-//         <div className="w-full max-w-4xl space-y-10 p-5 rounded-lg backdrop-blur-sm bg-gradient-to-r from-white to-black bg-clip-text text-transparent hover:shadow-xl transition duration-300">
-//           <h1 className="font-serif text-lg sm:text-xl p-2 mb-5 bg-clip-text text-transparent">
-//             WELCOME TO JOB_DIARY
-//           </h1>
-//           <h1 className="text-4xl sm:text-7xl font-bold p-2 m-2 bg-gradient-to-tr from-slate-900 to-slate-400 text-transparent bg-clip-text">
-//             Let Bring The Gratest <br /> Opportunity For You
-//           </h1>
-//           <div className="p-2 m-1 ">Join In</div>
-//           <ThemeToggle />
-//         </div>
-//       </section>
-
-//       {/* Our Story Section */}
-//       <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 px-4 sm:px-8 py-8">
-//         <div className="hover:shadow-xl transition duration-300 p-5 rounded-lg">
-//           <img
-//             src={homeImage}
-//             alt="logo"
-//             className="max-h-[300px] dark:invert mx-auto"
-//           />
-//         </div>
-//         <div className="flex justify-center items-center p-5 hover:shadow-xl transition duration-300 rounded-lg">
-//           <div className="bg-gradient-to-tr from-slate-400 to-slate-900 text-transparent bg-clip-text text-left">
-//             <h1 className="text-2xl sm:text-3xl font-semibold pb-5">
-//               OUR STORY
-//             </h1>
-//             <h2 className="text-3xl sm:text-5xl pb-6 font-bold">
-//               For People Who Love Fashion
-//             </h2>
-//             <p className="pb-4 text-sm sm:text-base">
-//               Lorem ipsum dolor, sit amet consectetur adipisicing elit. Placeat
-//               ratione...
-//             </p>
-//             <p className="pb-4 text-sm sm:text-base">
-//               Lorem ipsum dolor sit amet consectetur adipisicing elit.
-//               Tempora...
-//             </p>
-//             <button className="p-2 mt-2 bg-slate-900 text-white rounded dark:bg-white dark:text-cyan-900">
-//               Read More
-//             </button>
-//           </div>
-//         </div>
-//       </section>
-
-//       {/* Customer Testimonials */}
-//       <section className="py-16 px-4">
-//         <h1 className="text-3xl sm:text-5xl p-8 text-center font-bold">
-//           What Our Customers Say
-//         </h1>
-//         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-//           {["Customer_1", "Customer_2", "Customer_3"].map((name, i) => (
-//             <div
-//               key={i}
-//               className="hover:shadow-xl transition p-5 rounded-lg border bg-gradient-to-tl from-slate-900 to-slate-400 text-transparent bg-clip-text"
-//             >
-//               <h1 className="text-xl sm:text-2xl pb-5 font-semibold">{name}</h1>
-//               <p className="text-sm sm:text-base">
-//                 Lorem ipsum dolor sit amet consectetur adipisicing elit...
-//               </p>
-//               <img
-//                 src={homeImage}
-//                 alt="logo"
-//                 className="h-24 w-24 rounded-full mx-auto dark:invert mt-5"
-//               />
-//             </div>
-//           ))}
-//         </div>
-//       </section>
-
-//       {/* Gift Card Section */}
-//       <section className="px-4 sm:px-8 py-12">
-//         <div className="backdrop-blur-sm p-5 space-y-10 rounded-lg bg-gradient-to-tr from-sky-500 to-sky-900 text-transparent bg-clip-text hover:shadow-xl transition duration-300">
-//           <h1 className="font-serif text-lg sm:text-xl">GIFT CARD</h1>
-//           <h1 className="text-4xl sm:text-7xl font-bold bg-gradient-to-tr from-slate-900 to-slate-400 text-transparent bg-clip-text">
-//             Give The Gift of <br /> Fashion
-//           </h1>
-//           <div className="p-3 border text-cyan-900 w-fit mx-auto hover:shadow-xl rounded-lg cursor-pointer">
-//             Purchase A Gift Card
-//           </div>
-//         </div>
-//       </section>
-
-//       {/* Services Section */}
-//       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-5 text-center">
-//         {[
-//           { name: "SECURE PAYMENT" },
-//           { name: "DELIVER WITH CARE" },
-//           { name: "EXCELLENT SERVICE" },
-//         ].map((item, i) => (
-//           <div
-//             key={i}
-//             className="hover:shadow-xl transition p-5 rounded-lg border bg-gradient-to-tl from-slate-900 to-slate-400 text-transparent bg-clip-text"
-//           >
-//             <h1 className="text-xl sm:text-2xl pb-5 font-semibold">
-//               {item.name}
-//             </h1>
-//             <div className="flex flex-col items-center space-y-4 sm:space-y-0 sm:flex-row sm:space-x-5">
-//               <img
-//                 src={homeImage}
-//                 alt="logo"
-//                 className="h-20 w-20 rounded-full dark:invert"
-//               />
-//               <p className="text-sm sm:text-base">
-//                 Lorem ipsum dolor sit amet consectetur adipisicing elit...
-//               </p>
-//             </div>
-//           </div>
-//         ))}
-//       </section>
-//       <div>
-//         <div className="h-screen flex items-center justify-between p-8 md:p-16">
-//           <div className="w-1/2 ">
-//             <h1 className="text-4xl font-bold  mb-4">
-//               Unlock Your Potential Today!
-//             </h1>
-//             <p className="text-lg mb-8">
-//               Join thousands of satisfied users who have transformed their lives
-//               with our innovative solutions. Experience the difference and take
-//               the first step towards a brighter future.
-//             </p>
-//             {/* <p>Job Seeker</p>
-//             <div className=" text-center bg-cyan-900 text-white">
-//               <p>xyz@mail.com</p>
-//               <label>Password </label>
-//               <p>abc</p>
-//             </div>
-//             <h3>For Employer</h3>
-//             <div className="bg-cyan-900 text-center text-white">
-//               <p>itland@mail.com</p>
-//               <label>Password </label>
-//               <p>abc</p>
-//             </div> */}
-//             <div className="pt-5">
-//               Optional Call to Action Button
-//               <Link
-//                 to="/register_company"
-//                 // className=" text-white font-bold py-3 px-6 rounded-full"
-//                 className="underline font-bold py-3 px-6 rounded-full"
-//               >
-//                 For Employer To Register
-//               </Link>
-//             </div>
-//           </div>
-//           <div className="w-1/2 flex justify-end">
-//             <img
-//               src={homeImage}
-//               alt="homeImage"
-//               className=" dark:invert-100 "
-//               // className="max-w-md rounded-lg"
-//             />
-//           </div>
-//         </div>
-//       </div>
-//       {/* Footer or Ending Section */}
-//       <section className="py-16 px-4 text-center">
-//         <p>DEVELOP_BY_HTOO_MYAT_NYI_NYI</p>
-//       </section>
-//     </div>
-//   );
-// };
-
-// export default Home;

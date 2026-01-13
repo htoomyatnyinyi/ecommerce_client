@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   useAddToCartMutation,
   useGetProductByIdQuery,
@@ -7,22 +7,29 @@ import {
 } from "@/redux/query/productApi";
 import ProductImageGallery from "./ProductImageGallery";
 import RelatedProducts from "./RelatedProducts";
-import SearchForm from "@/components/search/SearchForm";
 import QuantitySelector from "./QuantitySelector";
 import { useDispatch } from "react-redux";
 import { addItemToCart } from "@/redux/slice/cartSlice";
+import {
+  ShoppingCart,
+  Star,
+  Share2,
+  Heart,
+  Truck,
+  ShieldCheck,
+  RotateCcw,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const ProductDetails: React.FC = () => {
   const dispatch = useDispatch();
+  const { id } = useParams<{ id: string }>();
 
-  // Use a specific type for params for better type safety
-  const { id } = useParams<{ id: any }>();
-
-  // --- State for selection ---
   const [selectedVariant, setSelectedVariant] = useState<any | null>(null);
   const [quantity, setQuantity] = useState(1);
-
-  // console.log(selectedVariant);
 
   const [addToCart, { isLoading: isAddToCartLoading }] = useAddToCartMutation();
 
@@ -32,238 +39,280 @@ const ProductDetails: React.FC = () => {
     isError,
   } = useGetProductByIdQuery(id, { skip: !id });
 
-  // --- Auto-select the first available variant when product data loads ---
+  const { data: allProducts, isLoading: areProductsLoading } =
+    useGetProductsQuery();
+
   useEffect(() => {
     if (product?.variants && product.variants.length > 0) {
       setSelectedVariant(product.variants[0]);
     }
-  }, [product]);
+    // Reset quantity when product changes
+    setQuantity(1);
+    // Scroll to top when product ID changes
+    window.scrollTo(0, 0);
+  }, [product, id]);
 
-  // Fetch all products for the 'Related Products' section
-  const { data: allProducts, isLoading: areProductsLoading } =
-    useGetProductsQuery();
-
-  // Handle loading and error states for the main product FIRST
   if (isProductLoading) {
-    return <p className="text-center mt-20">Loading Product...</p>;
+    return (
+      <div className="container mx-auto p-8 md:p-12 animate-pulse mt-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="aspect-square bg-muted rounded-3xl" />
+          <div className="space-y-6">
+            <div className="h-4 w-24 bg-muted rounded" />
+            <div className="h-10 w-3/4 bg-muted rounded" />
+            <div className="h-6 w-1/2 bg-muted rounded" />
+            <div className="h-32 w-full bg-muted rounded" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (isError || !product) {
     return (
-      <p className="text-center mt-20 text-red-500">Could not load product.</p>
+      <div className="container mx-auto p-20 text-center mt-16">
+        <h2 className="text-3xl font-bold mb-4">Oops! Product not found.</h2>
+        <p className="text-muted-foreground mb-8">
+          The product you're looking for might have been moved or doesn't exist.
+        </p>
+        <Button asChild rounded-full px-8>
+          <Link to="/products">Back to Shop</Link>
+        </Button>
+      </div>
     );
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (selectedVariant) {
-      dispatch(
-        addItemToCart({
-          ...product, // Send product info
-          variant: selectedVariant, // Send selected variant info
-          quantity: quantity,
-        })
-      );
+      try {
+        dispatch(
+          addItemToCart({
+            ...product,
+            variant: selectedVariant,
+            quantity: quantity,
+          })
+        );
 
-      addToCart({
-        productId: product.id,
-        variantId: selectedVariant.id,
-        quantity,
-      });
-      // // Optionally, show a success message here
-      // console.log("Added to cart:", {
-      //   product: product.title,
-      //   variant: selectedVariant,
-      //   quantity,
-      // });
+        await addToCart({
+          productId: product.id,
+          variantId: selectedVariant.id,
+          quantity,
+        }).unwrap();
+
+        toast.success(`Added ${product.title} to your bag!`, {
+          description: `${quantity}x ${selectedVariant.size}`,
+          duration: 3000,
+        });
+      } catch (err) {
+        toast.error("Failed to add to cart. Please try again.");
+      }
     }
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
-      <SearchForm />
-      {/* Main product details section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-16">
-        {/* Left side: Image Gallery */}
-        <ProductImageGallery images={product.images} />
-
-        {/* Right side: Product Information */}
-        <div className="flex flex-col">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+    <div className="bg-background min-h-screen pt-24 pb-24">
+      <div className="container mx-auto px-4 md:px-8">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8 overflow-x-auto whitespace-nowrap pb-2">
+          <Link to="/" className="hover:text-primary transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <Link to="/products" className="hover:text-primary transition-colors">
+            Shop
+          </Link>
+          <span>/</span>
+          <span className="text-foreground font-medium truncate">
             {product.title}
-          </h1>
-          <p className="mb-6">{product.description}</p>
-          <div className="mt-4 border-t pt-4">
-            <h3 className="text-xl font-semibold mb-2">Available Options</h3>
-            {/* <div className="space-y-2">
-              {product.variants.map((variant: any) => (
-                <div
-                  key={variant.id}
-                  className="p-3 border rounded-md bg-white/10 flex justify-between items-center"
+          </span>
+        </nav>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-24 mb-24">
+          {/* Left: Gallery */}
+          <div className="space-y-4">
+            <ProductImageGallery images={product.images} />
+          </div>
+
+          {/* Right: Info */}
+          <div className="flex flex-col">
+            <div className="space-y-4 mb-8">
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <Badge
+                    variant="secondary"
+                    className="mb-2 rounded-full px-3 py-0.5 text-[10px] font-black uppercase tracking-widest bg-primary/10 text-primary border-none"
+                  >
+                    {product.category?.categoryName || "Premium"}
+                  </Badge>
+                  <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
+                    {product.title}
+                  </h1>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full"
+                  >
+                    <Heart className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full"
+                  >
+                    <Share2 className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center text-yellow-500">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className={cn(
+                        "h-4 w-4 fill-current",
+                        s === 5 && "text-muted opacity-30"
+                      )}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-bold">(128 Reviews)</span>
+                <span className="text-muted-foreground">|</span>
+                <span className="text-sm text-green-600 font-bold">
+                  In Stock
+                </span>
+              </div>
+            </div>
+
+            <p className="text-muted-foreground text-lg leading-relaxed mb-8 border-l-4 border-primary/20 pl-6 py-2 italic font-serif">
+              "{product.description}"
+            </p>
+
+            {/* Price */}
+            <div className="flex items-baseline gap-4 mb-10">
+              <span className="text-4xl font-black text-foreground">
+                ${selectedVariant ? selectedVariant.price : "---"}
+              </span>
+              {selectedVariant?.discountPrice && (
+                <span className="text-2xl text-muted-foreground line-through decoration-destructive decoration-2">
+                  ${selectedVariant.price}
+                </span>
+              )}
+            </div>
+
+            {/* Variant UI */}
+            <div className="space-y-8 mb-10 p-8 rounded-[2rem] bg-secondary/30 border border-border/50">
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex justify-between">
+                  Select Size
+                  <span className="text-primary normal-case font-bold tracking-normal underline underline-offset-4 cursor-pointer">
+                    Size Guide
+                  </span>
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {product.variants.map((v: any) => (
+                    <button
+                      key={v.id}
+                      disabled={v.stock === 0}
+                      onClick={() => setSelectedVariant(v)}
+                      className={cn(
+                        "min-w-16 h-12 rounded-xl border-2 transition-all font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed",
+                        selectedVariant?.id === v.id
+                          ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                          : "border-border hover:border-primary/50 text-foreground"
+                      )}
+                    >
+                      {v.size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="w-full sm:w-auto">
+                  <QuantitySelector
+                    quantity={quantity}
+                    setQuantity={setQuantity}
+                  />
+                </div>
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={!selectedVariant || isAddToCartLoading}
+                  className="w-full h-14 rounded-2xl text-md font-bold group shadow-xl shadow-primary/20"
                 >
-                  <div>
-                    <p>
-                      <span className="font-semibold">Size:</span>
-                      {variant.size}
-                    </p>
-                    <p className="text-sm text-gray-400">SKU: {variant.sku}</p>
+                  {isAddToCartLoading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent" />
+                      Adding...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                      Add to Bag
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Benefits */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-10 border-t border-border">
+              {[
+                {
+                  icon: Truck,
+                  title: "Free Shipping",
+                  desc: "On orders over $99",
+                },
+                {
+                  icon: RotateCcw,
+                  title: "30 Days Return",
+                  desc: "No questions asked",
+                },
+                { icon: ShieldCheck, title: "Secured", desc: "Safe checkout" },
+              ].map((benefit, i) => (
+                <div key={i} className="flex gap-4 items-start">
+                  <div className="bg-primary/5 p-3 rounded-full text-primary">
+                    <benefit.icon className="h-5 w-5" />
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-lg">${variant.price}</p>
-                    <p className="text-sm">
-                      {variant.stock > 0
-                        ? `${variant.stock} in stock`
-                        : "Out of stock"}
+                  <div>
+                    <p className="font-bold text-sm">{benefit.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {benefit.desc}
                     </p>
                   </div>
                 </div>
               ))}
-            </div> */}
-
-            {/* --- Variant Selection --- */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Size:</h3>
-              <div className="flex flex-wrap gap-2">
-                {product.variants.map((variant: any) => (
-                  <button
-                    key={variant.id}
-                    onClick={() => setSelectedVariant(variant)}
-                    className={`py-2 px-4 rounded-md border-2 transition-colors duration-200 ${
-                      selectedVariant?.id === variant.id
-                        ? "bg-blue-600 border-blue-600 text-white" // Selected style
-                        : "bg-white/10 border-gray-600 hover:border-gray-400" // Default style
-                    }`}
-                  >
-                    {variant.size}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* --- Price Display (updates when variant changes) --- */}
-            <p className="text-3xl font-bold mb-6">
-              ${selectedVariant ? selectedVariant.price : "---"}
-            </p>
-
-            {/* --- Add to Cart Section --- */}
-            <div className="flex items-center gap-4">
-              <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
-              <button
-                onClick={handleAddToCart}
-                disabled={!selectedVariant} // Disable button if no variant is selected
-                className="flex-grow bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
-              >
-                {isAddToCartLoading ? "Loading .." : "Add To Cart"}
-              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Related products section at the bottom */}
-      <RelatedProducts
-        allProducts={allProducts?.products}
-        currentProductId={product.id}
-        isLoading={areProductsLoading}
-      />
+        {/* Separator */}
+        <div className="h-px bg-border/50 w-full mb-24" />
+
+        {/* Related Products */}
+        <section className="mb-24">
+          <div className="flex justify-between items-end mb-12">
+            <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter">
+              You May Also Like
+            </h2>
+            <Link
+              to="/products"
+              className="font-bold text-primary underline underline-offset-8 decoration-2"
+            >
+              Shop All
+            </Link>
+          </div>
+          <RelatedProducts
+            allProducts={allProducts?.products}
+            currentProductId={product.id}
+            isLoading={areProductsLoading}
+          />
+        </section>
+      </div>
     </div>
   );
 };
 
 export default ProductDetails;
-
-// import React from "react";
-// import {
-//   useGetProductByIdQuery,
-//   useGetProductsQuery,
-// } from "@/redux/query/productApi";
-// import { useParams } from "react-router-dom";
-
-// const ProductDetails: React.FC = () => {
-//   const { id } = useParams<any>();
-//   // console.log(useParams());
-
-//   const { data: product, isLoading: isProductByIdLoading } =
-//     useGetProductByIdQuery(id, {
-//       skip: !id,
-//     });
-
-//   const { data: products, isLoading: isProductsLoading } =
-//     useGetProductsQuery();
-
-//   if (isProductsLoading) return <p>Loading..</p>;
-
-//   console.log(products);
-
-//   return (
-//     <div className="h-screen">
-//       <div className="container mx-auto gap-8">
-//         {isProductByIdLoading ? (
-//           <div>Loading ...</div>
-//         ) : (
-//           <div className="bg-white/5">
-//             <div className="flex flex-col md:flex-row justify-center ">
-//               <div className="bg-green-500">
-//                 {product.images.map((image: any) => (
-//                   <div className="h-full w-full">
-//                     <img
-//                       src={image.url}
-//                       alt={image.altText}
-//                       className="h-[50%] w-[50%]"
-//                     />
-//                   </div>
-//                 ))}
-//               </div>
-//               <div className="bg-green-400">
-//                 <h3>{product.title}</h3>
-//                 <p>{product.description}</p>
-//                 <div>
-//                   {product.variants.map((variant: any) => (
-//                     <div key={variant.id} className="p-2 m-1 border">
-//                       <p>sku : {variant.sku}</p>
-//                       <p>price : {variant.price}</p>
-//                       <p>size : {variant.size}</p>
-//                       <p>stock : {variant.stock}</p>
-//                     </div>
-//                   ))}
-//                 </div>
-//               </div>
-//             </div>
-//             <div className="bg-green-400 h-40 m-1 ">
-//               <div className="container mx-auto">
-//                 <div className="flex gap-8">
-//                   {products?.products.map((product: any) => (
-//                     <div key={product.id} className="">
-//                       <p>{product.title}</p>
-//                       <p>{product.description}</p>
-//                       <p>
-//                         {product.images.map((image: any) => (
-//                           <div key={image.id}>
-//                             {image.altText}
-//                             <img
-//                               src={image.url}
-//                               alt={image.altText}
-//                               className="h-20 2-40"
-//                             />
-//                           </div>
-//                         ))}
-//                       </p>
-//                     </div>
-//                   ))}
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//       {/* <div className="h-screen">
-//         {products?.products.map((product: any) => (
-//           <div key={product.id}>
-//             <p>{product.title}</p>
-//             <p>{product.description}</p>
-//           </div>
-//         ))}
-//       </div> */}
-//     </div>
-//   );
-// };
-
-// export default ProductDetails;
