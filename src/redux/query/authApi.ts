@@ -9,6 +9,14 @@ type VerifyEmailToken = {
   token: string;
 };
 
+type SignUpData = {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: "ADMIN" | "USER" | "EMPLOYER";
+};
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
@@ -27,6 +35,18 @@ export const authApi = createApi({
       }),
     }),
 
+    signUp: builder.mutation<any, SignUpData>({
+      query: (authData) => ({
+        url: "/api/auth/signup",
+        method: "POST",
+        body: authData,
+      }),
+    }),
+
+    authMe: builder.query<any, void>({
+      query: () => "/api/auth/auth-me",
+    }),
+
     verifyEmailToken: builder.mutation<any, VerifyEmailToken>({
       query: (token) => ({
         url: "/api/auth/verify-email",
@@ -37,4 +57,9 @@ export const authApi = createApi({
   }),
 });
 
-export const { useSignInMutation, useVerifyEmailTokenMutation } = authApi;
+export const {
+  useSignInMutation,
+  useSignUpMutation,
+  useAuthMeQuery,
+  useVerifyEmailTokenMutation,
+} = authApi;

@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet } from "react-router-dom"; // Keep Outlet
+import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
 import NavBar from "@/components/navbar/NavBar";
 import Home from "@/pages/Home";
 import SignUp from "@/pages/auth/SignUp";
@@ -6,219 +6,157 @@ import SignIn from "@/pages/auth/SignIn";
 import VerifyEmail from "@/pages/auth/VerifyEmail";
 import Product from "@/pages/Product";
 import ProductForm from "@/components/product/ProductForm";
-// import Cart from "@/components/cart/OpenCart";
 import AdminDashboard from "@/pages/dashboard/admin/AdminDashboard";
 import ProductDashboard from "@/pages/dashboard/admin/ProductDashboard";
+import EmployerDashboard from "@/pages/dashboard/employer/EmployerDashboard";
+import UserDashboard from "@/pages/dashboard/user/UserDashboard";
 
 import Products from "@/pages/products/Products";
 import ProductDetails from "@/pages/products/ProductDetails";
 import Cart from "@/pages/carts/Cart";
 import Checkout from "@/pages/carts/Checkout";
-// import { NavigationBar } from "@/components/navbar/NavigationBar";
+import { useAuthMeQuery } from "@/redux/query/authApi";
+import { Loader2 } from "lucide-react";
+
+/**
+ * Loading Screen for Auth Checks
+ */
+const AuthLoading = () => (
+  <div className="h-screen w-full flex items-center justify-center bg-background">
+    <div className="flex flex-col items-center gap-4">
+      <Loader2 className="w-12 h-12 text-primary animate-spin" />
+      <p className="font-bold italic animate-pulse">
+        Establishing secure connection...
+      </p>
+    </div>
+  </div>
+);
+
+/**
+ * ProtectedRoute Component
+ * Handles authentication and role-based access control
+ */
+const ProtectedRoute = ({
+  children,
+  allowedRoles,
+}: {
+  children: React.ReactNode;
+  allowedRoles?: string[];
+}) => {
+  const { data: user, isLoading, isError } = useAuthMeQuery();
+
+  if (isLoading) return <AuthLoading />;
+
+  if (isError || !user) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    // Redirect unauthorized users back to home or a common dashboard
+    console.warn(
+      `Unauthorized access attempt by ${user.role} to restricted route.`
+    );
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 const NotFound = () => {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-      <h1 className="text-4xl font-bold mb-2">404 - Not Found</h1>
-      <p>The page you are looking for does not exist.</p>
+    <div className="flex-1 flex flex-col items-center justify-center text-center p-4 h-screen">
+      <h1 className="text-6xl font-black italic tracking-tighter mb-4">
+        404 - <span className="text-primary">Lost.</span>
+      </h1>
+      <p className="text-xl font-medium text-muted-foreground mb-8">
+        The page you are looking for has drifted away from our oasis.
+      </p>
+      <Navigate to="/" />
     </div>
   );
 };
 
-// const ProtectedRoute = ({ allowedRoles, children }) => {
-//   const { data, isLoading, isError } = useAuthMeQuery(null);
-
-//   if (isLoading) return <div>Loading...</div>;
-
-//   if (isError || !data?.user) {
-//     return <Navigate to="/signin" replace />;
-//   }
-
-//   if (!allowedRoles.includes(data.user.role)) {
-//     return <Navigate to="/" replace />;
-//   }
-
-//   return children;
-// };
-// ######
-// const ProtectedRoute = ({ children, allowedRoles }) => {
-//   const { data, isLoading, isError } = useAuthMeQuery();
-//   // console.log(user, "at protective", allowedRoles);
-//   if (isLoading) {
-//     return <div>Loading...</div>;
-//   }
-
-//   if (isError || !data.user) {
-//     // Redirect unauthenticated users to login
-//     return <Navigate to="/login" replace />;
-//   }
-
-//   if (!allowedRoles.includes(data.user.role)) {
-//     // Redirect unauthorized users to home
-//     console.log(
-//       `User with role '${
-//         data.user.role
-//       }' tried to access a route restricted to roles: ${allowedRoles.join(
-//         ", "
-//       )}`
-//     );
-//     return <Navigate to="/" replace />;
-//   }
-
-//   // console.log(!allowedRoles.includes(user.role), "at protective");
-
-//   return children;
-// };
-
-// export default ProtectedRoute;
-
-// Keep AppLayout as it is
 const AppLayout = () => (
   <>
-    {/* <NavigationBar /> */}
     <NavBar />
     <main className="">
-      {/* <main className="pt-16"> */}
-      {/* Adjust padding as needed */}
-      <Outlet /> {/* Renders the matched child route component */}
+      <Outlet />
     </main>
   </>
 );
 
 export const router = createBrowserRouter([
   {
-    element: <AppLayout />, // AppLayout provides Navbar and Outlet
+    element: <AppLayout />,
     children: [
       // --- Public Routes ---
+      { path: "/", element: <Home /> },
+      { path: "/signin", element: <SignIn /> },
+      { path: "/signup", element: <SignUp /> },
+      { path: "/product", element: <Product /> },
+      { path: "/products", element: <Products /> },
+      { path: "/products/:id", element: <ProductDetails /> },
+      { path: "/products/cart", element: <Cart /> },
+      { path: "/verify-email", element: <VerifyEmail /> },
+
+      // --- Authenticated Shared Routes ---
       {
-        path: "/",
-        element: <Home />,
+        path: "/checkout",
+        element: (
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        ),
       },
 
+      // --- Admin Exclusive Routes ---
       {
         path: "/dashboard",
-        element: <AdminDashboard />,
+        element: (
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/dashboard/products",
-        element: <ProductDashboard />,
+        element: (
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <ProductDashboard />
+          </ProtectedRoute>
+        ),
       },
 
+      // --- Employer Exclusive Routes ---
       {
-        path: "/signin",
-        element: <SignIn />,
-      },
-      {
-        path: "/signup",
-        element: <SignUp />,
-      },
-      {
-        path: "/product",
-        element: <Product />,
-      },
-      {
-        path: "/products",
-        element: <Products />,
-      },
-      {
-        path: "/products/cart",
-        element: <Cart />,
-      },
-      {
-        path: "/checkout",
-        element: <Checkout />,
-      },
-      {
-        path: "/products/:id",
-        element: <ProductDetails />,
+        path: "/employer/dashboard",
+        element: (
+          <ProtectedRoute allowedRoles={["EMPLOYER"]}>
+            <EmployerDashboard />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/product_form",
-        element: <ProductForm />,
+        element: (
+          <ProtectedRoute allowedRoles={["EMPLOYER", "ADMIN"]}>
+            <ProductForm />
+          </ProtectedRoute>
+        ),
       },
 
+      // --- User Exclusive Routes ---
       {
-        path: "/verify-email/", // Assuming public, adjust if needed
-        element: <VerifyEmail />,
+        path: "/user/dashboard",
+        element: (
+          <ProtectedRoute allowedRoles={["USER"]}>
+            <UserDashboard />
+          </ProtectedRoute>
+        ),
       },
 
-      // {
-      //   path: "/products", // Assuming public, adjust if needed
-      //   element: <ProductList />,
-      // },
-
-      // // --- Employer Routes (Protected) ---
-      // {
-      //   path: "/dashboard/employer",
-      //   element: (
-      //     <ProtectedRoute allowedRoles={["employer"]}>
-      //       <Employer />
-      //     </ProtectedRoute>
-      //   ),
-      // },
-      // {
-      //   path: "/profile/employer",
-      //   element: (
-      //     <ProtectedRoute allowedRoles={["employer"]}>
-      //       <EmployerProfile />
-      //     </ProtectedRoute>
-      //   ),
-      // },
-      // {
-      //   path: "/employer/post-job",
-      //   element: (
-      //     <ProtectedRoute allowedRoles={["employer"]}>
-      //       <JobDashboard />
-      //     </ProtectedRoute>
-      //   ),
-      // },
-
-      // // --- Job Seeker Routes (Example - Add if needed) ---
-      // {
-      //   path: "/user/dashboard",
-      //   element: (
-      //     <ProtectedRoute allowedRoles={["user"]}>
-      //       <UserDashboard /> {/* Create this component */}
-      //     </ProtectedRoute>
-      //   ),
-      // },
-      // {
-      //   path: "/user/profile",
-      //   element: (
-      //     <ProtectedRoute allowedRoles={["user"]}>
-      //       <UserProfile /> {/* Create this component */}
-      //     </ProtectedRoute>
-      //   ),
-      // },
-      // {
-      //   path: "/user/resume",
-      //   element: (
-      //     <ProtectedRoute allowedRoles={["user"]}>
-      //       <Resume /> {/* Create this component */}
-      //     </ProtectedRoute>
-      //   ),
-      // },
-
-      // --- Admin Routes (Example - Add if needed) ---
-      // {
-      //   path: "/admin/dashboard",
-      //   element: (
-      //     <ProtectedRoute allowedRoles={['admin']}>
-      //       <AdminDashboard /> Create this component
-      //     </ProtectedRoute>
-      //   ),
-      // },
-
-      // --- Catch-all Not Found Route ---
-      {
-        path: "*",
-        element: <NotFound />,
-      },
+      // --- Catch-all ---
+      { path: "*", element: <NotFound /> },
     ],
   },
-  // You could potentially have routes outside the AppLayout if needed
-  // For example, a dedicated fullscreen login page without the main navbar
-  // {
-  //   path: "/alternative-login",
-  //   element: <AlternativeLoginPage />
-  // }
 ]);
