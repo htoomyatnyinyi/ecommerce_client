@@ -54,6 +54,12 @@ export const authApi = createApi({
         body: token,
       }),
     }),
+    signOut: builder.mutation<void, void>({
+      query: () => ({
+        url: "/api/auth/signout",
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -62,4 +68,5 @@ export const {
   useSignUpMutation,
   useAuthMeQuery,
   useVerifyEmailTokenMutation,
+  useSignOutMutation,
 } = authApi;
