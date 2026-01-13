@@ -77,8 +77,12 @@ const NavBar: React.FC = () => {
         {/* Logo */}
         <div className="flex items-center gap-12">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-primary p-2 rounded-2xl group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-primary/20">
-              <img src={logo} alt="OASIS" className="h-6 w-6 invert" />
+            <div className="bg-primary dark: p-2 rounded-2xl group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-primary/20">
+              <img
+                src={logo}
+                alt="OASIS"
+                className="h-6 w-6 invert dark:invert-0"
+              />
             </div>
             <span className="font-black text-3xl tracking-tighter italic">
               OASIS.

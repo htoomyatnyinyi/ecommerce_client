@@ -45,6 +45,7 @@ const ProtectedRoute = ({
 }) => {
   const { data: user, isLoading, isError } = useAuthMeQuery();
 
+  console.log(user, "check auth");
   if (isLoading) return <AuthLoading />;
 
   if (isError || !user) {
