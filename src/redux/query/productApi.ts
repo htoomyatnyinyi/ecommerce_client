@@ -13,6 +13,10 @@ export const productApi = createApi({
       query: (query) => `/api/products?search=${query}`,
     }),
 
+    getStripeConfig: builder.query<{ publishableKey: string }, void>({
+      query: () => "/api/checkout/config",
+    }),
+
     getProducts: builder.query<any, void>({
       query: () => "/api/products",
     }),
@@ -71,11 +75,29 @@ export const productApi = createApi({
       providesTags: ["Cart"],
     }),
 
-    checkout: builder.mutation<any, any>({
-      query: (order) => ({
-        url: "/checkout",
+    createPaymentIntent: builder.mutation<
+      any,
+      { shippingAddressId?: string; billingAddressId?: string }
+    >({
+      query: (body) => ({
+        url: "/api/checkout/create-payment-intent",
         method: "POST",
-        body: order,
+        body,
+      }),
+    }),
+
+    confirmPayment: builder.mutation<
+      any,
+      {
+        paymentIntentId: string;
+        shippingAddressId?: string;
+        billingAddressId?: string;
+      }
+    >({
+      query: (body) => ({
+        url: "/api/checkout/confirm-payment",
+        method: "POST",
+        body,
       }),
     }),
 
@@ -115,4 +137,7 @@ export const {
   useCreateNewCategoryMutation,
   useCreateNewProductMutation,
   useGetCategoryQuery,
+  useCreatePaymentIntentMutation,
+  useConfirmPaymentMutation,
+  useGetStripeConfigQuery,
 } = productApi;

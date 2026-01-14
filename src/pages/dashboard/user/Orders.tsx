@@ -15,8 +15,8 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  CardDescription,
+  // CardTitle,
+  // CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +66,7 @@ const UserOrders: React.FC = () => {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-40 rounded-[2rem] bg-secondary/10 animate-pulse"
+                  className="h-40 rounded-4xl bg-secondary/10 animate-pulse"
                 />
               ))}
             </div>
@@ -174,7 +174,7 @@ const OrderCard = ({ order }: { order: any }) => {
           <div className="flex-1 space-y-6">
             {order.items?.map((item: any) => (
               <div key={item.id} className="flex gap-6 items-center">
-                <div className="w-20 h-20 rounded-2xl bg-secondary/30 overflow-hidden flex-shrink-0">
+                <div className="w-20 h-20 rounded-2xl bg-secondary/30 overflow-hidden shrink-0">
                   <img
                     src={
                       item.product?.images?.[0]?.url ||

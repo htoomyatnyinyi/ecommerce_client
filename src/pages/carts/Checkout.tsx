@@ -1,40 +1,154 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import type { RootState } from "@/redux/store/store";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, CreditCard, Truck, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Truck, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+import {
+  useGetStripeConfigQuery,
+  useCreatePaymentIntentMutation,
+  useConfirmPaymentMutation,
+} from "@/redux/query/productApi";
+import { useGetAddressesQuery } from "@/redux/query/userApi";
+
+// CheckoutForm Component handles the actual payment submission
+const CheckoutForm = ({
+  clientSecret,
+  paymentIntentId,
+  subtotal,
+}: {
+  clientSecret: string;
+  paymentIntentId: string;
+  subtotal: number;
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const navigate = useNavigate();
+  const [confirmPaymentApi, { isLoading: isConfirming }] =
+    useConfirmPaymentMutation();
+
+  const [message, setMessage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: window.location.origin + "/order-success",
+      },
+      redirect: "if_required",
+    });
+
+    if (error) {
+      setMessage(error.message || "An unexpected error occurred.");
+      toast.error(error.message || "Payment failed");
+      setIsProcessing(false);
+    } else if (paymentIntent && paymentIntent.status === "succeeded") {
+      // Confirm with backend
+      try {
+        await confirmPaymentApi({ paymentIntentId }).unwrap();
+        toast.success("Order placed successfully!");
+        navigate("/"); // Or to success page
+      } catch (err: any) {
+        toast.error("Order confirmation failed. Please contact support.");
+        console.error(err);
+      }
+      setIsProcessing(false);
+    } else {
+      setMessage("Payment status: " + paymentIntent.status);
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <PaymentElement />
+      {message && <div className="text-red-500 text-sm">{message}</div>}
+      <Button
+        type="submit"
+        disabled={isProcessing || !stripe || !elements || isConfirming}
+        size="xl"
+        className="w-full h-16 rounded-4xl text-lg font-black group shadow-xl shadow-primary/20"
+      >
+        {isProcessing
+          ? "Processing..."
+          : `Secure Purchase — $${subtotal.toFixed(2)}`}
+        {!isProcessing && (
+          <ShieldCheck className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+        )}
+      </Button>
+      <p className="text-center text-xs text-muted-foreground mt-4">
+        Your payment data is encrypted and secure. By placing an order, you
+        agree to our Terms of Service.
+      </p>
+    </form>
+  );
+};
 
 const Checkout: React.FC = () => {
-  const navigate = useNavigate();
   const { items } = useSelector((state: RootState) => state.cart);
   const subtotal = items.reduce(
     (sum, item) => sum + item.variant.price * item.quantity,
     0
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (items.length === 0) {
-      toast.error("Your cart is empty!");
-      navigate("/products");
-      return;
-    }
+  const { data: configData, error: configError } = useGetStripeConfigQuery();
+  const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
 
-    // Simulate order placement
-    toast.promise(new Promise((resolve) => setTimeout(resolve, 2000)), {
-      loading: "Processing your order...",
-      success: () => {
-        navigate("/");
-        return "Order placed successfully! Thank you for shopping with OASIS.";
-      },
-      error: "Failed to place order. Please try again.",
-    });
-  };
+  const [createPaymentIntent, { data: paymentData, error: paymentError }] =
+    useCreatePaymentIntentMutation();
+
+  const { data: addressesData } = useGetAddressesQuery();
+
+  useEffect(() => {
+    if (configData?.publishableKey) {
+      console.log("Stripe Key Loaded:", configData.publishableKey);
+      setStripePromise(loadStripe(configData.publishableKey));
+    } else if (configError) {
+      console.error("Failed to load Stripe config:", configError);
+      toast.error("Failed to load payment system.");
+    }
+  }, [configData, configError]);
+
+  // Initial Payment Intent Creation
+  useEffect(() => {
+    if (items.length > 0 && !paymentData && !paymentError) {
+      console.log("Creating Payment Intent...");
+      createPaymentIntent({})
+        .unwrap()
+        .then((res) => console.log("Payment Intent Created:", res))
+        .catch((err) => {
+          console.error("Payment Intent Failed:", err);
+          toast.error("Could not initialize checkout.");
+        });
+    }
+  }, [items, createPaymentIntent, paymentData, paymentError]);
+
+  const clientSecret = paymentData?.clientSecret;
+  const paymentIntentId = paymentData?.paymentIntentId;
+
+  const defaultAddress = Array.isArray(addressesData)
+    ? addressesData.find((a: any) => a.isDefault)
+    : addressesData?.addresses?.find((a: any) => a.isDefault);
 
   return (
     <div className="bg-background min-h-screen pt-24 pb-24">
@@ -56,7 +170,8 @@ const Checkout: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Checkout Form */}
           <div className="lg:col-span-7">
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-8">
+              {/* Shipping Information Information */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="bg-primary p-2 rounded-lg text-primary-foreground">
@@ -65,81 +180,67 @@ const Checkout: React.FC = () => {
                   <h2 className="text-2xl font-bold">Shipping Information</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    name="name"
-                    placeholder="Full Name"
-                    className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
-                    required
-                  />
-                  <Input
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
-                    required
-                  />
-                </div>
-                <Input
-                  name="address"
-                  placeholder="Street Address"
-                  className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
-                  required
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    name="city"
-                    placeholder="City"
-                    className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
-                    required
-                  />
-                  <Input
-                    name="postalCode"
-                    placeholder="Postal Code"
-                    className="h-14 rounded-2xl border-2 focus-visible:ring-primary/20"
-                    required
-                  />
-                </div>
+                {defaultAddress ? (
+                  <Card className="p-6 rounded-2xl border-2 border-primary/20 bg-primary/5">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-bold text-lg">Default Address</p>
+                        <p className="text-muted-foreground">
+                          {defaultAddress.street}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {defaultAddress.city}, {defaultAddress.state}{" "}
+                          {defaultAddress.postalCode}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {defaultAddress.country}
+                        </p>
+                      </div>
+                      <div className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                        Linked
+                      </div>
+                    </div>
+                  </Card>
+                ) : (
+                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/50 rounded-xl text-yellow-600">
+                    No default address found. Using backend defaults or please
+                    update your profile.
+                  </div>
+                )}
               </div>
 
+              {/* Payment Section */}
               <div className="space-y-6 pt-8">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="bg-primary p-2 rounded-lg text-primary-foreground">
-                    <CreditCard className="w-5 h-5" />
+                <h2 className="text-2xl font-bold">Payment Method</h2>
+                {clientSecret && stripePromise ? (
+                  <Elements stripe={stripePromise} options={{ clientSecret }}>
+                    <CheckoutForm
+                      clientSecret={clientSecret}
+                      paymentIntentId={paymentIntentId}
+                      subtotal={subtotal}
+                    />
+                  </Elements>
+                ) : (
+                  <div>Loading Payment...</div>
+                )}
+                {paymentError && (
+                  <div className="text-red-500 bg-red-50 p-4 rounded-xl">
+                    <p className="font-bold">Failed to initialize payment.</p>
+                    <pre className="text-xs mt-2 overflow-auto">
+                      {JSON.stringify(paymentError, null, 2)}
+                    </pre>
                   </div>
-                  <h2 className="text-2xl font-bold">Payment Method</h2>
-                </div>
-                <Card className="p-6 rounded-2xl border-2 border-primary bg-primary/5 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-background p-2 rounded-lg">
-                      <CreditCard className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-bold">Credit / Debit Card</p>
-                      <p className="text-xs text-muted-foreground">
-                        Secure payment via Stripe
-                      </p>
-                    </div>
+                )}
+                {configError && (
+                  <div className="text-red-500 bg-red-50 p-4 rounded-xl">
+                    <p className="font-bold">Configuration Error.</p>
+                    <pre className="text-xs mt-2 overflow-auto">
+                      {JSON.stringify(configError, null, 2)}
+                    </pre>
                   </div>
-                  <div className="h-4 w-4 rounded-full border-4 border-primary bg-primary" />
-                </Card>
+                )}
               </div>
-
-              <div className="pt-8">
-                <Button
-                  type="submit"
-                  size="xl"
-                  className="w-full h-16 rounded-[2rem] text-lg font-black group shadow-xl shadow-primary/20"
-                >
-                  Secure Purchase — ${subtotal.toFixed(2)}
-                  <ShieldCheck className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
-                </Button>
-                <p className="text-center text-xs text-muted-foreground mt-4">
-                  Your payment data is encrypted and secure. By placing an
-                  order, you agree to our Terms of Service.
-                </p>
-              </div>
-            </form>
+            </div>
           </div>
 
           {/* Order Summary Sidebar */}
@@ -152,14 +253,14 @@ const Checkout: React.FC = () => {
               <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 mb-8 custom-scrollbar">
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-4 items-center">
-                    <div className="h-20 w-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                    <div className="h-20 w-20 rounded-xl overflow-hidden bg-muted shrink-0">
                       <img
                         src={item.image}
                         alt={item.title}
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <div className="flex-grow">
+                    <div className="grow">
                       <p className="font-bold truncate max-w-[200px]">
                         {item.title}
                       </p>

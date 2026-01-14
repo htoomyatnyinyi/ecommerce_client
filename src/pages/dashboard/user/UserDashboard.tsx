@@ -2,7 +2,7 @@ import React from "react";
 import DashboardLayout from "../Dashboard";
 import {
   ShoppingBag,
-  Heart,
+  // Heart,
   CreditCard,
   Box,
   MapPin,

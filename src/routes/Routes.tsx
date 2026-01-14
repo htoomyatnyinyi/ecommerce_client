@@ -107,7 +107,7 @@ const NotFound = () => (
 const AppLayout = () => (
   <div className="flex flex-col min-h-screen">
     <NavBar />
-    <main className="flex-grow">
+    <main className="grow">
       <Suspense fallback={<PageLoader />}>
         <Outlet />
       </Suspense>

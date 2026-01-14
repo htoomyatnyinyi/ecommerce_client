@@ -90,9 +90,9 @@ const Cart: React.FC = () => {
             {items.map((item) => (
               <Card
                 key={item.id}
-                className="p-6 rounded-[2rem] border-border/50 bg-secondary/10 flex flex-col sm:flex-row items-center gap-8 group overflow-hidden relative"
+                className="p-6 rounded-4xl border-border/50 bg-secondary/10 flex flex-col sm:flex-row items-center gap-8 group overflow-hidden relative"
               >
-                <div className="relative h-40 w-40 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
+                <div className="relative h-40 w-40 rounded-2xl overflow-hidden bg-muted shrink-0">
                   <img
                     src={item.image}
                     alt={item.title}
@@ -100,7 +100,7 @@ const Cart: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex-grow space-y-2 text-center sm:text-left">
+                <div className="grow space-y-2 text-center sm:text-left">
                   <Badge
                     variant="outline"
                     className="mb-1 rounded-full text-[10px] font-bold uppercase tracking-widest border-primary/30 text-primary"

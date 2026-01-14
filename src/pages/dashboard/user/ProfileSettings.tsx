@@ -4,7 +4,7 @@ import {
   User,
   Mail,
   MapPin,
-  Phone,
+  // Phone,
   Shield,
   Bell,
   Plus,
@@ -15,10 +15,10 @@ import {
 } from "lucide-react";
 import {
   Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
+  // CardContent,
+  // CardHeader,
+  // CardTitle,
+  // CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,8 @@ import {
   useCreateAddressMutation,
   useDeleteAddressMutation,
   useUpdateProfileMutation,
+  useUpdateAddressMutation,
+  useUpdatePasswordMutation,
 } from "@/redux/query/userApi";
 import { useAuthMeQuery } from "@/redux/query/authApi";
 import { toast } from "sonner";
@@ -36,13 +38,18 @@ const ProfileSettings: React.FC = () => {
   const { data: user } = useAuthMeQuery();
   const { data: addresses, isLoading: isAddressesLoading } =
     useGetAddressesQuery();
+
   const [createAddress, { isLoading: isCreatingAddress }] =
     useCreateAddressMutation();
+
   const [deleteAddress] = useDeleteAddressMutation();
 
   const [activeTab, setActiveTab] = useState<
     "profile" | "addresses" | "security"
   >("profile");
+
+  if (isCreatingAddress)
+    return <Loader2 className="w-10 h-10 animate-spin text-primary" />;
 
   return (
     <DashboardLayout>
@@ -239,8 +246,11 @@ const AddressManagement = ({
     city: "",
     state: "",
     postalCode: "",
-    country: "United States",
+    country: "",
+    isDefault: false,
   });
+
+  const [updateAddress] = useUpdateAddressMutation();
 
   const handleAdd = async () => {
     try {
@@ -252,7 +262,8 @@ const AddressManagement = ({
         city: "",
         state: "",
         postalCode: "",
-        country: "United States",
+        country: "",
+        isDefault: false,
       });
     } catch (error) {
       toast.error("Failed to add address");
@@ -265,6 +276,18 @@ const AddressManagement = ({
       toast.success("Address removed");
     } catch (error) {
       toast.error("Failed to remove address");
+    }
+  };
+
+  const handleSetDefault = async (addr: any) => {
+    try {
+      await updateAddress({
+        id: addr.id,
+        addressData: { ...addr, isDefault: true },
+      }).unwrap();
+      toast.success("Default address updated");
+    } catch (error) {
+      toast.error("Failed to update default address");
     }
   };
 
@@ -342,6 +365,20 @@ const AddressManagement = ({
                 className="h-12 rounded-xl bg-background"
               />
             </div>
+            <div className="md:col-span-2 flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="isDefault"
+                checked={newAddr.isDefault}
+                onChange={(e) =>
+                  setNewAddr({ ...newAddr, isDefault: e.target.checked })
+                }
+                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <Label htmlFor="isDefault" className="font-bold cursor-pointer">
+                Set as default shipping address
+              </Label>
+            </div>
           </div>
           <div className="mt-8 flex gap-4">
             <Button
@@ -368,7 +405,7 @@ const AddressManagement = ({
           addresses?.map((addr: any) => (
             <Card
               key={addr.id}
-              className="rounded-[2rem] border-border/50 bg-card p-8 group hover:border-primary/30 transition-all"
+              className="rounded-4xl border-border/50 bg-card p-8 group hover:border-primary/30 transition-all"
             >
               <div className="flex justify-between items-start mb-6">
                 <div className="bg-secondary/30 p-4 rounded-2xl text-primary">
@@ -402,6 +439,22 @@ const AddressManagement = ({
                 <p className="text-muted-foreground font-medium">
                   {addr.country}
                 </p>
+                <div className="mt-4 flex items-center gap-3">
+                  {addr.isDefault ? (
+                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Default
+                    </span>
+                  ) : (
+                    <Button
+                      onClick={() => handleSetDefault(addr)}
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full text-xs font-bold h-7"
+                    >
+                      Set as Default
+                    </Button>
+                  )}
+                </div>
               </div>
             </Card>
           ))
