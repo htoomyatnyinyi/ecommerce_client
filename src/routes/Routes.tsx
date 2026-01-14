@@ -33,8 +33,6 @@ const UserDashboard = lazy(
 );
 const ProductForm = lazy(() => import("@/components/product/ProductForm"));
 
-const GsapPlayground = lazy(() => import("@/pages/Test/A"));
-
 const PageLoader = () => (
   <div className="h-[80vh] w-full flex items-center justify-center bg-background/50 backdrop-blur-sm">
     <div className="flex flex-col items-center gap-6">
@@ -124,7 +122,6 @@ export const router = createBrowserRouter([
       { path: "/products/:id", element: <ProductDetails /> },
       { path: "/products/cart", element: <Cart /> },
       { path: "/verify-email", element: <VerifyEmail /> },
-      { path: "/gsap", element: <GsapPlayground /> },
 
       // --- Guest Only ---
       {
