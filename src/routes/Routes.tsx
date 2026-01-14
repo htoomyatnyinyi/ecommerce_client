@@ -48,7 +48,7 @@ const PageLoader = () => (
     <div className="flex flex-col items-center gap-6">
       <div className="relative">
         <Loader2 className="w-16 h-16 text-primary animate-spin opacity-20" />
-        <Loader2 className="w-16 h-16 text-primary animate-spin absolute inset-0 [animation-duration:3s]" />
+        <Loader2 className="w-16 h-16 text-primary animate-spin absolute inset-0 animation-duration:[3s]" />
       </div>
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-black italic tracking-tighter animate-pulse">
@@ -201,14 +201,18 @@ export const router = createBrowserRouter([
         ],
       },
 
-      // --- Managed Product Route (Unified Path) ---
+      // --- Managed Product Routes (Unified Path) ---
       {
-        path: "/products/manage/new",
+        path: "/products/manage",
         element: (
           <ProtectedRoute allowedRoles={["EMPLOYER", "ADMIN"]}>
-            <ProductForm />
+            <Outlet />
           </ProtectedRoute>
         ),
+        children: [
+          { path: "new", element: <ProductForm /> },
+          { path: "edit/:id", element: <ProductForm /> },
+        ],
       },
 
       // --- Admin Dashboard ---

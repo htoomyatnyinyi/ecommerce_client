@@ -3,6 +3,7 @@ import {
   useCreateNewCategoryMutation,
   useCreateNewProductMutation,
   useGetCategoryQuery,
+  useGetProductByIdQuery,
 } from "@/redux/query/productApi";
 import {
   Plus,
@@ -39,21 +40,24 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-
-interface VariantOption {
-  attributeName: string;
-  attributeValue: string;
-}
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  useGetAdminStatsQuery,
+  useUpdateProductMutation,
+} from "@/redux/query/dashboardApi";
+import { useEffect } from "react";
 
 interface Variant {
+  id?: string;
   sku: string;
   price: string;
   stock: number;
-  variantOptions: VariantOption[];
+  color: string;
+  size: string;
 }
 
 interface Image {
+  id?: string;
   url: string;
   altText: string;
   isPrimary: boolean;
@@ -68,19 +72,21 @@ interface FormData {
   images: Image[];
 }
 
-// interface Category {
-//   id: string;
-//   categoryName: string;
-// }
-
 const ProductForm: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = !!id;
+
   const [createNewProduct, { isLoading: isCreatingProduct }] =
     useCreateNewProductMutation();
+  const [updateProduct, { isLoading: isUpdatingProduct }] =
+    useUpdateProductMutation();
   const [createNewCategory, { isLoading: isCreatingCategory }] =
     useCreateNewCategoryMutation();
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useGetCategoryQuery();
+  const { data: productData, isLoading: isProductLoading } =
+    useGetProductByIdQuery(id, { skip: !isEditMode });
 
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -95,7 +101,8 @@ const ProductForm: React.FC = () => {
         sku: "",
         price: "",
         stock: 0,
-        variantOptions: [{ attributeName: "Color", attributeValue: "" }],
+        color: "",
+        size: "",
       },
     ],
     images: [
@@ -106,6 +113,31 @@ const ProductForm: React.FC = () => {
       },
     ],
   });
+
+  useEffect(() => {
+    if (isEditMode && productData) {
+      setFormData({
+        title: productData.title,
+        description: productData.description,
+        categoryId: productData.categoryId,
+        newCategoryName: "",
+        variants: productData.variants.map((v: any) => ({
+          id: v.id,
+          sku: v.sku,
+          price: v.price.toString(),
+          stock: v.stock,
+          color: v.color || "",
+          size: v.size || "",
+        })),
+        images: productData.images.map((img: any) => ({
+          id: img.id,
+          url: img.url,
+          altText: img.altText,
+          isPrimary: img.isPrimary,
+        })),
+      });
+    }
+  }, [isEditMode, productData]);
 
   const handleChange = (field: keyof FormData, value: any) => {
     setFormData({ ...formData, [field]: value });
@@ -119,19 +151,6 @@ const ProductForm: React.FC = () => {
   ) => {
     const newVariants = [...formData.variants];
     newVariants[index] = { ...newVariants[index], [field]: value };
-    setFormData({ ...formData, variants: newVariants });
-  };
-
-  const handleVariantOptionChange = (
-    vIdx: number,
-    oIdx: number,
-    field: keyof VariantOption,
-    value: string
-  ) => {
-    const newVariants = [...formData.variants];
-    const newOptions = [...newVariants[vIdx].variantOptions];
-    newOptions[oIdx] = { ...newOptions[oIdx], [field]: value };
-    newVariants[vIdx].variantOptions = newOptions;
     setFormData({ ...formData, variants: newVariants });
   };
 
@@ -154,7 +173,8 @@ const ProductForm: React.FC = () => {
           sku: "",
           price: "",
           stock: 0,
-          variantOptions: [{ attributeName: "", attributeValue: "" }],
+          color: "",
+          size: "",
         },
       ],
     });
@@ -165,23 +185,6 @@ const ProductForm: React.FC = () => {
       ...formData,
       variants: formData.variants.filter((_, i) => i !== index),
     });
-  };
-
-  const addVariantOption = (variantIndex: number) => {
-    const newVariants = [...formData.variants];
-    newVariants[variantIndex].variantOptions.push({
-      attributeName: "",
-      attributeValue: "",
-    });
-    setFormData({ ...formData, variants: newVariants });
-  };
-
-  const removeVariantOption = (variantIndex: number, optionIndex: number) => {
-    const newVariants = [...formData.variants];
-    newVariants[variantIndex].variantOptions = newVariants[
-      variantIndex
-    ].variantOptions.filter((_, i) => i !== optionIndex);
-    setFormData({ ...formData, variants: newVariants });
   };
 
   const addImage = () => {
@@ -206,6 +209,10 @@ const ProductForm: React.FC = () => {
     if (!formData.description) return "Description is required";
     if (!formData.categoryId && !formData.newCategoryName)
       return "Select or create a category";
+    if (
+      formData.variants.some((v) => !v.sku || !v.price || !v.color || !v.size)
+    )
+      return "All variants must have SKU, Price, Color, and Size";
     return null;
   };
 
@@ -227,23 +234,27 @@ const ProductForm: React.FC = () => {
       }
 
       const payload = {
+        id,
         title: formData.title,
         description: formData.description,
         categoryId,
-        variants: formData.variants.map((v) => ({
-          ...v,
-          options: v.variantOptions,
-        })),
+        variants: formData.variants,
         images: formData.images,
       };
 
-      console.log(payload, "payload category");
-
-      await createNewProduct(payload).unwrap();
-      toast.success("Product created successfully!");
+      if (isEditMode) {
+        await updateProduct(payload).unwrap();
+        toast.success("Product updated successfully!");
+      } else {
+        await createNewProduct(payload).unwrap();
+        toast.success("Product created successfully!");
+      }
       navigate("/dashboard/products");
     } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to create product");
+      toast.error(
+        err?.data?.message ||
+          `Failed to ${isEditMode ? "update" : "create"} product`
+      );
     }
   };
 
@@ -253,7 +264,8 @@ const ProductForm: React.FC = () => {
     { id: 3, label: "Media", icon: <ImageIcon className="w-4 h-4" /> },
   ];
 
-  if (isCategoriesLoading) return <PageLoader />;
+  if (isCategoriesLoading || (isEditMode && isProductLoading))
+    return <PageLoader />;
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-20 px-4">
@@ -262,13 +274,21 @@ const ProductForm: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-border/50 pb-8">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-primary font-black italic uppercase tracking-widest text-[10px]">
-              <Plus className="w-3 h-3" /> New Listing
+              {isEditMode ? (
+                <Settings2 className="w-3 h-3" />
+              ) : (
+                <Plus className="w-3 h-3" />
+              )}{" "}
+              {isEditMode ? "System Update" : "New Listing"}
             </div>
             <h1 className="text-5xl font-black italic tracking-tighter">
-              Create <span className="text-primary text-6xl">Product.</span>
+              {isEditMode ? "Modify" : "Create"}{" "}
+              <span className="text-primary text-6xl">Product.</span>
             </h1>
             <p className="text-muted-foreground font-medium text-lg">
-              Detailed specifications for your global catalog item.
+              {isEditMode
+                ? "Re-calibrate specifications for this OASIS asset."
+                : "Detailed specifications for your global catalog item."}
             </p>
           </div>
 
@@ -456,56 +476,37 @@ const ProductForm: React.FC = () => {
                       <div className="p-6 rounded-3xl bg-secondary/5 border border-border/30 space-y-4">
                         <div className="flex justify-between items-center mb-2">
                           <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                            Attributes
+                            Specifications
                           </Label>
-                          <Button
-                            onClick={() => addVariantOption(i)}
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 text-[10px] font-black uppercase text-primary"
-                          >
-                            <Plus className="w-3 h-3 mr-1" /> Add Attribute
-                          </Button>
                         </div>
-                        {v.variantOptions.map((opt, oIdx) => (
-                          <div
-                            key={oIdx}
-                            className="flex gap-4 items-center animate-in slide-in-from-left-2"
-                          >
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-[8px] font-black uppercase tracking-widest opacity-60">
+                              Color
+                            </Label>
                             <Input
-                              placeholder="Name (e.g. Size)"
-                              value={opt.attributeName}
+                              placeholder="e.g. Midnight Black"
+                              value={v.color}
                               onChange={(e) =>
-                                handleVariantOptionChange(
-                                  i,
-                                  oIdx,
-                                  "attributeName",
-                                  e.target.value
-                                )
+                                handleVariantChange(i, "color", e.target.value)
                               }
                               className="h-10 rounded-xl bg-background"
                             />
-                            <Input
-                              placeholder="Value (e.g. XL)"
-                              value={opt.attributeValue}
-                              onChange={(e) =>
-                                handleVariantOptionChange(
-                                  i,
-                                  oIdx,
-                                  "attributeValue",
-                                  e.target.value
-                                )
-                              }
-                              className="h-10 rounded-xl bg-background"
-                            />
-                            <button
-                              onClick={() => removeVariantOption(i, oIdx)}
-                              className="text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
                           </div>
-                        ))}
+                          <div className="space-y-2">
+                            <Label className="text-[8px] font-black uppercase tracking-widest opacity-60">
+                              Size
+                            </Label>
+                            <Input
+                              placeholder="e.g. XL or 42"
+                              value={v.size}
+                              onChange={(e) =>
+                                handleVariantChange(i, "size", e.target.value)
+                              }
+                              className="h-10 rounded-xl bg-background"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -514,7 +515,7 @@ const ProductForm: React.FC = () => {
                 <Button
                   onClick={addVariant}
                   variant="outline"
-                  className="w-full h-16 rounded-[2rem] border-dashed border-2 border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all font-black uppercase tracking-widest italic text-xs gap-3"
+                  className="w-full h-16 rounded-4xl border-dashed border-2 border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all font-black uppercase tracking-widest italic text-xs gap-3"
                 >
                   <Plus className="w-5 h-5" /> Add Another Product Variant
                 </Button>
@@ -547,7 +548,7 @@ const ProductForm: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <div className="flex-grow space-y-4">
+                      <div className="grow space-y-4">
                         <div className="space-y-2">
                           <Label className="text-xs font-black uppercase tracking-widest opacity-60 text-muted-foreground">
                             Source URL
@@ -609,7 +610,7 @@ const ProductForm: React.FC = () => {
                 <Button
                   onClick={addImage}
                   variant="outline"
-                  className="w-full h-16 rounded-[2rem] border-dashed border-2 border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all font-black uppercase tracking-widest italic text-xs gap-3"
+                  className="w-full h-16 rounded-4xl border-dashed border-2 border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all font-black uppercase tracking-widest italic text-xs gap-3"
                 >
                   <Plus className="w-5 h-5" /> Add More Media Assets
                 </Button>
@@ -632,14 +633,19 @@ const ProductForm: React.FC = () => {
                     ? handleSubmit
                     : () => setStep((s) => Math.min(3, s + 1))
                 }
-                disabled={isCreatingProduct || isCreatingCategory}
+                disabled={
+                  isCreatingProduct || isUpdatingProduct || isCreatingCategory
+                }
                 className="rounded-2xl h-14 px-10 font-black italic text-lg gap-3 shadow-2xl shadow-primary/20"
               >
-                {isCreatingProduct || isCreatingCategory ? (
+                {isCreatingProduct ||
+                isUpdatingProduct ||
+                isCreatingCategory ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : step === 3 ? (
                   <>
-                    Establish Product <CheckCircle2 className="w-5 h-5" />
+                    {isEditMode ? "Apply Changes" : "Establish Product"}{" "}
+                    <CheckCircle2 className="w-5 h-5" />
                   </>
                 ) : (
                   <>

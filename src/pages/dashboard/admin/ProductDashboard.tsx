@@ -10,7 +10,6 @@ import {
   Package,
   Search,
   Plus,
-  Filter,
   MoreVertical,
   Eye,
   Edit3,
@@ -18,6 +17,14 @@ import {
   Loader2,
   ArrowUpDown,
 } from "lucide-react";
+import { useGetCategoryQuery } from "@/redux/query/productApi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,15 +44,36 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 
+import { useState, useMemo } from "react";
+
 const ProductDashboard: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("all");
+
   const {
-    data: products = [],
+    data: productsData,
     isLoading: productsLoading,
     refetch,
   } = useGetProductsQuery();
   const { data: statsData, isLoading: statsLoading } =
     useGetAdminStatsQuery(undefined);
+  const { data: categories = [] } = useGetCategoryQuery();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+
+  const products = productsData?.products || [];
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p: any) => {
+      const matchesSearch =
+        p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.category?.categoryName
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        filterCategory === "all" || p.category?.categoryName === filterCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchTerm, filterCategory]);
 
   const handleDecommission = async (productId: string) => {
     if (
@@ -145,14 +173,23 @@ const ProductDashboard: React.FC = () => {
             <Input
               placeholder="Filter global inventory by title, SKU, or category..."
               className="h-12 pl-12 rounded-2xl bg-secondary/10 border-border/20"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button
-            variant="outline"
-            className="h-12 rounded-2xl gap-2 font-bold px-6"
-          >
-            <Filter className="w-4 h-4" /> Attributes
-          </Button>
+          <Select value={filterCategory} onValueChange={setFilterCategory}>
+            <SelectTrigger className="w-full md:w-[200px] h-12 rounded-2xl bg-secondary/10 border-border/20 font-bold">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((cat: any) => (
+                <SelectItem key={cat.id} value={cat.categoryName}>
+                  {cat.categoryName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             variant="outline"
             className="h-12 rounded-2xl gap-2 font-bold px-6"
@@ -187,7 +224,7 @@ const ProductDashboard: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product: any) => (
+              {filteredProducts.map((product: any) => (
                 <TableRow
                   key={product.id}
                   className="border-border/20 hover:bg-primary/5 transition-colors group"
@@ -300,7 +337,7 @@ const ProductDashboard: React.FC = () => {
             </TableBody>
           </Table>
 
-          {products.length === 0 && (
+          {filteredProducts.length === 0 && (
             <div className="p-20 text-center space-y-4">
               <Package className="w-20 h-20 text-muted-foreground/20 mx-auto" />
               <p className="text-xl font-black italic text-muted-foreground">
