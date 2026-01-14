@@ -17,8 +17,25 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useGetEmployerStatsQuery } from "@/redux/query/dashboardApi";
+import { Loader2 } from "lucide-react";
 
 const EmployerDashboard: React.FC = () => {
+  const { data, isLoading } = useGetEmployerStatsQuery(undefined);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const stats = data?.stats;
+  const recentListings = data?.recentListings || [];
+
   return (
     <DashboardLayout>
       <div className="space-y-10">
@@ -48,25 +65,25 @@ const EmployerDashboard: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total Revenue"
-            value="$12,450"
+            value={`$${(stats?.totalRevenue || 0).toLocaleString()}`}
             icon={<DollarSign />}
             trend="+12.5%"
           />
           <StatCard
             title="Total Orders"
-            value="145"
+            value={(stats?.totalOrders || 0).toLocaleString()}
             icon={<ShoppingCart />}
             trend="+8.2%"
           />
           <StatCard
             title="Active Listings"
-            value="32"
+            value={(stats?.activeListings || 0).toLocaleString()}
             icon={<Package />}
             trend="+2 new"
           />
           <StatCard
             title="Sales Velocity"
-            value="4.2/day"
+            value={`${stats?.salesVelocity || "0"}/day`}
             icon={<TrendingUp />}
             trend="+15%"
           />
@@ -94,28 +111,33 @@ const EmployerDashboard: React.FC = () => {
             </CardHeader>
             <CardContent className="p-8 pt-0">
               <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
+                {recentListings.map((product: any) => (
                   <div
-                    key={i}
+                    key={product.id}
                     className="flex items-center gap-6 p-4 rounded-2xl bg-background/50 border border-border/10 group hover:border-primary/30 transition-all cursor-pointer"
                   >
-                    <div className="w-16 h-16 rounded-xl bg-muted overflow-hidden flex-shrink-0">
+                    <div className="w-16 h-16 rounded-xl bg-muted overflow-hidden shrink-0">
                       <img
-                        src={`https://picsum.photos/seed/${i + 50}/200`}
-                        alt="product"
+                        src={
+                          product.images?.[0]?.url ||
+                          `https://picsum.photos/seed/${product.id}/200`
+                        }
+                        alt={product.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
-                    <div className="flex-grow">
-                      <h4 className="font-bold text-lg">Product Sample {i}</h4>
+                    <div className="grow">
+                      <h4 className="font-bold text-lg">{product.title}</h4>
                       <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">
-                        Category • Published 2 days ago
+                        {new Date(product.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-black text-xl">$149.00</p>
+                      <p className="font-black text-xl">
+                        ${Number(product.variants?.[0]?.price || 0).toFixed(2)}
+                      </p>
                       <p className="text-xs text-green-500 font-bold">
-                        14 In Stock
+                        {product.variants?.[0]?.stock || 0} In Stock
                       </p>
                     </div>
                     <ArrowUpRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
@@ -161,11 +183,11 @@ const EmployerDashboard: React.FC = () => {
                 </h5>
                 <ul className="space-y-3">
                   <li className="text-sm font-medium flex items-start gap-2 text-muted-foreground">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                     Your "Summer Tee" is trending. Consider adding more stock.
                   </li>
                   <li className="text-sm font-medium flex items-start gap-2 text-muted-foreground">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                     3 orders are pending shipment for more than 24 hours.
                   </li>
                 </ul>
@@ -212,7 +234,7 @@ const StatCard = ({ title, value, icon, trend }: StatCardProps) => (
 );
 
 const Separator = ({ className }: { className?: string }) => (
-  <div className={cn("h-[1px] w-full bg-border", className)} />
+  <div className={cn("h-px w-full bg-border", className)} />
 );
 
 const cn = (...classes: any[]) => classes.filter(Boolean).join(" ");

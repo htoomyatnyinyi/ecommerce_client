@@ -2,6 +2,11 @@ import React from "react";
 import DashboardLayout from "../Dashboard";
 import { useGetProductsQuery } from "@/redux/query/productApi";
 import {
+  useGetAdminStatsQuery,
+  useDeleteProductMutation,
+} from "@/redux/query/dashboardApi";
+import { toast } from "sonner"; // Assuming sonner is used for notifications
+import {
   Package,
   Search,
   Plus,
@@ -33,9 +38,42 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 const ProductDashboard: React.FC = () => {
-  const { data: products = [], isLoading } = useGetProductsQuery();
+  const {
+    data: products = [],
+    isLoading: productsLoading,
+    refetch,
+  } = useGetProductsQuery();
+  const { data: statsData, isLoading: statsLoading } =
+    useGetAdminStatsQuery(undefined);
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
-  if (isLoading) return <PageLoader />;
+  const handleDecommission = async (productId: string) => {
+    if (
+      window.confirm(
+        "Are you sure you want to decommission this product and all its variants?"
+      )
+    ) {
+      try {
+        await deleteProduct(productId).unwrap();
+        toast.success("Product decommissioned effectively.");
+        refetch();
+      } catch (err: any) {
+        toast.error(err?.data?.message || "Failed to decommission product.");
+      }
+    }
+  };
+
+  if (productsLoading || statsLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const stats = statsData?.stats;
 
   return (
     <DashboardLayout>
@@ -70,22 +108,21 @@ const ProductDashboard: React.FC = () => {
               Catalog Depth
             </p>
             <h3 className="text-5xl font-black italic tracking-tighter">
-              {products.length}
+              {stats?.totalProducts || 0}
             </h3>
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-2">
               Active Unique Listings
             </p>
           </div>
-          {/* Placeholder stats */}
           <div className="p-8 rounded-[2.5rem] bg-secondary/5 border border-border/50">
             <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">
-              Stock Volatility
+              Supply Vulnerability
             </p>
             <h3 className="text-5xl font-black italic tracking-tighter">
-              Normal
+              {stats?.lowStockCount || 0}
             </h3>
-            <p className="text-xs font-bold text-green-500 uppercase tracking-widest mt-2">
-              Efficiency: +12%
+            <p className="text-xs font-bold text-red-500 uppercase tracking-widest mt-2">
+              Critical Low Stock Warnings
             </p>
           </div>
           <div className="p-8 rounded-[2.5rem] bg-secondary/5 border border-border/50">
@@ -93,17 +130,17 @@ const ProductDashboard: React.FC = () => {
               Market Reach
             </p>
             <h3 className="text-5xl font-black italic tracking-tighter">
-              Global
+              {stats?.uniqueCategoriesCount || 0}
             </h3>
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-2">
-              12 Active Regions
+              Active Category Segments
             </p>
           </div>
         </div>
 
         {/* Filter & Search Bar */}
         <div className="flex flex-col md:flex-row gap-4 items-center bg-card/50 backdrop-blur-xl p-4 rounded-3xl border border-border/50">
-          <div className="relative flex-grow w-full">
+          <div className="relative grow w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Filter global inventory by title, SKU, or category..."
@@ -183,9 +220,11 @@ const ProductDashboard: React.FC = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black italic">
-                        O
+                        {product.user?.username?.[0] || "?"}
                       </div>
-                      <span className="font-bold text-sm">Oasis Official</span>
+                      <span className="font-bold text-sm">
+                        {product.user?.username || "Unknown"}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -230,13 +269,27 @@ const ProductDashboard: React.FC = () => {
                         align="end"
                         className="rounded-2xl border-border/50 p-2 bg-background/95 backdrop-blur-md"
                       >
-                        <DropdownMenuItem className="rounded-xl gap-3 font-bold cursor-pointer">
-                          <Eye className="w-4 h-4" /> View Specs
+                        <DropdownMenuItem
+                          className="rounded-xl gap-3 font-bold cursor-pointer"
+                          asChild
+                        >
+                          <Link to={`/products/${product.id}`}>
+                            <Eye className="w-4 h-4" /> View Specs
+                          </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="rounded-xl gap-3 font-bold cursor-pointer">
-                          <Edit3 className="w-4 h-4" /> Modify Config
+                        <DropdownMenuItem
+                          className="rounded-xl gap-3 font-bold cursor-pointer"
+                          asChild
+                        >
+                          <Link to={`/products/manage/edit/${product.id}`}>
+                            <Edit3 className="w-4 h-4" /> Modify Config
+                          </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="rounded-xl gap-3 font-bold cursor-pointer text-destructive focus:bg-destructive/10">
+                        <DropdownMenuItem
+                          className="rounded-xl gap-3 font-bold cursor-pointer text-destructive focus:bg-destructive/10"
+                          onClick={() => handleDecommission(product.id)}
+                          disabled={isDeleting}
+                        >
                           <Trash2 className="w-4 h-4" /> Decommission
                         </DropdownMenuItem>
                       </DropdownMenuContent>

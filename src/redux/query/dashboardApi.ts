@@ -40,6 +40,33 @@ export const dashboardApi = createApi({
         body: { id: accountId },
       }),
     }),
+
+    getAdminStats: builder.query({
+      query: () => "/admin/stats",
+    }),
+
+    getEmployerStats: builder.query({
+      query: () => "/admin/employer/stats",
+    }),
+
+    getDetailedAnalytics: builder.query({
+      query: () => "/admin/analytics",
+    }),
+
+    deleteProduct: builder.mutation({
+      query: (productId) => ({
+        url: `/admin/product/${productId}`,
+        method: "DELETE",
+      }),
+    }),
+
+    updateProduct: builder.mutation({
+      query: (updateData) => ({
+        url: `/admin/product/${updateData.id}`,
+        method: "PUT",
+        body: updateData,
+      }),
+    }),
   }),
 });
 
@@ -49,4 +76,9 @@ export const {
   useGetAccountByIdQuery,
   useUpdateAccountMutation,
   useDeleteAccuntMutation,
+  useGetAdminStatsQuery,
+  useGetEmployerStatsQuery,
+  useGetDetailedAnalyticsQuery,
+  useDeleteProductMutation,
+  useUpdateProductMutation,
 } = dashboardApi;

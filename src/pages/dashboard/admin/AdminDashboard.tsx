@@ -6,8 +6,8 @@ import {
   BarChart3,
   ShieldAlert,
   Globe,
-  Activity,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 import {
   Card,
@@ -17,8 +17,59 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  useGetAdminStatsQuery,
+  useGetDetailedAnalyticsQuery,
+} from "@/redux/query/dashboardApi";
 
 const AdminDashboard: React.FC = () => {
+  const { data: statsData, isLoading: statsLoading } =
+    useGetAdminStatsQuery(undefined);
+  const { data: analyticsData, isLoading: analyticsLoading } =
+    useGetDetailedAnalyticsQuery(undefined);
+
+  if (statsLoading || analyticsLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const stats = statsData?.stats;
+  const activities = statsData?.recentActivities;
+  const monthlyStats = analyticsData?.monthlyStats || [];
+
+  // Merge and sort activities
+  const pulseEvents = [
+    ...(activities?.users?.map((u: any) => ({
+      event: "New User Registered",
+      user: u.username,
+      time: new Date(u.createdAt).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      icon: <Users className="w-4 h-4" />,
+      date: new Date(u.createdAt),
+    })) || []),
+    ...(activities?.orders?.map((o: any) => ({
+      event: "New Order Placed",
+      user: `${o.user?.username || "Guest"} — $${Number(o.totalPrice).toFixed(
+        2
+      )}`,
+      time: new Date(o.createdAt).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      icon: <ShoppingBag className="w-4 h-4" />,
+      date: new Date(o.createdAt),
+    })) || []),
+  ]
+    .sort((a: any, b: any) => b.date - a.date)
+    .slice(0, 5);
+
   return (
     <DashboardLayout>
       <div className="space-y-10">
@@ -53,28 +104,28 @@ const AdminDashboard: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <AdminStatCard
             title="Global Revenue"
-            value="$284.5k"
+            value={`$${(stats?.globalRevenue || 0).toLocaleString()}`}
             icon={<Globe />}
-            trend="+24%"
+            trend="Live"
             active
           />
           <AdminStatCard
             title="Total Users"
-            value="12,840"
+            value={(stats?.totalUsers || 0).toLocaleString()}
             icon={<Users />}
-            trend="+5.2k"
+            trend={`Rank #${stats?.totalUsers}`}
           />
           <AdminStatCard
-            title="System Load"
-            value="14%"
-            icon={<Activity />}
-            trend="Nominal"
+            title="Total Orders"
+            value={(stats?.totalOrders || 0).toLocaleString()}
+            icon={<ShoppingBag />}
+            trend="Active"
           />
           <AdminStatCard
-            title="Security"
-            value="Secure"
+            title="Active Listings"
+            value={(stats?.totalProducts || 0).toLocaleString()}
             icon={<ShieldAlert />}
-            trend="Level 1"
+            trend={`${stats?.lowStockCount || 0} Low Stock`}
           />
         </div>
 
@@ -88,26 +139,7 @@ const AdminDashboard: React.FC = () => {
               <CardDescription>Real-time ecosystem events.</CardDescription>
             </CardHeader>
             <CardContent className="p-8 pt-0 space-y-4">
-              {[
-                {
-                  event: "New Merchant Registered",
-                  user: "Nike Official Store",
-                  time: "2 min ago",
-                  icon: <Users className="w-4 h-4" />,
-                },
-                {
-                  event: "Large Transaction Detected",
-                  user: "$14,200 Payment",
-                  time: "15 min ago",
-                  icon: <ShoppingBag className="w-4 h-4" />,
-                },
-                {
-                  event: "New Admin Role Assigned",
-                  user: "support_admin_01",
-                  time: "1 hour ago",
-                  icon: <ShieldAlert className="w-4 h-4" />,
-                },
-              ].map((item, i) => (
+              {pulseEvents.map((item, i) => (
                 <div
                   key={i}
                   className="flex items-center gap-6 p-5 rounded-2xl bg-background/50 border border-border/10 group hover:border-primary/50 transition-all"
@@ -115,7 +147,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     {item.icon}
                   </div>
-                  <div className="flex-grow">
+                  <div className="grow">
                     <h4 className="font-bold">{item.event}</h4>
                     <p className="text-sm text-muted-foreground font-medium">
                       {item.user}
@@ -131,7 +163,7 @@ const AdminDashboard: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Global Sales Chart placeholder */}
+          {/* Global Sales Chart */}
           <Card className="rounded-[2.5rem] border-border/50 bg-card">
             <CardHeader className="p-8 pb-0 flex flex-row items-center justify-between">
               <div>
@@ -146,23 +178,30 @@ const AdminDashboard: React.FC = () => {
             </CardHeader>
             <CardContent className="p-8 flex flex-col items-center justify-center h-full min-h-[300px]">
               <div className="flex gap-4 items-end h-40 w-full justify-between px-4">
-                {[30, 60, 45, 90, 65, 80, 70, 40, 85, 50, 95].map((h, i) => (
-                  <div
-                    key={i}
-                    className="w-full max-w-[15px] bg-primary/20 rounded-t-lg relative group overflow-hidden"
-                    style={{ height: `${h}%` }}
-                  >
-                    <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                  </div>
-                ))}
+                {monthlyStats.map((item: any, i: number) => {
+                  const maxRevenue = Math.max(
+                    ...monthlyStats.map((s: any) => s.revenue),
+                    1
+                  );
+                  const h = Math.max(10, (item.revenue / maxRevenue) * 100);
+                  return (
+                    <div
+                      key={i}
+                      className="w-full max-w-[15px] bg-primary/20 rounded-t-lg relative group overflow-hidden"
+                      style={{ height: `${h}%` }}
+                    >
+                      <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full bg-primary text-white text-[8px] font-black p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        ${Math.round(item.revenue)}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
               <div className="w-full flex justify-between mt-4 px-2 text-[10px] font-black italic uppercase tracking-widest text-muted-foreground opacity-50">
-                <span>JAN</span>
-                <span>FEB</span>
-                <span>MAR</span>
-                <span>APR</span>
-                <span>MAY</span>
-                <span>JUN</span>
+                {monthlyStats.map((item: any, i: number) => (
+                  <span key={i}>{item.month}</span>
+                ))}
               </div>
               <Button
                 variant="ghost"
