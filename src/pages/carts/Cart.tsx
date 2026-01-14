@@ -5,6 +5,7 @@ import type { RootState } from "@/redux/store/store";
 import {
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
+  useGetCartQuery,
 } from "@/redux/query/productApi";
 import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { toast } from "sonner";
 
 const Cart: React.FC = () => {
   const { items } = useSelector((state: RootState) => state.cart);
+  const { isLoading: isFetchingCart } = useGetCartQuery();
 
   const [removeCartItem] = useRemoveCartItemMutation();
 
@@ -33,6 +35,17 @@ const Cart: React.FC = () => {
       toast.error("Failed to remove item");
     }
   };
+
+  if (isFetchingCart && items.length === 0) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <ShoppingBag className="w-12 h-12 text-primary animate-pulse" />
+          <p className="font-bold italic">Gathering your items...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -209,6 +222,11 @@ const QuantityUpdater: React.FC<Props> = ({ initialQuantity, cartItemId }) => {
   const [quantity, setQuantity] = useState(initialQuantity);
   const [updateCartItem, { isLoading: isUpdating }] =
     useUpdateCartItemMutation();
+
+  // Keep local state in sync with server data
+  React.useEffect(() => {
+    setQuantity(initialQuantity);
+  }, [initialQuantity]);
 
   const handleUpdate = async (newQuantity: number) => {
     if (newQuantity < 1) return;
