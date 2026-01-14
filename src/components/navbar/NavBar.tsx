@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/utils/1.png";
 import { NavigationBar } from "./NavigationBar";
@@ -15,7 +16,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useAuthMeQuery, useSignOutMutation } from "@/redux/query/authApi";
+import {
+  useAuthMeQuery,
+  useSignOutMutation,
+  authApi,
+} from "@/redux/query/authApi";
+import { productApi } from "@/redux/query/cartApi";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -31,6 +37,7 @@ const NavBar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const { data: user, isLoading: isAuthLoading } = useAuthMeQuery();
   const [signOut] = useSignOutMutation();
@@ -50,6 +57,9 @@ const NavBar: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOut().unwrap();
+      // Reset API state to clear all cached data
+      dispatch(authApi.util.resetApiState());
+      dispatch(productApi.util.resetApiState());
       toast.success("Logged out successfully");
       navigate("/signin");
     } catch (error) {

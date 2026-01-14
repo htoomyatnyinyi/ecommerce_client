@@ -31,6 +31,10 @@ const EmployerDashboard = lazy(
 const UserDashboard = lazy(
   () => import("@/pages/dashboard/user/UserDashboard")
 );
+const UserOrders = lazy(() => import("@/pages/dashboard/user/Orders"));
+const ProfileSettings = lazy(
+  () => import("@/pages/dashboard/user/ProfileSettings")
+);
 const ProductForm = lazy(() => import("@/components/product/ProductForm"));
 
 const PageLoader = () => (
@@ -157,6 +161,22 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["USER"]}>
             <UserDashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/user/orders",
+        element: (
+          <ProtectedRoute allowedRoles={["USER"]}>
+            <UserOrders />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/user/profile",
+        element: (
+          <ProtectedRoute allowedRoles={["USER"]}>
+            <ProfileSettings />
           </ProtectedRoute>
         ),
       },
