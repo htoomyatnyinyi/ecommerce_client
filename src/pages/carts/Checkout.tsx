@@ -28,7 +28,7 @@ const CheckoutForm = ({
   paymentIntentId,
   subtotal,
 }: {
-  clientSecret: string;
+  clientSecret: any;
   paymentIntentId: string;
   subtotal: number;
 }) => {
