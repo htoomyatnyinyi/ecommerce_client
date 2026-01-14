@@ -28,7 +28,7 @@ const CheckoutForm = ({
   paymentIntentId,
   subtotal,
 }: {
-  clientSecret: any;
+  clientSecret: string;
   paymentIntentId: string;
   subtotal: number;
 }) => {
@@ -40,6 +40,11 @@ const CheckoutForm = ({
 
   const [message, setMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Very important safety check!
+  if (!stripe || !elements || !clientSecret) {
+    return <div>Loading payment form... (missing configuration)</div>;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -299,3 +304,81 @@ const Checkout: React.FC = () => {
 };
 
 export default Checkout;
+
+/* *** hmnn *** */
+
+// const CheckoutForm = ({
+//   clientSecret,        // ← this comes from your backend (create-payment-intent)
+//   paymentIntentId,
+//   subtotal,
+// }: {
+//   clientSecret: string;   // ← Type it as string (not any!)
+//   paymentIntentId: string;
+//   subtotal: number;
+// }) => {
+//   const stripe = useStripe();
+//   const elements = useElements();
+//   const navigate = useNavigate();
+//   const [confirmPaymentApi, { isLoading: isConfirming }] = useConfirmPaymentMutation();
+//   const [message, setMessage] = useState<string | null>(null);
+//   const [isProcessing, setIsProcessing] = useState(false);
+
+//   // Very important safety check!
+//   if (!stripe || !elements || !clientSecret) {
+//     return <div>Loading payment form... (missing configuration)</div>;
+//   }
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     if (isProcessing) return;
+//     setIsProcessing(true);
+//     setMessage(null);
+
+//     try {
+//       // This is the critical moment — clientSecret is required here!
+//       const { error, paymentIntent } = await stripe.confirmPayment({
+//         elements,
+//         clientSecret,                    // ← must pass this!
+//         confirmParams: {
+//           return_url: `${window.location.origin}/checkout/success?payment_intent=${paymentIntentId}`,
+//         },
+//         redirect: "if_required",        // Recommended for better UX
+//       });
+
+//       if (error) {
+//         // Show error to user
+//         setMessage(error.message ?? "An unexpected error occurred.");
+//       } else if (paymentIntent?.status === "succeeded") {
+//         // Payment successful → call your backend to create order
+//         await confirmPaymentApi({
+//           paymentIntentId: paymentIntent.id,
+//           // optional: shippingAddressId, billingAddressId if needed
+//         }).unwrap();
+
+//         navigate("/checkout/success");
+//       }
+//     } catch (err: any) {
+//       setMessage("Payment confirmation failed. Please try again.");
+//       console.error(err);
+//     } finally {
+//       setIsProcessing(false);
+//     }
+//   };
+
+//   return (
+//     <form onSubmit={handleSubmit}>
+//       {/* Your PaymentElement goes here */}
+//       <PaymentElement />
+
+//       <button
+//         type="submit"
+//         disabled={isProcessing || !stripe || !elements || isConfirming}
+//       >
+//         {isProcessing ? "Processing..." : `Pay $${(subtotal / 100).toFixed(2)}`}
+//       </button>
+
+//       {message && <div className="error-message">{message}</div>}
+//     </form>
+//   );
+// };
