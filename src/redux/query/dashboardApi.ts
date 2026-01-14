@@ -67,6 +67,22 @@ export const dashboardApi = createApi({
         body: updateData,
       }),
     }),
+
+    getSystemConfig: builder.query({
+      query: () => "/admin/config",
+    }),
+
+    updateSystemConfig: builder.mutation({
+      query: (configData) => ({
+        url: "/admin/config",
+        method: "PUT",
+        body: configData,
+      }),
+    }),
+
+    generateReport: builder.query({
+      query: () => "/admin/report",
+    }),
   }),
 });
 
@@ -81,4 +97,7 @@ export const {
   useGetDetailedAnalyticsQuery,
   useDeleteProductMutation,
   useUpdateProductMutation,
+  useGetSystemConfigQuery,
+  useUpdateSystemConfigMutation,
+  useLazyGenerateReportQuery,
 } = dashboardApi;
