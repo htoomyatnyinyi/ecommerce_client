@@ -44,7 +44,7 @@ export const authApi = createApi({
     }),
 
     authMe: builder.query<any, void>({
-      query: () => "/api/auth/auth-me",
+      query: () => "/api/auth/me",
     }),
 
     verifyEmailToken: builder.mutation<any, VerifyEmailToken>({
