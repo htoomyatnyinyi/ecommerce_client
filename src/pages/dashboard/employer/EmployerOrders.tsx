@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
 import DashboardLayout from "../Dashboard";
-import { useGetEmployerOrdersQuery } from "@/redux/query/dashboardApi";
+import {
+  useGetEmployerOrdersQuery,
+  useUpdateOrderItemStatusMutation,
+} from "@/redux/query/dashboardApi";
 import {
   ShoppingBag,
   Search,
@@ -11,6 +14,8 @@ import {
   User,
   MapPin,
   Calendar,
+  Truck,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,12 +34,63 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 const EmployerOrders: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: ordersData, isLoading } = useGetEmployerOrdersQuery(undefined);
+  const {
+    data: ordersData,
+    isLoading,
+    refetch,
+  } = useGetEmployerOrdersQuery(undefined);
+  const [updateStatus, { isLoading: isUpdating }] =
+    useUpdateOrderItemStatusMutation();
+
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [newStatus, setNewStatus] = useState("PENDING");
+  const [trackingNumber, setTrackingNumber] = useState("");
 
   const orders = ordersData?.orders || [];
+
+  const handleUpdateStatus = async () => {
+    if (!selectedItem) return;
+    try {
+      await updateStatus({
+        orderItemId: selectedItem.id,
+        status: newStatus,
+        trackingNumber,
+      }).unwrap();
+      toast.success("Order item status synchronized.");
+      setIsUpdateModalOpen(false);
+      refetch();
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to sync status.");
+    }
+  };
+
+  const openStatusModal = (item: any) => {
+    setSelectedItem(item);
+    setNewStatus(item.status || "PENDING");
+    setTrackingNumber(item.trackingNumber || "");
+    setIsUpdateModalOpen(true);
+  };
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order: any) => {
@@ -181,15 +237,36 @@ const EmployerOrders: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       {order.items.map((item: any, idx: number) => (
-                        <div key={idx} className="flex flex-col">
-                          <span className="text-xs font-black italic">
-                            {item.productTitle}
-                          </span>
-                          <span className="text-[10px] font-bold opacity-60 uppercase tracking-widest">
-                            Qty: {item.quantity} | {item.variantInfo}
-                          </span>
+                        <div
+                          key={idx}
+                          className="flex items-start justify-between gap-4 p-3 rounded-2xl bg-secondary/5 border border-border/10"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-xs font-black italic">
+                              {item.productTitle}
+                            </span>
+                            <span className="text-[10px] font-bold opacity-60 uppercase tracking-widest">
+                              Qty: {item.quantity} | {item.variantInfo}
+                            </span>
+                            {item.trackingNumber && (
+                              <span className="text-[10px] font-black text-primary uppercase tracking-tighter mt-1">
+                                Trk: {item.trackingNumber}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            {getStatusBadge(item.status)}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-all"
+                              onClick={() => openStatusModal(item)}
+                            >
+                              Sync Status
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -234,6 +311,90 @@ const EmployerOrders: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Item Status Update Modal */}
+      <Dialog open={isUpdateModalOpen} onOpenChange={setIsUpdateModalOpen}>
+        <DialogContent className="rounded-[2.5rem] max-w-lg border-border/50 bg-background/95 backdrop-blur-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-black italic tracking-tighter">
+              Fulfillment <span className="text-primary">Sync.</span>
+            </DialogTitle>
+            <DialogDescription className="font-medium text-muted-foreground">
+              Update the delivery trajectory for this specific asset.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-6 text-left">
+            <div className="p-4 rounded-3xl bg-secondary/10 border border-border/10">
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">
+                Target Asset
+              </p>
+              <h4 className="font-black italic text-lg">
+                {selectedItem?.productTitle}
+              </h4>
+              <p className="text-xs font-bold text-muted-foreground">
+                {selectedItem?.variantInfo}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50 ml-1">
+                Fulfillment Status
+              </Label>
+              <Select value={newStatus} onValueChange={setNewStatus}>
+                <SelectTrigger className="h-12 rounded-2xl bg-secondary/10 border-border/20 font-bold">
+                  <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl">
+                  {[
+                    "PENDING",
+                    "PROCESSING",
+                    "SHIPPED",
+                    "DELIVERED",
+                    "CANCELLED",
+                  ].map((status) => (
+                    <SelectItem
+                      key={status}
+                      value={status}
+                      className="font-bold"
+                    >
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50 ml-1">
+                Tracking Designation
+              </Label>
+              <div className="relative">
+                <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={trackingNumber}
+                  onChange={(e) => setTrackingNumber(e.target.value)}
+                  placeholder="Carrier reference code..."
+                  className="h-12 pl-12 rounded-2xl bg-secondary/10 border-border/20 font-bold"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleUpdateStatus}
+              disabled={isUpdating}
+              className="w-full h-14 rounded-2xl font-black italic text-lg shadow-xl shadow-primary/20 gap-3"
+            >
+              {isUpdating ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-5 h-5" />
+              )}
+              Synchronize Trajectory
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

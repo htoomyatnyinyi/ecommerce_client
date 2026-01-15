@@ -91,6 +91,14 @@ export const dashboardApi = createApi({
     getEmployerOrders: builder.query({
       query: () => "/admin/employer/orders",
     }),
+
+    updateOrderItemStatus: builder.mutation({
+      query: (updateData) => ({
+        url: "/admin/employer/order-item/status",
+        method: "PUT",
+        body: updateData,
+      }),
+    }),
   }),
 });
 
@@ -110,4 +118,5 @@ export const {
   useLazyGenerateReportQuery,
   useGetEmployerProductsQuery,
   useGetEmployerOrdersQuery,
+  useUpdateOrderItemStatusMutation,
 } = dashboardApi;

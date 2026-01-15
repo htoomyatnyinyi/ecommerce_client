@@ -121,7 +121,7 @@ const ProductDashboard: React.FC = () => {
             size="lg"
             className="rounded-2xl h-14 px-8 font-black gap-2 shadow-xl shadow-primary/20"
           >
-            <Link to="/products/manage/new">
+            <Link to="/dashboard/products/manage/new">
               <Plus className="w-5 h-5" />
               Establish New Product
             </Link>
@@ -318,7 +318,9 @@ const ProductDashboard: React.FC = () => {
                           className="rounded-xl gap-3 font-bold cursor-pointer"
                           asChild
                         >
-                          <Link to={`/products/manage/edit/${product.id}`}>
+                          <Link
+                            to={`/dashboard/products/manage/edit/${product.id}`}
+                          >
                             <Edit3 className="w-4 h-4" /> Modify Config
                           </Link>
                         </DropdownMenuItem>
@@ -348,7 +350,7 @@ const ProductDashboard: React.FC = () => {
                 variant="outline"
                 className="rounded-2xl h-12 font-black italic uppercase tracking-widest text-[10px]"
               >
-                <Link to="/products/manage/new">
+                <Link to="/dashboard/products/manage/new">
                   Establish Initial Inventory
                 </Link>
               </Button>

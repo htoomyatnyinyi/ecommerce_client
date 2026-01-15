@@ -205,20 +205,13 @@ export const router = createBrowserRouter([
           { path: "dashboard", element: <EmployerDashboard /> },
           { path: "products", element: <EmployerProducts /> },
           { path: "orders", element: <EmployerOrders /> },
-        ],
-      },
-
-      // --- Managed Product Routes (Unified Path) ---
-      {
-        path: "/products/manage",
-        element: (
-          <ProtectedRoute allowedRoles={["EMPLOYER", "ADMIN"]}>
-            <Outlet />
-          </ProtectedRoute>
-        ),
-        children: [
-          { path: "new", element: <ProductForm /> },
-          { path: "edit/:id", element: <ProductForm /> },
+          {
+            path: "products/manage",
+            children: [
+              { path: "new", element: <ProductForm /> },
+              { path: "edit/:id", element: <ProductForm /> },
+            ],
+          },
         ],
       },
 
@@ -233,9 +226,15 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: "products", element: <ProductDashboard /> },
-          { path: "products/new", element: <ProductForm /> },
           { path: "users", element: <UserManagement /> },
           { path: "analytics", element: <AnalyticsDashboard /> },
+          {
+            path: "products/manage",
+            children: [
+              { path: "new", element: <ProductForm /> },
+              { path: "edit/:id", element: <ProductForm /> },
+            ],
+          },
         ],
       },
 

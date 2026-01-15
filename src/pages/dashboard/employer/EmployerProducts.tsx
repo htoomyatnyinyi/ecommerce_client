@@ -114,7 +114,7 @@ const EmployerProducts: React.FC = () => {
             size="lg"
             className="rounded-2xl h-14 px-8 font-black gap-2 shadow-xl shadow-primary/20"
           >
-            <Link to="/products/manage/new">
+            <Link to="/employer/products/manage/new">
               <Plus className="w-5 h-5" /> Add New Asset
             </Link>
           </Button>
@@ -259,7 +259,9 @@ const EmployerProducts: React.FC = () => {
                           className="rounded-xl gap-3 font-bold cursor-pointer"
                           asChild
                         >
-                          <Link to={`/products/manage/edit/${product.id}`}>
+                          <Link
+                            to={`/employer/products/manage/edit/${product.id}`}
+                          >
                             <Edit3 className="w-4 h-4" /> Edit Config
                           </Link>
                         </DropdownMenuItem>
@@ -289,7 +291,9 @@ const EmployerProducts: React.FC = () => {
                 variant="outline"
                 className="rounded-2xl font-black"
               >
-                <Link to="/products/manage/new">Launch New Product</Link>
+                <Link to="/employer/products/manage/new">
+                  Launch New Product
+                </Link>
               </Button>
             </div>
           )}

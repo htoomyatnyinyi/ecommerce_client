@@ -30,13 +30,21 @@ const Sidebar: React.FC = () => {
     EMPLOYER: [
       { path: "/employer/dashboard", label: "Store Overview", icon: BarChart3 },
       { path: "/employer/products", label: "My Products", icon: Package },
-      { path: "/products/manage/new", label: "Add Product", icon: PlusCircle },
+      {
+        path: "/employer/products/manage/new",
+        label: "Add Product",
+        icon: PlusCircle,
+      },
       { path: "/employer/orders", label: "Manage Orders", icon: ShoppingBag },
     ],
     ADMIN: [
       { path: "/dashboard", label: "Admin Console", icon: LayoutDashboard },
       { path: "/dashboard/products", label: "Global Inventory", icon: Package },
-      { path: "/products/manage/new", label: "Add Product", icon: PlusCircle },
+      {
+        path: "/dashboard/products/manage/new",
+        label: "Add Product",
+        icon: PlusCircle,
+      },
       { path: "/dashboard/users", label: "User Accounts", icon: Users },
       { path: "/dashboard/analytics", label: "Global Stats", icon: BarChart3 },
     ],
@@ -103,7 +111,7 @@ const Sidebar: React.FC = () => {
                 )}
               />
               {isActive && (
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/10" />
+                <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/5 to-white/10" />
               )}
             </Link>
           );
