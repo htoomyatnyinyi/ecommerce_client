@@ -46,6 +46,11 @@ const Sidebar: React.FC = () => {
         icon: PlusCircle,
       },
       { path: "/dashboard/users", label: "User Accounts", icon: Users },
+      {
+        path: "/dashboard/orders",
+        label: "Platform Orders",
+        icon: ShoppingBag,
+      },
       { path: "/dashboard/analytics", label: "Global Stats", icon: BarChart3 },
     ],
   };

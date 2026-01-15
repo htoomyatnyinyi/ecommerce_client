@@ -47,6 +47,7 @@ const UserManagement = lazy(
 const AnalyticsDashboard = lazy(
   () => import("@/pages/dashboard/admin/AnalyticsDashboard")
 );
+const AdminOrders = lazy(() => import("@/pages/dashboard/admin/AdminOrders"));
 const ProductForm = lazy(() => import("@/components/product/ProductForm"));
 
 const PageLoader = () => (
@@ -226,6 +227,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: "products", element: <ProductDashboard /> },
+          { path: "orders", element: <AdminOrders /> },
           { path: "users", element: <UserManagement /> },
           { path: "analytics", element: <AnalyticsDashboard /> },
           {

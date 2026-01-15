@@ -1,5 +1,6 @@
 import React from "react";
 import DashboardLayout from "../Dashboard";
+import { Link } from "react-router-dom";
 import {
   Users,
   ShoppingBag,
@@ -408,12 +409,17 @@ const AdminDashboard: React.FC = () => {
             icon={<Users />}
             trend={`Rank #${stats?.totalUsers}`}
           />
-          <AdminStatCard
-            title="Total Orders"
-            value={(stats?.totalOrders || 0).toLocaleString()}
-            icon={<ShoppingBag />}
-            trend="Active"
-          />
+          <Link
+            to="/dashboard/orders"
+            className="block transition-all hover:scale-[1.02]"
+          >
+            <AdminStatCard
+              title="Total Orders"
+              value={(stats?.totalOrders || 0).toLocaleString()}
+              icon={<ShoppingBag />}
+              trend="Active"
+            />
+          </Link>
           <AdminStatCard
             title="Active Listings"
             value={(stats?.totalProducts || 0).toLocaleString()}

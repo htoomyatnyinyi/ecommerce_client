@@ -63,7 +63,11 @@ const EmployerOrders: React.FC = () => {
     useUpdateOrderItemStatusMutation();
 
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isViewOrderModalOpen, setIsViewOrderModalOpen] = useState(false);
+  const [isShippingLabelModalOpen, setIsShippingLabelModalOpen] =
+    useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedFullOrder, setSelectedFullOrder] = useState<any>(null);
   const [newStatus, setNewStatus] = useState("PENDING");
   const [trackingNumber, setTrackingNumber] = useState("");
 
@@ -90,6 +94,16 @@ const EmployerOrders: React.FC = () => {
     setNewStatus(item.status || "PENDING");
     setTrackingNumber(item.trackingNumber || "");
     setIsUpdateModalOpen(true);
+  };
+
+  const openViewOrderModal = (order: any) => {
+    setSelectedFullOrder(order);
+    setIsViewOrderModalOpen(true);
+  };
+
+  const openShippingLabelModal = (order: any) => {
+    setSelectedFullOrder(order);
+    setIsShippingLabelModalOpen(true);
   };
 
   const filteredOrders = useMemo(() => {
@@ -287,10 +301,16 @@ const EmployerOrders: React.FC = () => {
                         align="end"
                         className="rounded-2xl border-border/50 p-2 bg-background/95 backdrop-blur-md"
                       >
-                        <DropdownMenuItem className="rounded-xl gap-3 font-bold cursor-pointer">
+                        <DropdownMenuItem
+                          className="rounded-xl gap-3 font-bold cursor-pointer"
+                          onClick={() => openViewOrderModal(order)}
+                        >
                           <Eye className="w-4 h-4" /> View Full Order
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="rounded-xl gap-3 font-bold cursor-pointer">
+                        <DropdownMenuItem
+                          className="rounded-xl gap-3 font-bold cursor-pointer"
+                          onClick={() => openShippingLabelModal(order)}
+                        >
                           <MapPin className="w-4 h-4" /> Shipping Label
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -391,6 +411,240 @@ const EmployerOrders: React.FC = () => {
                 <CheckCircle2 className="w-5 h-5" />
               )}
               Synchronize Trajectory
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Full Order Modal */}
+      <Dialog
+        open={isViewOrderModalOpen}
+        onOpenChange={setIsViewOrderModalOpen}
+      >
+        <DialogContent className="rounded-[2.5rem] max-w-2xl border-border/50 bg-background/95 backdrop-blur-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-black italic tracking-tighter">
+              Order <span className="text-primary">Intelligence.</span>
+            </DialogTitle>
+            <DialogDescription className="font-medium text-muted-foreground">
+              Comprehensive context for Order ID:{" "}
+              {selectedFullOrder?.id.slice(0, 12)}...
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-6">
+            <div className="space-y-6">
+              <div className="p-5 rounded-3xl bg-secondary/10 border border-border/10 space-y-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  Buyer Credentials
+                </p>
+                <div className="space-y-1">
+                  <h4 className="font-black italic text-xl uppercase">
+                    {selectedFullOrder?.user?.username}
+                  </h4>
+                  <p className="text-xs font-bold text-muted-foreground">
+                    {selectedFullOrder?.user?.email}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-3xl bg-secondary/10 border border-border/10 space-y-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  Trajectory Target
+                </p>
+                <div className="space-y-1 text-sm font-bold">
+                  <p>{selectedFullOrder?.shippingAddress?.street}</p>
+                  <p>
+                    {selectedFullOrder?.shippingAddress?.city},{" "}
+                    {selectedFullOrder?.shippingAddress?.state}{" "}
+                    {selectedFullOrder?.shippingAddress?.zip}
+                  </p>
+                  <p className="text-muted-foreground uppercase text-[10px] mt-1">
+                    {selectedFullOrder?.shippingAddress?.country}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-50 ml-1">
+                My Assets in This Order
+              </p>
+              <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {selectedFullOrder?.items.map((item: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-2xl bg-secondary/5 border border-border/10 flex justify-between items-center"
+                  >
+                    <div className="space-y-1">
+                      <p className="text-xs font-black italic">
+                        {item.productTitle}
+                      </p>
+                      <p className="text-[9px] font-bold opacity-60 uppercase tracking-widest">
+                        Qty: {item.quantity} | {item.variantInfo}
+                      </p>
+                    </div>
+                    {getStatusBadge(item.status)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => setIsViewOrderModalOpen(false)}
+              className="w-full h-14 rounded-2xl font-black italic text-lg shadow-xl shadow-primary/20"
+            >
+              Acknowledge Details
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Shipping Label Modal */}
+      <Dialog
+        open={isShippingLabelModalOpen}
+        onOpenChange={setIsShippingLabelModalOpen}
+      >
+        <DialogContent className="rounded-[2.5rem] max-w-2xl border-border/50 bg-background/95 backdrop-blur-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-black italic tracking-tighter">
+              Logistics <span className="text-primary">Manifest.</span>
+            </DialogTitle>
+            <DialogDescription className="font-medium text-muted-foreground">
+              Print-ready fulfillment documentation for this trajectory.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-8">
+            <div className="bg-white text-black p-10 rounded-[2rem] border-4 border-black shadow-2xl relative overflow-hidden group">
+              {/* Zebra stripes effect */}
+              <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-20" />
+
+              <div className="relative z-10 space-y-8">
+                <div className="flex justify-between items-start border-b-4 border-black pb-6">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest">
+                      Courier Class
+                    </p>
+                    <h2 className="text-4xl font-black italic tracking-tighter">
+                      PRIORITY.
+                    </h2>
+                  </div>
+                  <div className="text-right space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest">
+                      Manifest Code
+                    </p>
+                    <p className="font-mono font-bold text-sm">
+                      #{selectedFullOrder?.id.slice(0, 12).toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[8px] font-black uppercase tracking-widest mb-1 opacity-60">
+                        Ship From
+                      </p>
+                      <p className="font-black text-xs italic">
+                        OASIS MERCHANT CENTER
+                      </p>
+                      <p className="text-[10px] font-bold">
+                        Vector Hub Alpha-9
+                      </p>
+                      <p className="text-[10px] font-bold">
+                        Nebula Logistics District
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-black uppercase tracking-widest mb-1 opacity-60">
+                        Fulfillment Assets
+                      </p>
+                      <div className="space-y-1">
+                        {selectedFullOrder?.items.map(
+                          (item: any, idx: number) => (
+                            <p
+                              key={idx}
+                              className="text-[10px] font-bold truncate"
+                            >
+                              ● {item.productTitle} (x{item.quantity})
+                            </p>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 border-l-4 border-black pl-10">
+                    <p className="text-[8px] font-black uppercase tracking-widest mb-1 opacity-60">
+                      Deliver To
+                    </p>
+                    <div className="space-y-1">
+                      <p className="font-black text-lg italic uppercase">
+                        {selectedFullOrder?.user?.username}
+                      </p>
+                      <p className="font-bold text-sm leading-tight">
+                        {selectedFullOrder?.shippingAddress?.street}
+                        <br />
+                        {selectedFullOrder?.shippingAddress?.city},{" "}
+                        {selectedFullOrder?.shippingAddress?.state}{" "}
+                        {selectedFullOrder?.shippingAddress?.zip}
+                        <br />
+                        <span className="uppercase text-xs">
+                          {selectedFullOrder?.shippingAddress?.country}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t-4 border-black pt-8 space-y-4">
+                  <div className="flex justify-between items-center font-black italic">
+                    <span className="text-2xl tracking-tighter uppercase">
+                      OASIS Fulfillment
+                    </span>
+                    <span className="text-sm uppercase tracking-widest bg-black text-white px-3 py-1 rounded-lg">
+                      Sector 01
+                    </span>
+                  </div>
+                  {/* Mock Barcode */}
+                  <div className="h-24 bg-black w-full relative flex items-center justify-center overflow-hidden rounded-xl">
+                    <div className="absolute inset-0 flex">
+                      {Array.from({ length: 120 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="h-full bg-white"
+                          style={{
+                            width: `${Math.random() * 4 + 1}px`,
+                            marginLeft: `${Math.random() * 2 + 1}px`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <p className="relative z-10 bg-white px-4 py-1 font-mono text-[10px] font-bold tracking-[0.5em] rounded-md">
+                      {selectedFullOrder?.id.slice(0, 20).toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-3 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsShippingLabelModalOpen(false)}
+              className="h-14 rounded-2xl font-black uppercase tracking-widest text-[10px]"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => window.print()}
+              className="h-14 rounded-2xl font-black italic text-lg shadow-xl shadow-primary/20 gap-3"
+            >
+              Print Manifest
             </Button>
           </DialogFooter>
         </DialogContent>
