@@ -19,6 +19,7 @@ type SignUpData = {
 
 export const authApi = createApi({
   reducerPath: "authApi",
+  tagTypes: ["User"],
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:8080",
     credentials: "include",
@@ -33,6 +34,7 @@ export const authApi = createApi({
         method: "POST",
         body: authData,
       }),
+      invalidatesTags: ["User"],
     }),
 
     signUp: builder.mutation<any, SignUpData>({
@@ -41,10 +43,12 @@ export const authApi = createApi({
         method: "POST",
         body: authData,
       }),
+      invalidatesTags: ["User"],
     }),
 
     authMe: builder.query<any, void>({
       query: () => "/api/auth/auth-me",
+      providesTags: ["User"],
     }),
 
     verifyEmailToken: builder.mutation<any, VerifyEmailToken>({
@@ -53,12 +57,15 @@ export const authApi = createApi({
         method: "POST",
         body: token,
       }),
+      invalidatesTags: ["User"],
     }),
+
     signOut: builder.mutation<void, void>({
       query: () => ({
         url: "/api/auth/signout",
         method: "POST",
       }),
+      invalidatesTags: ["User"],
     }),
   }),
 });

@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import DashboardLayout from "../Dashboard";
-import { useGetProductsQuery } from "@/redux/query/productApi";
 import {
-  useGetAdminStatsQuery,
+  useGetEmployerProductsQuery,
   useDeleteProductMutation,
 } from "@/redux/query/dashboardApi";
-import { toast } from "sonner"; // Assuming sonner is used for notifications
+import { toast } from "sonner";
 import {
   Package,
   Search,
@@ -17,14 +16,6 @@ import {
   Loader2,
   ArrowUpDown,
 } from "lucide-react";
-import { useGetCategoryQuery } from "@/redux/query/productApi";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,10 +34,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetCategoryQuery } from "@/redux/query/productApi";
 
-import { useState, useMemo } from "react";
-
-const ProductDashboard: React.FC = () => {
+const EmployerProducts: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
 
@@ -54,9 +51,7 @@ const ProductDashboard: React.FC = () => {
     data: productsData,
     isLoading: productsLoading,
     refetch,
-  } = useGetProductsQuery();
-  const { data: statsData, isLoading: statsLoading } =
-    useGetAdminStatsQuery(undefined);
+  } = useGetEmployerProductsQuery(undefined);
   const { data: categories = [] } = useGetCategoryQuery();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
@@ -78,12 +73,12 @@ const ProductDashboard: React.FC = () => {
   const handleDecommission = async (productId: string) => {
     if (
       window.confirm(
-        "Are you sure you want to decommission this product and all its variants?"
+        "Are you sure you want to decommission this product and all its variants from your catalog?"
       )
     ) {
       try {
         await deleteProduct(productId).unwrap();
-        toast.success("Product decommissioned effectively.");
+        toast.success("Listing decommissioned effectively.");
         refetch();
       } catch (err: any) {
         toast.error(err?.data?.message || "Failed to decommission product.");
@@ -91,7 +86,7 @@ const ProductDashboard: React.FC = () => {
     }
   };
 
-  if (productsLoading || statsLoading) {
+  if (productsLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -101,19 +96,17 @@ const ProductDashboard: React.FC = () => {
     );
   }
 
-  const stats = statsData?.stats;
-
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-10">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
             <h1 className="text-5xl font-black italic tracking-tighter mb-2">
-              Global <span className="text-primary text-6xl">Inventory.</span>
+              My <span className="text-primary">Catalog.</span>
             </h1>
             <p className="text-muted-foreground text-lg font-medium">
-              Oversee all products currently circulating in the OASIS ecosystem.
+              Manage your private inventory and asset distribution.
             </p>
           </div>
           <Button
@@ -121,49 +114,10 @@ const ProductDashboard: React.FC = () => {
             size="lg"
             className="rounded-2xl h-14 px-8 font-black gap-2 shadow-xl shadow-primary/20"
           >
-            <Link to="/dashboard/products/manage/new">
-              <Plus className="w-5 h-5" />
-              Establish New Product
+            <Link to="/employer/products/manage/new">
+              <Plus className="w-5 h-5" /> Add New Asset
             </Link>
           </Button>
-        </div>
-
-        {/* Global Stats / Pulse */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-8 rounded-[2.5rem] bg-primary/5 border border-primary/20 relative overflow-hidden group hover:bg-primary/10 transition-all duration-500">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-            <p className="text-xs font-black uppercase tracking-widest text-primary mb-1">
-              Catalog Depth
-            </p>
-            <h3 className="text-5xl font-black italic tracking-tighter">
-              {stats?.totalProducts || 0}
-            </h3>
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-2">
-              Active Unique Listings
-            </p>
-          </div>
-          <div className="p-8 rounded-[2.5rem] bg-secondary/5 border border-border/50">
-            <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">
-              Supply Vulnerability
-            </p>
-            <h3 className="text-5xl font-black italic tracking-tighter">
-              {stats?.lowStockCount || 0}
-            </h3>
-            <p className="text-xs font-bold text-red-500 uppercase tracking-widest mt-2">
-              Critical Low Stock Warnings
-            </p>
-          </div>
-          <div className="p-8 rounded-[2.5rem] bg-secondary/5 border border-border/50">
-            <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">
-              Market Reach
-            </p>
-            <h3 className="text-5xl font-black italic tracking-tighter">
-              {stats?.uniqueCategoriesCount || 0}
-            </h3>
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-2">
-              Active Category Segments
-            </p>
-          </div>
         </div>
 
         {/* Filter & Search Bar */}
@@ -171,7 +125,7 @@ const ProductDashboard: React.FC = () => {
           <div className="relative grow w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Filter global inventory by title, SKU, or category..."
+              placeholder="Filter my catalog by title or category..."
               className="h-12 pl-12 rounded-2xl bg-secondary/10 border-border/20"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -199,21 +153,18 @@ const ProductDashboard: React.FC = () => {
         </div>
 
         {/* Inventory Table */}
-        <div className="rounded-[2.5rem] bg-card/50 backdrop-blur-xl border border-border/50 overflow-hidden shadow-2xl">
+        <div className="rounded-4xl bg-card/50 backdrop-blur-xl border border-border/50 overflow-hidden shadow-2xl">
           <Table>
             <TableHeader className="bg-secondary/20">
               <TableRow className="border-border/50 hover:bg-transparent">
                 <TableHead className="font-black italic uppercase tracking-widest text-[10px] py-6 pl-8">
-                  Listing
-                </TableHead>
-                <TableHead className="font-black italic uppercase tracking-widest text-[10px]">
-                  Merchant
+                  Asset Listing
                 </TableHead>
                 <TableHead className="font-black italic uppercase tracking-widest text-[10px]">
                   Price Reach
                 </TableHead>
                 <TableHead className="font-black italic uppercase tracking-widest text-[10px]">
-                  Inventory
+                  Total Stock
                 </TableHead>
                 <TableHead className="font-black italic uppercase tracking-widest text-[10px]">
                   Status
@@ -249,24 +200,14 @@ const ProductDashboard: React.FC = () => {
                           {product.title}
                         </p>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                          {product.category?.categoryName || "General"}
+                          {product.category?.categoryName || "Uncategorized"}
                         </p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black italic">
-                        {product.user?.username?.[0] || "?"}
-                      </div>
-                      <span className="font-bold text-sm">
-                        {product.user?.username || "Unknown"}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
                     <span className="font-black italic text-lg text-primary">
-                      ${product.variants?.[0]?.price || "0.00"}
+                      ${Number(product.variants?.[0]?.price || 0).toFixed(2)}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -276,10 +217,10 @@ const ProductDashboard: React.FC = () => {
                           (acc: number, v: any) => acc + (v.stock || 0),
                           0
                         )}{" "}
-                        Total
+                        Units
                       </p>
                       <p className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                        {product.variants?.length} Variants
+                        {product.variants?.length} Options
                       </p>
                     </div>
                   </TableCell>
@@ -288,7 +229,7 @@ const ProductDashboard: React.FC = () => {
                       variant="outline"
                       className="bg-green-500/10 text-green-500 border-green-500/20 font-black italic uppercase tracking-widest text-[8px]"
                     >
-                      Circulating
+                      Active
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right pr-8">
@@ -311,7 +252,7 @@ const ProductDashboard: React.FC = () => {
                           asChild
                         >
                           <Link to={`/products/${product.id}`}>
-                            <Eye className="w-4 h-4" /> View Specs
+                            <Eye className="w-4 h-4" /> Spec View
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -319,9 +260,9 @@ const ProductDashboard: React.FC = () => {
                           asChild
                         >
                           <Link
-                            to={`/dashboard/products/manage/edit/${product.id}`}
+                            to={`/employer/products/manage/edit/${product.id}`}
                           >
-                            <Edit3 className="w-4 h-4" /> Modify Config
+                            <Edit3 className="w-4 h-4" /> Edit Config
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -343,15 +284,15 @@ const ProductDashboard: React.FC = () => {
             <div className="p-20 text-center space-y-4">
               <Package className="w-20 h-20 text-muted-foreground/20 mx-auto" />
               <p className="text-xl font-black italic text-muted-foreground">
-                The catalog is currently empty.
+                No assets found in your catalog.
               </p>
               <Button
                 asChild
                 variant="outline"
-                className="rounded-2xl h-12 font-black italic uppercase tracking-widest text-[10px]"
+                className="rounded-2xl font-black"
               >
-                <Link to="/dashboard/products/manage/new">
-                  Establish Initial Inventory
+                <Link to="/employer/products/manage/new">
+                  Launch New Product
                 </Link>
               </Button>
             </div>
@@ -362,15 +303,4 @@ const ProductDashboard: React.FC = () => {
   );
 };
 
-const PageLoader = () => (
-  <div className="h-screen w-full flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      <p className="font-bold italic animate-pulse">
-        Syncing global inventory pulse...
-      </p>
-    </div>
-  </div>
-);
-
-export default ProductDashboard;
+export default EmployerProducts;

@@ -62,10 +62,12 @@ export const productApi = createApi({
     getProducts: builder.query({
       query: () => "/products",
     }),
+
     getCart: builder.query<CartItem[], { userId: string }>({
       query: ({ userId }) => `/cart/${userId}`,
       providesTags: ["Cart"],
     }),
+
     addToCart: builder.mutation({
       query: ({ userId, productId, variantId, quantity }) => ({
         url: "/cart/add",
@@ -74,6 +76,7 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Cart"],
     }),
+
     updateCartItem: builder.mutation({
       query: ({ userId, productId, variantId, quantity }) => ({
         url: "/cart/update",
@@ -82,6 +85,7 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Cart"],
     }),
+
     removeFromCart: builder.mutation({
       query: ({ userId, productId, variantId }) => ({
         url: "/cart/remove",
@@ -90,6 +94,7 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Cart"],
     }),
+
     clearCart: builder.mutation({
       query: ({ userId }) => ({
         url: "/cart/clear",
@@ -98,6 +103,7 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Cart"],
     }),
+
     createOrder: builder.mutation({
       query: ({ userId }) => ({
         url: "/orders",

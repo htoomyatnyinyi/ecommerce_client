@@ -67,7 +67,7 @@ const Cart: React.FC = () => {
                 alt={item.title}
                 className="w-24 h-24 object-cover rounded-md mr-4"
               />
-              <div className="flex-grow">
+              <div className="grow">
                 <p className="font-bold">{item.title}</p>
                 <p className="text-sm text-gray-400">
                   Size: {item.variant.size}

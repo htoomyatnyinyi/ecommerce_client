@@ -105,3 +105,9 @@
 // };
 
 // export default Checkout;
+
+const CheckoutSample = () => {
+  return <div>CheckoutSample</div>;
+};
+
+export default CheckoutSample;

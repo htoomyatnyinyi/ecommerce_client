@@ -2,7 +2,7 @@ import React from "react";
 import DashboardLayout from "../Dashboard";
 import {
   ShoppingBag,
-  Heart,
+  // Heart,
   CreditCard,
   Box,
   MapPin,
@@ -18,7 +18,28 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
+import {
+  useGetOrdersQuery,
+  useGetOrderStatsQuery,
+} from "@/redux/query/orderApi";
+import { useGetAddressesQuery } from "@/redux/query/userApi";
+import { useAuthMeQuery } from "@/redux/query/authApi";
+
 const UserDashboard: React.FC = () => {
+  const { data: user } = useAuthMeQuery();
+  const { data: orders, isLoading: isOrdersLoading } = useGetOrdersQuery();
+  const { data: statsData } = useGetOrderStatsQuery();
+  const { data: addresses } = useGetAddressesQuery();
+
+  const stats = statsData?.stats || {
+    totalOrders: 0,
+    totalSpent: 0,
+    pendingOrders: 0,
+    completedOrders: 0,
+  };
+  const defaultAddress =
+    addresses?.find((a: any) => a.isDefault) || addresses?.[0];
+
   return (
     <DashboardLayout>
       <div className="space-y-10">
@@ -29,7 +50,7 @@ const UserDashboard: React.FC = () => {
               Personal <span className="text-primary">Oasis.</span>
             </h1>
             <p className="text-muted-foreground text-lg font-medium">
-              Manage your orders, wishlist, and account preferences.
+              Welcome back, {user?.username}. Manage your oasis here.
             </p>
           </div>
           <Button
@@ -49,26 +70,26 @@ const UserDashboard: React.FC = () => {
           <ActionWidget
             title="My Orders"
             desc="Track and manage your purchases"
-            count="3 Active"
+            count={`${stats.totalOrders} Total`}
             icon={<Box className="w-8 h-8" />}
             color="bg-blue-500/10 text-blue-500"
             link="/user/orders"
           />
           <ActionWidget
-            title="Wishlist"
-            desc="Saved items you love"
-            count="12 Items"
-            icon={<Heart className="w-8 h-8" />}
-            color="bg-red-500/10 text-red-500"
-            link="/user/wishlist"
-          />
-          <ActionWidget
-            title="Payment Methods"
-            desc="Manage your secure cards"
-            count="2 Saved"
+            title="Account"
+            desc="Update profile and security"
+            count="Settings"
             icon={<CreditCard className="w-8 h-8" />}
             color="bg-purple-500/10 text-purple-500"
-            link="/user/payments"
+            link="/user/profile"
+          />
+          <ActionWidget
+            title="Wallet"
+            desc="Your total store spending"
+            count={`$${Number(stats.totalSpent).toFixed(2)}`}
+            icon={<ShoppingBag className="w-8 h-8" />}
+            color="bg-green-500/10 text-green-500"
+            link="/user/orders"
           />
         </div>
 
@@ -86,40 +107,62 @@ const UserDashboard: React.FC = () => {
             </CardHeader>
             <CardContent className="p-8 pt-0">
               <div className="space-y-4">
-                {[1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="bg-background/50 rounded-2xl p-6 border border-border/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6"
-                  >
-                    <div className="flex items-center gap-6">
-                      <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden">
-                        <img
-                          src={`https://picsum.photos/seed/${i + 100}/200`}
-                          alt="order"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-extrabold text-lg">
-                          Order #OX-{8542 + i}
-                        </h4>
-                        <p className="text-sm text-muted-foreground font-medium mb-1">
-                          2 Items • Delivered yesterday
-                        </p>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-green-500/10 text-green-500 uppercase tracking-widest border border-green-500/20">
-                          Delivered
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      className="rounded-xl font-bold gap-2"
+                {isOrdersLoading ? (
+                  <div className="h-20 bg-secondary/20 animate-pulse rounded-2xl" />
+                ) : orders && orders.length > 0 ? (
+                  orders.slice(0, 3).map((order: any) => (
+                    <div
+                      key={order.id}
+                      className="bg-background/50 rounded-2xl p-6 border border-border/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6"
                     >
-                      View Details
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
+                      <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 rounded-xl bg-muted overflow-hidden">
+                          <img
+                            src={
+                              order.items?.[0]?.product?.images?.find(
+                                (img: any) => img.isPrimary
+                              )?.url ||
+                              order.items?.[0]?.product?.images?.[0]?.url ||
+                              `https://picsum.photos/seed/${order.id}/200`
+                            }
+                            alt="order"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-lg">
+                            Order #{order.id.slice(-8).toUpperCase()}
+                          </h4>
+                          <p className="text-sm text-muted-foreground font-medium mb-1">
+                            {order.items?.length} Items •{" "}
+                            <span className="text-foreground font-black">
+                              ${Number(order.totalPrice).toFixed(2)}
+                            </span>
+                          </p>
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-primary/10 text-primary uppercase tracking-widest border border-primary/20">
+                            {order.status}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="rounded-xl font-bold gap-2"
+                      >
+                        <Link to="/user/orders">
+                          View
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-10 text-center border-2 border-dashed border-border/50 rounded-[2.5rem]">
+                    <p className="font-bold text-muted-foreground">
+                      No orders yet.
+                    </p>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -136,23 +179,34 @@ const UserDashboard: React.FC = () => {
               <CardDescription>Primary delivery destination.</CardDescription>
             </CardHeader>
             <CardContent className="p-8 pt-0 space-y-6">
-              <div className="p-6 rounded-2xl bg-background/50 border border-primary/20">
-                <p className="font-black text-primary text-sm uppercase tracking-widest mb-2">
-                  Default Address
-                </p>
-                <p className="font-bold">Home (John Doe)</p>
-                <p className="text-muted-foreground font-semibold">
-                  123 Designer Street, Fashion District
-                </p>
-                <p className="text-muted-foreground font-semibold">
-                  New York, NY 10001, United States
-                </p>
-              </div>
+              {defaultAddress ? (
+                <div className="p-6 rounded-2xl bg-background/50 border border-primary/20">
+                  <p className="font-black text-primary text-sm uppercase tracking-widest mb-2">
+                    {defaultAddress.isDefault
+                      ? "Default Address"
+                      : "Primary Address"}
+                  </p>
+                  <p className="font-bold">{defaultAddress.street}</p>
+                  <p className="text-muted-foreground font-semibold">
+                    {defaultAddress.city}, {defaultAddress.state}
+                  </p>
+                  <p className="text-muted-foreground font-semibold">
+                    {defaultAddress.postalCode}, {defaultAddress.country}
+                  </p>
+                </div>
+              ) : (
+                <div className="p-6 rounded-2xl bg-background/50 border border-dashed border-primary/20 text-center">
+                  <p className="text-sm font-bold opacity-50">
+                    No address saved.
+                  </p>
+                </div>
+              )}
               <Button
+                asChild
                 variant="link"
                 className="p-0 text-primary font-black hover:underline underline-offset-4 decoration-2"
               >
-                Manage Addresses
+                <Link to="/user/profile">Manage Addresses</Link>
               </Button>
             </CardContent>
           </Card>

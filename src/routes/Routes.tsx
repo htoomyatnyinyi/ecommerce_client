@@ -31,6 +31,23 @@ const EmployerDashboard = lazy(
 const UserDashboard = lazy(
   () => import("@/pages/dashboard/user/UserDashboard")
 );
+const UserOrders = lazy(() => import("@/pages/dashboard/user/Orders"));
+const ProfileSettings = lazy(
+  () => import("@/pages/dashboard/user/ProfileSettings")
+);
+const EmployerProducts = lazy(
+  () => import("@/pages/dashboard/employer/EmployerProducts")
+);
+const EmployerOrders = lazy(
+  () => import("@/pages/dashboard/employer/EmployerOrders")
+);
+const UserManagement = lazy(
+  () => import("@/pages/dashboard/admin/UserManagement")
+);
+const AnalyticsDashboard = lazy(
+  () => import("@/pages/dashboard/admin/AnalyticsDashboard")
+);
+const AdminOrders = lazy(() => import("@/pages/dashboard/admin/AdminOrders"));
 const ProductForm = lazy(() => import("@/components/product/ProductForm"));
 
 const PageLoader = () => (
@@ -38,7 +55,7 @@ const PageLoader = () => (
     <div className="flex flex-col items-center gap-6">
       <div className="relative">
         <Loader2 className="w-16 h-16 text-primary animate-spin opacity-20" />
-        <Loader2 className="w-16 h-16 text-primary animate-spin absolute inset-0 [animation-duration:3s]" />
+        <Loader2 className="w-16 h-16 text-primary animate-spin absolute inset-0 animation-duration-[3s]" />
       </div>
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-black italic tracking-tighter animate-pulse">
@@ -103,7 +120,7 @@ const NotFound = () => (
 const AppLayout = () => (
   <div className="flex flex-col min-h-screen">
     <NavBar />
-    <main className="flex-grow">
+    <main className="grow">
       <Suspense fallback={<PageLoader />}>
         <Outlet />
       </Suspense>
@@ -160,6 +177,22 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "/user/orders",
+        element: (
+          <ProtectedRoute allowedRoles={["USER"]}>
+            <UserOrders />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/user/profile",
+        element: (
+          <ProtectedRoute allowedRoles={["USER"]}>
+            <ProfileSettings />
+          </ProtectedRoute>
+        ),
+      },
 
       // --- Merchant / Employer Console ---
       {
@@ -171,18 +204,16 @@ export const router = createBrowserRouter([
         ),
         children: [
           { path: "dashboard", element: <EmployerDashboard /> },
-          { path: "products/new", element: <ProductForm /> },
+          { path: "products", element: <EmployerProducts /> },
+          { path: "orders", element: <EmployerOrders /> },
+          {
+            path: "products/manage",
+            children: [
+              { path: "new", element: <ProductForm /> },
+              { path: "edit/:id", element: <ProductForm /> },
+            ],
+          },
         ],
-      },
-
-      // --- Managed Product Route (Unified Path) ---
-      {
-        path: "/products/manage/new",
-        element: (
-          <ProtectedRoute allowedRoles={["EMPLOYER", "ADMIN"]}>
-            <ProductForm />
-          </ProtectedRoute>
-        ),
       },
 
       // --- Admin Dashboard ---
@@ -196,7 +227,16 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: "products", element: <ProductDashboard /> },
-          { path: "products/new", element: <ProductForm /> },
+          { path: "orders", element: <AdminOrders /> },
+          { path: "users", element: <UserManagement /> },
+          { path: "analytics", element: <AnalyticsDashboard /> },
+          {
+            path: "products/manage",
+            children: [
+              { path: "new", element: <ProductForm /> },
+              { path: "edit/:id", element: <ProductForm /> },
+            ],
+          },
         ],
       },
 
