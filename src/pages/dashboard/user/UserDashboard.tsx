@@ -86,7 +86,7 @@ const UserDashboard: React.FC = () => {
           <ActionWidget
             title="Wallet"
             desc="Your total store spending"
-            count={`$${stats.totalSpent}`}
+            count={`$${Number(stats.totalSpent).toFixed(2)}`}
             icon={<ShoppingBag className="w-8 h-8" />}
             color="bg-green-500/10 text-green-500"
             link="/user/orders"
@@ -119,6 +119,9 @@ const UserDashboard: React.FC = () => {
                         <div className="w-16 h-16 rounded-xl bg-muted overflow-hidden">
                           <img
                             src={
+                              order.items?.[0]?.product?.images?.find(
+                                (img: any) => img.isPrimary
+                              )?.url ||
                               order.items?.[0]?.product?.images?.[0]?.url ||
                               `https://picsum.photos/seed/${order.id}/200`
                             }
@@ -131,7 +134,10 @@ const UserDashboard: React.FC = () => {
                             Order #{order.id.slice(-8).toUpperCase()}
                           </h4>
                           <p className="text-sm text-muted-foreground font-medium mb-1">
-                            {order.items?.length} Items • ${order.totalPrice}
+                            {order.items?.length} Items •{" "}
+                            <span className="text-foreground font-black">
+                              ${Number(order.totalPrice).toFixed(2)}
+                            </span>
                           </p>
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-primary/10 text-primary uppercase tracking-widest border border-primary/20">
                             {order.status}
