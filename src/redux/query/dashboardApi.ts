@@ -83,6 +83,14 @@ export const dashboardApi = createApi({
     generateReport: builder.query({
       query: () => "/admin/report",
     }),
+
+    getEmployerProducts: builder.query({
+      query: () => "/admin/employer/products",
+    }),
+
+    getEmployerOrders: builder.query({
+      query: () => "/admin/employer/orders",
+    }),
   }),
 });
 
@@ -100,4 +108,6 @@ export const {
   useGetSystemConfigQuery,
   useUpdateSystemConfigMutation,
   useLazyGenerateReportQuery,
+  useGetEmployerProductsQuery,
+  useGetEmployerOrdersQuery,
 } = dashboardApi;

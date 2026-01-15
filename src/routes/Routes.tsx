@@ -35,6 +35,12 @@ const UserOrders = lazy(() => import("@/pages/dashboard/user/Orders"));
 const ProfileSettings = lazy(
   () => import("@/pages/dashboard/user/ProfileSettings")
 );
+const EmployerProducts = lazy(
+  () => import("@/pages/dashboard/employer/EmployerProducts")
+);
+const EmployerOrders = lazy(
+  () => import("@/pages/dashboard/employer/EmployerOrders")
+);
 const UserManagement = lazy(
   () => import("@/pages/dashboard/admin/UserManagement")
 );
@@ -197,7 +203,8 @@ export const router = createBrowserRouter([
         ),
         children: [
           { path: "dashboard", element: <EmployerDashboard /> },
-          { path: "products/new", element: <ProductForm /> },
+          { path: "products", element: <EmployerProducts /> },
+          { path: "orders", element: <EmployerOrders /> },
         ],
       },
 

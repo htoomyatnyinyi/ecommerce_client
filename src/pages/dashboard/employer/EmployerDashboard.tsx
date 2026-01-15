@@ -69,18 +69,22 @@ const EmployerDashboard: React.FC = () => {
             icon={<DollarSign />}
             trend="+12.5%"
           />
-          <StatCard
-            title="Total Orders"
-            value={(stats?.totalOrders || 0).toLocaleString()}
-            icon={<ShoppingCart />}
-            trend="+8.2%"
-          />
-          <StatCard
-            title="Active Listings"
-            value={(stats?.activeListings || 0).toLocaleString()}
-            icon={<Package />}
-            trend="+2 new"
-          />
+          <Link to="/employer/orders">
+            <StatCard
+              title="Total Orders"
+              value={(stats?.totalOrders || 0).toLocaleString()}
+              icon={<ShoppingCart />}
+              trend="+8.2%"
+            />
+          </Link>
+          <Link to="/employer/products">
+            <StatCard
+              title="Active Listings"
+              value={(stats?.activeListings || 0).toLocaleString()}
+              icon={<Package />}
+              trend="+2 new"
+            />
+          </Link>
           <StatCard
             title="Sales Velocity"
             value={`${stats?.salesVelocity || "0"}/day`}
@@ -105,8 +109,9 @@ const EmployerDashboard: React.FC = () => {
               <Button
                 variant="ghost"
                 className="font-bold underline decoration-2 underline-offset-4"
+                asChild
               >
-                View All
+                <Link to="/employer/products">View All</Link>
               </Button>
             </CardHeader>
             <CardContent className="p-8 pt-0">
