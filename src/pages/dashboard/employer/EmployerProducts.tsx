@@ -56,9 +56,9 @@ const EmployerProducts: React.FC = () => {
 
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
-  const products = productsData?.products || [];
+  const products = productsData || [];
 
-  console.log(categories, "at employer products rtk query fetch");
+  console.log(productsData, "at employer products rtk query fetch");
 
   const filteredProducts = useMemo(() => {
     return products.filter((p: any) => {

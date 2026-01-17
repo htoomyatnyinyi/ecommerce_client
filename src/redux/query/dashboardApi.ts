@@ -86,14 +86,17 @@ export const dashboardApi = createApi({
 
     getEmployerProducts: builder.query({
       query: () => "/admin/employer/products",
+      transformResponse: (response: { data: any }) => response.data,
     }),
 
     getEmployerOrders: builder.query({
       query: () => "/admin/employer/orders",
+      transformResponse: (response: { data: any }) => response.data,
     }),
 
     getOrders: builder.query({
       query: () => "/admin/orders",
+      transformResponse: (response: { data: any }) => response.data,
     }),
 
     updateOrder: builder.mutation({

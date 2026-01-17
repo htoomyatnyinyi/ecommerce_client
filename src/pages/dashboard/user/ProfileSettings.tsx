@@ -35,8 +35,9 @@ import { useAuthMeQuery } from "@/redux/query/authApi";
 import { toast } from "sonner";
 
 const ProfileSettings: React.FC = () => {
-  const { data: userResponse } = useAuthMeQuery();
-  const user = userResponse?.data;
+  const { data: user, isLoading: isUserLoading } = useAuthMeQuery();
+  // const userResponse = user?.data || [];
+
   const { data: addressesResponse, isLoading: isAddressesLoading } =
     useGetAddressesQuery();
   const addresses = addressesResponse?.data;
@@ -52,6 +53,11 @@ const ProfileSettings: React.FC = () => {
 
   if (isCreatingAddress)
     return <Loader2 className="w-10 h-10 animate-spin text-primary" />;
+
+  // if (isUserLoading)
+  //   return <Loader2 className="w-10 h-10 animate-spin text-primary" />;
+
+  console.log(user, "at user created date");
 
   return (
     <DashboardLayout>
