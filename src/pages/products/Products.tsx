@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   useGetProductsQuery,
   useGetCategoryQuery,
@@ -6,11 +7,19 @@ import ProductLists from "./ProductLists";
 import { Badge } from "@/components/ui/badge";
 import { Filter, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
 const Products = () => {
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
   const { data: productsData, isLoading: isProductsLoading } =
-    useGetProductsQuery();
+    useGetProductsQuery({
+      minPrice: priceRange[0].toString(),
+      maxPrice: priceRange[1].toString(),
+      ...(selectedCategory && { category: selectedCategory }),
+    });
   const { data: categories } = useGetCategoryQuery();
 
   return (
@@ -58,19 +67,49 @@ const Products = () => {
               </h3>
               <ul className="space-y-4">
                 <li>
-                  <button className="text-foreground font-bold hover:text-primary transition-colors flex justify-between w-full group">
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className={cn(
+                      "font-bold hover:text-primary transition-colors flex justify-between w-full group",
+                      !selectedCategory
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                    )}
+                  >
                     All Collections{" "}
-                    <span className="text-muted-foreground font-medium group-hover:text-primary transition-colors">
-                      {productsData?.products?.length || 0}
+                    <span
+                      className={cn(
+                        "font-medium group-hover:text-primary transition-colors",
+                        !selectedCategory
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {productsData?.data?.products?.length || 0}
                     </span>
                   </button>
                 </li>
                 {categories?.map((cat: any) => (
                   <li key={cat.id}>
-                    <button className="text-muted-foreground font-bold hover:text-primary transition-colors flex justify-between w-full group">
+                    <button
+                      onClick={() => setSelectedCategory(cat.categoryName)}
+                      className={cn(
+                        "font-bold hover:text-primary transition-colors flex justify-between w-full group",
+                        selectedCategory === cat.categoryName
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      )}
+                    >
                       {cat.categoryName}{" "}
-                      <span className="font-medium group-hover:text-primary transition-colors">
-                        12
+                      <span
+                        className={cn(
+                          "font-medium group-hover:text-primary transition-colors",
+                          selectedCategory === cat.categoryName
+                            ? "text-primary"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {/* Count would need backend support */}-
                       </span>
                     </button>
                   </li>
@@ -83,17 +122,28 @@ const Products = () => {
                 Price Range
               </h3>
               <div className="space-y-4">
-                <div className="h-1 bg-secondary rounded-full relative overflow-hidden">
-                  <div className="absolute left-[10%] right-[30%] h-full bg-primary" />
-                </div>
+                <Slider
+                  min={0}
+                  max={5000}
+                  step={50}
+                  value={priceRange}
+                  onValueChange={(value) =>
+                    setPriceRange(value as [number, number])
+                  }
+                  className="w-full"
+                />
                 <div className="flex justify-between text-sm font-bold">
-                  <span>$0</span>
-                  <span>$1000+</span>
+                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-lg">
+                    ${priceRange[0]}
+                  </span>
+                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-lg">
+                    ${priceRange[1]}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="p-8 rounded-[2rem] bg-secondary/30 border border-border/50 overflow-hidden relative group">
+            <div className="p-8 rounded-4xl bg-secondary/30 border border-border/50 overflow-hidden relative group">
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all" />
               <h4 className="text-xl font-black mb-4 relative z-10">
                 Need Help?
@@ -117,16 +167,16 @@ const Products = () => {
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div
                     key={i}
-                    className="aspect-[4/5] bg-muted animate-pulse rounded-[2rem]"
+                    className="aspect-4/5 bg-muted animate-pulse rounded-4xl"
                   />
                 ))}
               </div>
             ) : (
-              <ProductLists products={productsData?.products} />
+              <ProductLists products={productsData?.data?.products} />
             )}
 
             {/* Pagination Placeholder */}
-            {!isProductsLoading && productsData?.products?.length > 0 && (
+            {!isProductsLoading && productsData?.data?.products?.length > 0 && (
               <div className="mt-20 flex justify-center gap-2">
                 {[1, 2, 3].map((i) => (
                   <Button

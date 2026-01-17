@@ -15,8 +15,6 @@ const SearchForm: React.FC = () => {
 
   if (isSearching) return <p>Searching ...</p>;
 
-  // console.log(searchProducts, "searcing");
-
   // Handle input change
   const handleChange = (e: any) => {
     dispatch(setQuery(e.target.value));
@@ -25,7 +23,6 @@ const SearchForm: React.FC = () => {
   // Handle form submission
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    console.log("Search query:", query, e);
     // Add logic to handle search (e.g., API call)
   };
 

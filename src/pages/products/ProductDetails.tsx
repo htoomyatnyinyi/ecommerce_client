@@ -34,10 +34,13 @@ const ProductDetails: React.FC = () => {
   const [addToCart, { isLoading: isAddToCartLoading }] = useAddToCartMutation();
 
   const {
-    data: product,
+    data: productResponse,
     isLoading: isProductLoading,
     isError,
   } = useGetProductByIdQuery(id, { skip: !id });
+
+  const product = productResponse?.data;
+  console.log(product);
 
   const { data: allProducts, isLoading: areProductsLoading } =
     useGetProductsQuery();
@@ -216,11 +219,46 @@ const ProductDetails: React.FC = () => {
               )}
             </div>
 
+            {/* Selected Variant Details */}
+            {selectedVariant && (
+              <div className="mb-6 space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-bold text-muted-foreground">
+                    Color:
+                  </span>
+                  <span className="font-black">{selectedVariant.color}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-bold text-muted-foreground">SKU:</span>
+                  <span className="font-mono text-xs bg-secondary/50 px-2 py-1 rounded">
+                    {selectedVariant.sku}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-bold text-muted-foreground">
+                    Availability:
+                  </span>
+                  <span
+                    className={cn(
+                      "font-bold",
+                      selectedVariant.stock > 0
+                        ? "text-green-600"
+                        : "text-red-500"
+                    )}
+                  >
+                    {selectedVariant.stock > 0
+                      ? `${selectedVariant.stock} units available`
+                      : "Out of Stock"}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Variant UI */}
-            <div className="space-y-8 mb-10 p-8 rounded-[2rem] bg-secondary/30 border border-border/50">
+            <div className="space-y-8 mb-10 p-8 rounded-4xl bg-secondary/30 border border-border/50">
               <div>
                 <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex justify-between">
-                  Select Size
+                  Select Option
                   <span className="text-primary normal-case font-bold tracking-normal underline underline-offset-4 cursor-pointer">
                     Size Guide
                   </span>
@@ -232,13 +270,18 @@ const ProductDetails: React.FC = () => {
                       disabled={v.stock === 0}
                       onClick={() => setSelectedVariant(v)}
                       className={cn(
-                        "min-w-16 h-12 rounded-xl border-2 transition-all font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed",
+                        "h-14 px-4 rounded-xl border-2 transition-all font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed flex flex-col items-center justify-center min-w-[5rem]",
                         selectedVariant?.id === v.id
-                          ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                          ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
                           : "border-border hover:border-primary/50 text-foreground"
                       )}
                     >
-                      {v.size}
+                      <span>{v.size}</span>
+                      {v.color && (
+                        <span className="text-[10px] opacity-80 font-normal">
+                          {v.color}
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -254,7 +297,7 @@ const ProductDetails: React.FC = () => {
                 <Button
                   onClick={handleAddToCart}
                   disabled={!selectedVariant || isAddToCartLoading}
-                  className="w-full h-14 rounded-2xl text-md font-bold group shadow-xl shadow-primary/20"
+                  className="w-full lg:w-100 md:w-80 h-14 rounded-2xl text-md font-bold group shadow-xl shadow-primary/20"
                 >
                   {isAddToCartLoading ? (
                     <span className="flex items-center gap-2">
@@ -319,7 +362,7 @@ const ProductDetails: React.FC = () => {
             </Link>
           </div>
           <RelatedProducts
-            allProducts={allProducts?.products}
+            allProducts={allProducts?.data?.products}
             currentProductId={product.id}
             isLoading={areProductsLoading}
           />

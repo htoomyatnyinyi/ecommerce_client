@@ -58,7 +58,7 @@ const AdminOrders: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [newStatus, setNewStatus] = useState("PENDING");
 
-  const orders = ordersData?.orders || [];
+  const orders = ordersData || [];
 
   const handleUpdateStatus = async () => {
     if (!selectedOrder) return;
@@ -195,7 +195,7 @@ const AdminOrders: React.FC = () => {
                 filteredOrders.map((order: any) => (
                   <TableRow
                     key={order.id}
-                    className="group border-border/50 hover:bg-primary/[0.02] transition-colors h-24"
+                    className="group border-border/50 hover:bg-primary/2 transition-colors h-24"
                   >
                     <TableCell className="pl-8">
                       <code className="bg-secondary/20 px-2 py-1 rounded text-xs font-black italic">
@@ -278,7 +278,7 @@ const AdminOrders: React.FC = () => {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            <div className="p-6 rounded-[2rem] bg-secondary/10 border border-border/10 space-y-3">
+            <div className="p-6 rounded-4xl bg-secondary/10 border border-border/10 space-y-3">
               <p className="text-[10px] font-black uppercase tracking-widest text-primary">
                 Order Total
               </p>

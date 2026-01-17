@@ -60,7 +60,7 @@ const ProductDashboard: React.FC = () => {
   const { data: categories = [] } = useGetCategoryQuery();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
-  const products = productsData?.products || [];
+  const products = productsData?.data?.products || [];
 
   const filteredProducts = useMemo(() => {
     return products.filter((p: any) => {
@@ -361,16 +361,5 @@ const ProductDashboard: React.FC = () => {
     </DashboardLayout>
   );
 };
-
-const PageLoader = () => (
-  <div className="h-screen w-full flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      <p className="font-bold italic animate-pulse">
-        Syncing global inventory pulse...
-      </p>
-    </div>
-  </div>
-);
 
 export default ProductDashboard;

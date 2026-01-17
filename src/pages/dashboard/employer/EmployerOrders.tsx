@@ -71,7 +71,7 @@ const EmployerOrders: React.FC = () => {
   const [newStatus, setNewStatus] = useState("PENDING");
   const [trackingNumber, setTrackingNumber] = useState("");
 
-  const orders = ordersData?.orders || [];
+  const orders = ordersData || [];
 
   const handleUpdateStatus = async () => {
     if (!selectedItem) return;

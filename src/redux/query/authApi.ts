@@ -49,6 +49,7 @@ export const authApi = createApi({
     authMe: builder.query<any, void>({
       query: () => "/api/auth/auth-me",
       providesTags: ["User"],
+      transformResponse: (response: { data: any }) => response.data,
     }),
 
     verifyEmailToken: builder.mutation<any, VerifyEmailToken>({

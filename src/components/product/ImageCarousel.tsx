@@ -12,8 +12,6 @@ interface ImageCarouselProps {
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ product_image }) => {
-  console.log(product_image, "Image Carousel Component");
-
   return (
     <div>
       <Carousel>

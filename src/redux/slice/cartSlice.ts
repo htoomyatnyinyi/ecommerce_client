@@ -70,7 +70,11 @@ const cartSlice = createSlice({
     builder.addMatcher(
       productApi.endpoints.getCart.matchFulfilled,
       (state, action) => {
-        const serverCart = action.payload.getCart;
+        const {
+          items: serverCart,
+          totalQuantity,
+          totalPrice,
+        } = action.payload.data;
 
         // Map server Prisma structure to our UI structure
         state.items = serverCart.map((item: any) => ({
@@ -88,22 +92,8 @@ const cartSlice = createSlice({
           },
         }));
 
-        state.totalQuantity = action.payload.totalQuantity;
-        state.totalPrice = action.payload.totalPrice;
-      }
-    );
-
-    builder.addMatcher(
-      productApi.endpoints.updateCartItem.matchFulfilled,
-      (_state, action) => {
-        console.log("Cart item updated on server", action);
-      }
-    );
-
-    builder.addMatcher(
-      productApi.endpoints.addToCart.matchFulfilled,
-      (_state, action) => {
-        console.log("Item added to cart on server", action);
+        state.totalQuantity = totalQuantity;
+        state.totalPrice = totalPrice;
       }
     );
   },

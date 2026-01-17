@@ -35,9 +35,12 @@ import { useAuthMeQuery } from "@/redux/query/authApi";
 import { toast } from "sonner";
 
 const ProfileSettings: React.FC = () => {
-  const { data: user } = useAuthMeQuery();
-  const { data: addresses, isLoading: isAddressesLoading } =
+  const { data: user, isLoading: isUserLoading } = useAuthMeQuery();
+  // const userResponse = user?.data || [];
+
+  const { data: addressesResponse, isLoading: isAddressesLoading } =
     useGetAddressesQuery();
+  const addresses = addressesResponse?.data;
 
   const [createAddress, { isLoading: isCreatingAddress }] =
     useCreateAddressMutation();
@@ -49,6 +52,9 @@ const ProfileSettings: React.FC = () => {
   >("profile");
 
   if (isCreatingAddress)
+    return <Loader2 className="w-10 h-10 animate-spin text-primary" />;
+
+  if (isUserLoading)
     return <Loader2 className="w-10 h-10 animate-spin text-primary" />;
 
   return (
@@ -103,6 +109,36 @@ const ProfileSettings: React.FC = () => {
           </div>
 
           <div className="space-y-6">
+            <Card className="rounded-[2.5rem] border-border/50 bg-secondary/10 p-8">
+              <h3 className="text-xl font-black italic mb-4">Account Stats</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold opacity-60">
+                    Member Since
+                  </span>
+                  <span className="text-sm font-black italic">
+                    {user && user.createdAt.split("T")[0]}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold opacity-60">
+                    Trust Score
+                  </span>
+                  <span className="text-sm font-black italic text-green-500">
+                    98%
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold opacity-60">
+                    Email Verified
+                  </span>
+                  <span className="text-sm font-black italic text-green-500">
+                    {user && user.isEmailVerified ? "Verified" : "Not Verified"}
+                  </span>
+                </div>
+              </div>
+            </Card>
+
             <Card className="rounded-[2.5rem] border-primary/20 bg-primary/5 p-8 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-5">
                 <Bell className="w-24 h-24 text-primary" />
@@ -120,14 +156,16 @@ const ProfileSettings: React.FC = () => {
               </div>
             </Card>
 
-            <Card className="rounded-[2.5rem] border-border/50 bg-secondary/10 p-8">
+            {/* <Card className="rounded-[2.5rem] border-border/50 bg-secondary/10 p-8">
               <h3 className="text-xl font-black italic mb-4">Account Stats</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold opacity-60">
                     Member Since
                   </span>
-                  <span className="text-sm font-black italic">Jan 2024</span>
+                  <span className="text-sm font-black italic">
+                    {user && user.createdAt.split("T")[0]}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold opacity-60">
@@ -137,8 +175,16 @@ const ProfileSettings: React.FC = () => {
                     98%
                   </span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold opacity-60">
+                    Email Verified
+                  </span>
+                  <span className="text-sm font-black italic text-green-500">
+                    {user && user.isEmailVerified ? "Verified" : "Not Verified"}
+                  </span>
+                </div>
               </div>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </div>

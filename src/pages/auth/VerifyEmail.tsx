@@ -4,6 +4,7 @@ import { useVerifyEmailTokenMutation } from "@/redux/query/authApi";
 
 const VerifyEmail: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const queryParams = new URLSearchParams(location.search);
   const verify_email_token = queryParams.get("token");
@@ -16,49 +17,53 @@ const VerifyEmail: React.FC = () => {
   useEffect(() => {
     if (verify_email_token) {
       handleVerifyEmail(verify_email_token);
-    } else {
-      console.error("No token found in the URL.");
     }
   }, [verify_email_token]);
 
-  const handleVerifyEmail = async (token: string | null) => {
-    if (!token) {
-      console.error("No token provided for verification.");
-      return;
-    }
+  const handleVerifyEmail = async (token: string) => {
     try {
-      console.log(token);
-      const response = await verifyEmailToken({ token }).unwrap();
-      console.log("Email verification response:", response);
-      // You can redirect or show a success message here
-      const navigate = useNavigate();
+      await verifyEmailToken({ token }).unwrap();
+      // Redirect to signin after a short delay or immediately
       navigate("/signin", { replace: true });
     } catch (error) {
       console.error("Error verifying email:", error);
-      // Handle the error, e.g., show an error message to the user
     }
   };
 
   return (
-    <div>
-      <div>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="max-w-md w-full p-8 bg-card rounded-2xl shadow-xl">
+        <h1 className="text-3xl font-black italic tracking-tighter mb-6 text-center">
+          Verify Email.
+        </h1>
+
         {isVerifyEmailError ? (
-          <div>Error Verify Token</div>
+          <div className="p-4 bg-destructive/10 border border-destructive/50 rounded-xl text-destructive text-center">
+            <p className="font-bold">Verification Failed</p>
+            <p className="text-sm mt-1">
+              The token might be invalid or expired.
+            </p>
+          </div>
         ) : (
-          <div>
+          <div className="text-center">
             {isVerifyEmailLoading ? (
-              <div>Loading ...</div>
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p className="text-muted-foreground font-medium">
+                  Verifying your account...
+                </p>
+              </div>
             ) : (
-              <div className="flex flex-col items-center justify-center">
-                <h1>Verify Email Token</h1>
-                <p>{verify_email_token}</p>
-                <h1>USER EMAIL VERIFY SUCCESSFULLY</h1>
-                {/* <button
-                  onClick={() => handleVerifyEmail(verify_email_token)}
-                  className="border p-2 m-1"
-                >
-                  Click To Verify
-                </button> */}
+              <div className="space-y-4">
+                <div className="p-4 bg-primary/10 border border-primary/50 rounded-xl text-primary">
+                  <p className="font-bold text-lg">Verification Successful!</p>
+                  <p className="text-sm mt-1">
+                    Your email has been verified. Redirecting you to login...
+                  </p>
+                </div>
+                <p className="text-xs text-muted-foreground font-mono bg-muted p-2 rounded">
+                  Token: {verify_email_token?.substring(0, 10)}...
+                </p>
               </div>
             )}
           </div>

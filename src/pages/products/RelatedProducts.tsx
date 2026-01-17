@@ -65,7 +65,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
             </div>
           </div>
 
-          <div className="flex-grow space-y-2">
+          <div className="grow space-y-2">
             <div className="flex justify-between items-start">
               <Link to={`/products/${product.id}`} className="block">
                 <h3 className="text-xl font-bold hover:text-primary transition-colors line-clamp-1">

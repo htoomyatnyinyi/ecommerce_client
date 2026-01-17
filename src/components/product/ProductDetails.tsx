@@ -82,7 +82,6 @@ export default ProductDetails;
 //   product: any;
 //   onBack: () => void;
 // }) => {
-//   console.log(product, "log");
 //   return (
 //     <div>
 //       <div className=" bg-blue-800 z-40 p-10 m-10 " onClick={onBack} />
@@ -122,7 +121,6 @@ export default ProductDetails;
 // //   const [addToCart, { isLoading }] = useAddToCartMutation();
 // //   const [quantity, setQuantity] = useState(1);
 // //   // from list
-// //   console.log(product, "check to get product id");
 
 // //   // Assuming you want to add the first variant for simplicity
 // //   // A real implementation would let the user select color/size

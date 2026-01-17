@@ -26,17 +26,22 @@ import { useGetAddressesQuery } from "@/redux/query/userApi";
 import { useAuthMeQuery } from "@/redux/query/authApi";
 
 const UserDashboard: React.FC = () => {
-  const { data: user } = useAuthMeQuery();
-  const { data: orders, isLoading: isOrdersLoading } = useGetOrdersQuery();
-  const { data: statsData } = useGetOrderStatsQuery();
-  const { data: addresses } = useGetAddressesQuery();
+  const { data: userResponse } = useAuthMeQuery();
 
-  const stats = statsData?.stats || {
+  const { data: orders, isLoading: isOrdersLoading } = useGetOrdersQuery();
+
+  const { data: statsResponse } = useGetOrderStatsQuery();
+
+  const stats = statsResponse?.data || {
     totalOrders: 0,
     totalSpent: 0,
     pendingOrders: 0,
     completedOrders: 0,
   };
+
+  // console.log(stats, "stats");
+  const { data: addressesResponse } = useGetAddressesQuery();
+  const addresses = addressesResponse?.data;
   const defaultAddress =
     addresses?.find((a: any) => a.isDefault) || addresses?.[0];
 
@@ -50,7 +55,7 @@ const UserDashboard: React.FC = () => {
               Personal <span className="text-primary">Oasis.</span>
             </h1>
             <p className="text-muted-foreground text-lg font-medium">
-              Welcome back, {user?.username}. Manage your oasis here.
+              Welcome back, {userResponse?.username}. Manage your oasis here.
             </p>
           </div>
           <Button
@@ -71,6 +76,8 @@ const UserDashboard: React.FC = () => {
             title="My Orders"
             desc="Track and manage your purchases"
             count={`${stats.totalOrders} Total`}
+            // pendingCount={`${stats.pendingOrders} Pending`}
+            // completedCount={`${stats.completedOrders} Completed`}
             icon={<Box className="w-8 h-8" />}
             color="bg-blue-500/10 text-blue-500"
             link="/user/orders"
@@ -231,6 +238,8 @@ const ActionWidget = ({
   count,
   icon,
   color,
+  // pendingCount,
+  // completedCount,
   link,
 }: ActionWidgetProps) => (
   <Link to={link}>
@@ -252,6 +261,16 @@ const ActionWidget = ({
           <span className="text-xs font-black uppercase tracking-widest opacity-60">
             {count}
           </span>
+          {/* {pendingCount && (
+            <span className="text-xs font-black uppercase tracking-widest opacity-60">
+              {pendingCount}
+            </span>
+          )}
+
+          <span className="text-xs font-black uppercase tracking-widest opacity-60">
+            {completedCount}
+          </span> */}
+
           <div className="h-2 w-12 bg-primary/20 rounded-full group-hover:w-20 transition-all duration-500" />
         </div>
       </CardContent>

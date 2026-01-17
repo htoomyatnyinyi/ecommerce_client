@@ -33,7 +33,10 @@ import {
 import { Input } from "@/components/ui/input";
 
 const UserManagement: React.FC = () => {
-  const { data: users = [], isLoading } = useGetAccountQuery(undefined);
+  const { data: userArr = [], isLoading } = useGetAccountQuery(undefined);
+
+  const users = userArr?.data || [];
+
   const [updateAccount] = useUpdateAccountMutation();
   const [deleteAccount] = useDeleteAccuntMutation();
 

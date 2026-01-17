@@ -11,13 +11,14 @@ export const orderApi = createApi({
   endpoints: (builder) => ({
     getOrders: builder.query<any, void>({
       query: () => "/api/order",
-      transformResponse: (response: any) => response.orders,
+      transformResponse: (response: any) => response.data,
       providesTags: ["Order"],
     }),
 
     getOrderById: builder.query<any, string>({
       query: (id) => `/api/order/${id}`,
-      transformResponse: (response: any) => response.order,
+      transformResponse: (response: any) => response.data,
+      // transformResponse: (response: any) => response.order,
       providesTags: (_result, _error, id) => [{ type: "Order", id }],
     }),
 

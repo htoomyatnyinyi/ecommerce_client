@@ -24,7 +24,7 @@ const DashboardLayout: React.FC<React.PropsWithChildren<{}>> = ({
   return (
     <div className="flex min-h-screen bg-background text-foreground selection:bg-primary/30 selection:text-foreground overflow-hidden">
       <Sidebar />
-      <main className="flex-1 h-screen overflow-y-auto custom-scrollbar pt-28 pb-12 px-8">
+      <main className="flex-1 h-screen overflow-y-auto custom-scrollbar pt-28 pb-12 px-4 md:px-8">
         <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
           {children}
         </div>

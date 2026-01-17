@@ -53,9 +53,12 @@ const EmployerProducts: React.FC = () => {
     refetch,
   } = useGetEmployerProductsQuery(undefined);
   const { data: categories = [] } = useGetCategoryQuery();
+
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
-  const products = productsData?.products || [];
+  const products = productsData || [];
+
+  console.log(productsData, "at employer products rtk query fetch");
 
   const filteredProducts = useMemo(() => {
     return products.filter((p: any) => {

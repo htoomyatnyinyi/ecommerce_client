@@ -16,8 +16,6 @@ const Gsap = () => {
   useEffect(() => {
     const calculateTimeLeft = (): TimeLeft => {
       const now = new Date();
-      console.log("Current time:", now);
-
       const nextYear = now.getFullYear() + 1;
       const target = new Date(`${nextYear}-01-01T00:00:00`);
       const difference = target.getTime() - now.getTime();
@@ -78,7 +76,7 @@ const Gsap = () => {
     <div className="flex justify-center items-center h-screen  text-white font-sans overflow-hidden relative">
       <div
         id="countdown"
-        className="text-center text-8xl md:text-9xl lg:text-[15rem] font-black bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-red-500 to-purple-600 drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] z-10"
+        className="text-center text-8xl md:text-9xl lg:text-[15rem] font-black bg-clip-text text-transparent bg-linear-to-r from-yellow-400 via-red-500 to-purple-600 drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] z-10"
       >
         {isCelebrating ? (
           "Happy New Year!"
