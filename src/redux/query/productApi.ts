@@ -120,6 +120,7 @@ export const productApi = createApi({
 
     getCategory: builder.query<any, void>({
       query: () => "/api/category",
+      transformResponse: (response: { data: any }) => response.data,
       providesTags: ["Category"],
     }),
   }),

@@ -4,8 +4,7 @@ import { useGetCategoryQuery } from "@/redux/query/productApi";
 import { ArrowRight } from "lucide-react";
 
 const FeaturedCategories: React.FC = () => {
-  const { data: categoriesResponse, isLoading } = useGetCategoryQuery();
-  const categories = categoriesResponse?.data || [];
+  const { data: categories = [], isLoading } = useGetCategoryQuery();
 
   if (isLoading) {
     return (
