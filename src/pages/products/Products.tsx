@@ -61,7 +61,7 @@ const Products = () => {
                   <button className="text-foreground font-bold hover:text-primary transition-colors flex justify-between w-full group">
                     All Collections{" "}
                     <span className="text-muted-foreground font-medium group-hover:text-primary transition-colors">
-                      {productsData?.products?.length || 0}
+                      {productsData?.data?.products?.length || 0}
                     </span>
                   </button>
                 </li>
@@ -93,7 +93,7 @@ const Products = () => {
               </div>
             </div>
 
-            <div className="p-8 rounded-[2rem] bg-secondary/30 border border-border/50 overflow-hidden relative group">
+            <div className="p-8 rounded-4xl bg-secondary/30 border border-border/50 overflow-hidden relative group">
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all" />
               <h4 className="text-xl font-black mb-4 relative z-10">
                 Need Help?
@@ -117,16 +117,16 @@ const Products = () => {
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div
                     key={i}
-                    className="aspect-[4/5] bg-muted animate-pulse rounded-[2rem]"
+                    className="aspect-4/5 bg-muted animate-pulse rounded-4xl"
                   />
                 ))}
               </div>
             ) : (
-              <ProductLists products={productsData?.products} />
+              <ProductLists products={productsData?.data?.products} />
             )}
 
             {/* Pagination Placeholder */}
-            {!isProductsLoading && productsData?.products?.length > 0 && (
+            {!isProductsLoading && productsData?.data?.products?.length > 0 && (
               <div className="mt-20 flex justify-center gap-2">
                 {[1, 2, 3].map((i) => (
                   <Button

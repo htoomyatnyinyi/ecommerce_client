@@ -35,9 +35,11 @@ import { useAuthMeQuery } from "@/redux/query/authApi";
 import { toast } from "sonner";
 
 const ProfileSettings: React.FC = () => {
-  const { data: user } = useAuthMeQuery();
-  const { data: addresses, isLoading: isAddressesLoading } =
+  const { data: userResponse } = useAuthMeQuery();
+  const user = userResponse?.data;
+  const { data: addressesResponse, isLoading: isAddressesLoading } =
     useGetAddressesQuery();
+  const addresses = addressesResponse?.data;
 
   const [createAddress, { isLoading: isCreatingAddress }] =
     useCreateAddressMutation();

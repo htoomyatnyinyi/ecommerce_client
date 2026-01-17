@@ -26,17 +26,20 @@ import { useGetAddressesQuery } from "@/redux/query/userApi";
 import { useAuthMeQuery } from "@/redux/query/authApi";
 
 const UserDashboard: React.FC = () => {
-  const { data: user } = useAuthMeQuery();
-  const { data: orders, isLoading: isOrdersLoading } = useGetOrdersQuery();
-  const { data: statsData } = useGetOrderStatsQuery();
-  const { data: addresses } = useGetAddressesQuery();
-
-  const stats = statsData?.stats || {
+  const { data: userResponse } = useAuthMeQuery();
+  const user = userResponse?.data;
+  const { data: ordersResponse, isLoading: isOrdersLoading } =
+    useGetOrdersQuery();
+  const orders = ordersResponse?.data;
+  const { data: statsResponse } = useGetOrderStatsQuery();
+  const stats = statsResponse?.data || {
     totalOrders: 0,
     totalSpent: 0,
     pendingOrders: 0,
     completedOrders: 0,
   };
+  const { data: addressesResponse } = useGetAddressesQuery();
+  const addresses = addressesResponse?.data;
   const defaultAddress =
     addresses?.find((a: any) => a.isDefault) || addresses?.[0];
 

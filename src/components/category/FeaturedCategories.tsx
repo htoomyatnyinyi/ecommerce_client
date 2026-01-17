@@ -4,7 +4,8 @@ import { useGetCategoryQuery } from "@/redux/query/productApi";
 import { ArrowRight } from "lucide-react";
 
 const FeaturedCategories: React.FC = () => {
-  const { data: categories, isLoading } = useGetCategoryQuery();
+  const { data: categoriesResponse, isLoading } = useGetCategoryQuery();
+  const categories = categoriesResponse?.data || [];
 
   if (isLoading) {
     return (
@@ -14,7 +15,7 @@ const FeaturedCategories: React.FC = () => {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="aspect-[4/5] bg-muted animate-pulse rounded-2xl"
+              className="aspect-4/5 bg-muted animate-pulse rounded-2xl"
             />
           ))}
         </div>
@@ -81,7 +82,7 @@ const FeaturedCategories: React.FC = () => {
             <Link
               key={category.id}
               to={`/products?category=${category.categoryName}`}
-              className="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-muted"
+              className="group relative aspect-4/5 rounded-3xl overflow-hidden bg-muted"
             >
               <img
                 src={
@@ -91,7 +92,7 @@ const FeaturedCategories: React.FC = () => {
                 alt={category.categoryName}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
               <div className="absolute bottom-0 left-0 p-8 w-full transition-transform duration-500 group-hover:-translate-y-2">
                 <p className="text-white/70 text-sm font-medium uppercase tracking-[0.2em] mb-2">
                   Collection
@@ -99,7 +100,7 @@ const FeaturedCategories: React.FC = () => {
                 <h3 className="text-white text-3xl font-bold">
                   {category.categoryName}
                 </h3>
-                <div className="mt-4 flex items-center text-white/0 group-hover:text-white/100 transition-all duration-500">
+                <div className="mt-4 flex items-center text-white/0 group-hover:text-white transition-all duration-500">
                   <span className="text-sm font-bold mr-2">Explore Items</span>
                   <ArrowRight className="h-4 w-4" />
                 </div>

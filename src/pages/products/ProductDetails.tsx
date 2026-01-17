@@ -34,10 +34,12 @@ const ProductDetails: React.FC = () => {
   const [addToCart, { isLoading: isAddToCartLoading }] = useAddToCartMutation();
 
   const {
-    data: product,
+    data: productResponse,
     isLoading: isProductLoading,
     isError,
   } = useGetProductByIdQuery(id, { skip: !id });
+
+  const product = productResponse?.data;
 
   const { data: allProducts, isLoading: areProductsLoading } =
     useGetProductsQuery();
@@ -217,7 +219,7 @@ const ProductDetails: React.FC = () => {
             </div>
 
             {/* Variant UI */}
-            <div className="space-y-8 mb-10 p-8 rounded-[2rem] bg-secondary/30 border border-border/50">
+            <div className="space-y-8 mb-10 p-8 rounded-4xl bg-secondary/30 border border-border/50">
               <div>
                 <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex justify-between">
                   Select Size
@@ -319,7 +321,7 @@ const ProductDetails: React.FC = () => {
             </Link>
           </div>
           <RelatedProducts
-            allProducts={allProducts?.products}
+            allProducts={allProducts?.data?.products}
             currentProductId={product.id}
             isLoading={areProductsLoading}
           />

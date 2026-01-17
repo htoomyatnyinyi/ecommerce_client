@@ -10,7 +10,6 @@
 
 //   if (isGetAccountError) return <p>isGetAccountError</p>;
 //   if (isGetAccountLoading) return <p>isGetAccountLoading</p>;
-//   console.log(accounts, " check at dashboard");
 
 //   return (
 //     <div>
