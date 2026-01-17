@@ -137,8 +137,8 @@ const Checkout: React.FC = () => {
     if (items.length > 0 && !paymentData && !paymentError) {
       createPaymentIntent({})
         .unwrap()
-        .catch((err) => {
-          toast.error("Could not initialize checkout.");
+        .catch((err: any) => {
+          toast.error(`${err}, Could not initialize checkout.`);
         });
     }
   }, [items, createPaymentIntent, paymentData, paymentError]);
@@ -215,7 +215,25 @@ const Checkout: React.FC = () => {
               <div className="space-y-6 pt-8">
                 <h2 className="text-2xl font-bold">Payment Method</h2>
                 {clientSecret && stripePromise ? (
-                  <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  /* 
+                     NOTE: "Partitioned cookie or storage access" warnings in the console 
+                     are expected on localhost due to browser privacy sandboxing of third-party iframes.
+                     They do not affect payment functionality.
+                  */
+                  <Elements
+                    stripe={stripePromise}
+                    options={{
+                      clientSecret,
+                      appearance: {
+                        theme: "stripe",
+                        variables: {
+                          colorPrimary: "#000000",
+                          borderRadius: "1rem",
+                          fontFamily: "Inter, system-ui, sans-serif",
+                        },
+                      },
+                    }}
+                  >
                     <CheckoutForm
                       clientSecret={clientSecret}
                       paymentIntentId={paymentIntentId}

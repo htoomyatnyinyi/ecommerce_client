@@ -15,6 +15,8 @@ export const productApi = createApi({
 
     getStripeConfig: builder.query<{ publishableKey: string }, void>({
       query: () => "/api/checkout/config",
+      transformResponse: (response: { data: { publishableKey: string } }) =>
+        response.data,
     }),
 
     getProducts: builder.query<any, void>({
@@ -84,6 +86,7 @@ export const productApi = createApi({
         method: "POST",
         body,
       }),
+      transformResponse: (response: { data: any }) => response.data,
     }),
 
     confirmPayment: builder.mutation<
@@ -99,6 +102,7 @@ export const productApi = createApi({
         method: "POST",
         body,
       }),
+      transformResponse: (response: { data: any }) => response.data,
     }),
 
     createNewProduct: builder.mutation<any, any>({
