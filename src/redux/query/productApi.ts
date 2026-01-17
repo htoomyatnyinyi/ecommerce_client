@@ -19,8 +19,12 @@ export const productApi = createApi({
         response.data,
     }),
 
-    getProducts: builder.query<any, void>({
-      query: () => "/api/products",
+    getProducts: builder.query<any, Record<string, any> | void>({
+      query: (params) => {
+        if (!params) return "/api/products";
+        const queryParams = new URLSearchParams(params);
+        return `/api/products?${queryParams.toString()}`;
+      },
     }),
 
     getProductById: builder.query<any, string | undefined>({
